@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01B3C31920BC3EDD00286D91 /* Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B3C31820BC3EDD00286D91 /* Transition.swift */; };
+		01F23B7321319D62001BD0DF /* CircleTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F23B7221319D62001BD0DF /* CircleTransition.swift */; };
+		01F23B7521319E00001BD0DF /* ScaleTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F23B7421319E00001BD0DF /* ScaleTransition.swift */; };
+		01F23B7721319E12001BD0DF /* MatrixTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F23B7621319E12001BD0DF /* MatrixTransition.swift */; };
 		01FB8E8B20A5C34B00776808 /* Navigator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FB8E8120A5C34B00776808 /* Navigator.framework */; };
 		01FB8E9020A5C34B00776808 /* NavigatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB8E8F20A5C34B00776808 /* NavigatorTests.swift */; };
 		01FB8E9220A5C34B00776808 /* Navigator.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FB8E8420A5C34B00776808 /* Navigator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -53,6 +57,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01B3C31820BC3EDD00286D91 /* Transition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transition.swift; sourceTree = "<group>"; };
+		01F23B7221319D62001BD0DF /* CircleTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleTransition.swift; sourceTree = "<group>"; };
+		01F23B7421319E00001BD0DF /* ScaleTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleTransition.swift; sourceTree = "<group>"; };
+		01F23B7621319E12001BD0DF /* MatrixTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixTransition.swift; sourceTree = "<group>"; };
 		01FB8E8120A5C34B00776808 /* Navigator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Navigator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FB8E8420A5C34B00776808 /* Navigator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Navigator.h; sourceTree = "<group>"; };
 		01FB8E8520A5C34B00776808 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -98,6 +106,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01A93A6021319BB2002F206A /* Transition */ = {
+			isa = PBXGroup;
+			children = (
+				01F23B7221319D62001BD0DF /* CircleTransition.swift */,
+				01F23B7621319E12001BD0DF /* MatrixTransition.swift */,
+				01F23B7421319E00001BD0DF /* ScaleTransition.swift */,
+			);
+			name = Transition;
+			sourceTree = "<group>";
+		};
 		01FB8E7720A5C34B00776808 = {
 			isa = PBXGroup;
 			children = (
@@ -121,9 +139,11 @@
 		01FB8E8320A5C34B00776808 /* Navigator */ = {
 			isa = PBXGroup;
 			children = (
-				01FB8EB720A5D79500776808 /* Supporting Files */,
-				01FB8EB920A5D87700776808 /* Navigator.swift */,
 				01FB8EBB20A5D88500776808 /* DataProtocol.swift */,
+				01FB8EB920A5D87700776808 /* Navigator.swift */,
+				01B3C31820BC3EDD00286D91 /* Transition.swift */,
+				01A93A6021319BB2002F206A /* Transition */,
+				01FB8EB720A5D79500776808 /* Supporting Files */,
 			);
 			path = Navigator;
 			sourceTree = "<group>";
@@ -182,6 +202,7 @@
 				01FB8E7D20A5C34B00776808 /* Frameworks */,
 				01FB8E7E20A5C34B00776808 /* Headers */,
 				01FB8E7F20A5C34B00776808 /* Resources */,
+				01AC2AC720D7B6EC00A542C1 /* Swift Lint */,
 			);
 			buildRules = (
 			);
@@ -298,12 +319,33 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		01AC2AC720D7B6EC00A542C1 /* Swift Lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Swift Lint";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		01FB8E7C20A5C34B00776808 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01B3C31920BC3EDD00286D91 /* Transition.swift in Sources */,
 				01FB8EBA20A5D87700776808 /* Navigator.swift in Sources */,
+				01F23B7521319E00001BD0DF /* ScaleTransition.swift in Sources */,
+				01F23B7721319E12001BD0DF /* MatrixTransition.swift in Sources */,
+				01F23B7321319D62001BD0DF /* CircleTransition.swift in Sources */,
 				01FB8EBC20A5D88500776808 /* DataProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -9,11 +9,14 @@
 import UIKit
 import Navigator
 
+
 class ViewController: UIViewController, DataProtocol {
 
     private var data: DataDictionary = [:]
     
     func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?) {
+        print("Received data before show: \(data)")
+        
         self.data = data
         self.title = data[NavigatorParametersKey.title] as? String
         
@@ -37,38 +40,41 @@ class ViewController: UIViewController, DataProtocol {
     }
     
     @objc func showViewControler() {
-        let data = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                    NavigatorParametersKey.title : String(arc4random())]
+        let data: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                    NavigatorParametersKey.transitionName : NSStringFromClass(MatrixTransition.self),
+                                    NavigatorParametersKey.mode : NavigatorMode.present,
+                                    NavigatorParametersKey.title : String(arc4random())]
         self.navigator?.show(data)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let para: [AnyHashable : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                             NavigatorParametersKey.mode : NavigatorMode.present,
-                                             NavigatorParametersKey.title : String(arc4random())]
-            self.navigator?.show(para)
-        }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let para: [AnyHashable : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                             NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
-                                             NavigatorParametersKey.mode : NavigatorMode.present,
-                                             NavigatorParametersKey.title : String(arc4random())]
-            self.navigator?.show(para)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            let para: [AnyHashable : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                             NavigatorParametersKey.title : String(arc4random())]
-            self.navigator?.show(para)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-            self.navigator?.dismiss([:], level: 0, animated: true, completion: nil)
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//            let para: [String : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+//                                             NavigatorParametersKey.mode : NavigatorMode.present,
+//                                             NavigatorParametersKey.title : String(arc4random())]
+//            self.navigator?.show(para)
+//        }
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//            let para: [String : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+//                                             NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+//                                             NavigatorParametersKey.mode : NavigatorMode.present,
+//                                             NavigatorParametersKey.title : String(arc4random())]
+//            self.navigator?.show(para)
+//        }
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+//            let para: [String : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+//                                             NavigatorParametersKey.title : String(arc4random())]
+//            self.navigator?.show(para)
+//        }
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+//            self.navigator?.dismiss([:], level: 0, animated: true, completion: nil)
+//        }
     }
     
     deinit {
-        print("FREE MEMORY")
+        print("FREE MEMORY: \(self)")
         navigator?.sendDataAfterBack(data)
     }
 }

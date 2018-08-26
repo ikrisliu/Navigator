@@ -11,14 +11,29 @@ import UIKit
 // MARK: - Public
 // MARK: -
 @objc open class NavigatorParametersKey: NSObject {
-    @objc public static let viewControllerName = "viewControllerName"   // View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    @objc public static let navigationCtrlName = "navigationCtrlName"   // Navigation controller class name (Used for embedding the view controller)
-    @objc public static let transitionStyle = "transitionStyle"         // @see NavigatorTransitionStyle
-    @objc public static let transitionName = "transitionName"           // Transition class name for custom transition animation
-    @objc public static let mode = "mode"                               // @see NavigatorMode
-    @objc public static let title = "title"                             // Navigation or view controller's title
-    @objc public static let fallback = "fallback"                       // Fallback view controller class name if no VC found (e.g. 404 Page)
-    @objc public static let children = "children"                       // Can be a list of VC names, also can nest a series of VCs with parameters
+    /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
+    @objc public static let viewControllerName = "_viewControllerName"
+    
+    /// Navigation controller class name (Used for embedding the view controller)
+    @objc public static let navigationCtrlName = "_navigationCtrlName"
+    
+    /// @see UIModalTransitionStyle, If has transition class, ignore the style.
+    @objc public static let transitionStyle = "_transitionStyle"
+    
+    /// Transition class name for custom transition animation
+    @objc public static let transitionName = "_transitionName"
+    
+    /// @see NavigatorMode
+    @objc public static let mode = "_mode"
+    
+    /// Navigation or view controller's title
+    @objc public static let title = "_title"
+    
+    /// Fallback view controller class name if no VC found (like 404 Page)
+    @objc public static let fallback = "_fallback"
+    
+    /// Can be a list of VC names, also can nest a series of VCs with required data
+    @objc public static let children = "_children"
 }
 
 @objc public enum NavigatorMode: Int {
@@ -27,27 +42,21 @@ import UIKit
     case root
 }
 
-@objc public enum NavigatorTransitionStyle: Int {
-    case system     // System default transition style
-    case scale
-    case circle
-    case matrix
-    case none
-    case custom     // Need provide custom transition class.
-}
-
-
 @objc open class Navigator: NSObject {
     
-    @objc open static let rootNavigator = Navigator()
+    /// Use root navigator to open the initial view controller when App launch
+    /// Also can use it to open any view controller for quick launch and debug, only need provide VC required data.
+    @objc open static let root = Navigator()
     
+    /// Best Practice: Call navigator's show method first, then set this variable.
     @objc open weak var window: UIWindow? {
         didSet {
+            window?.rootViewController = rootViewController
             window?.makeKeyAndVisible()
         }
     }
     
-    @objc open weak var rootViewController: UIViewController? {
+    @objc private(set) weak var rootViewController: UIViewController? {
         didSet {
             window?.rootViewController = rootViewController
         }
@@ -55,6 +64,61 @@ import UIKit
     
     public typealias CompletionType = (() -> Void)?
     
+    /**
+     * Show a view controler with required data in dictionary.
+     * Build a linked node with data to handle universal link and deep link (A => B => C => D)
+     * @param data The data is required for view controller, can be any type. At least VC class name is required.
+     * @param animated Whether show view controller with animation.
+     * @param completion The optional callaback to be executed after animation is completed.
+     */
+    @objc open func show(_ data: DataDictionary, animated: Bool = true, completion: CompletionType = nil) {
+        self.showData = data
+        self.showAnimated = animated
+        self.showCompletion = completion
+        
+        showViewControllers()
+    }
+    
+    /**
+     * Dismiss any view controler with optional data in dictionary.
+     * (A => B => C => D) -> dismiss(level: 1) -> (A => B)
+     * @param data Pass data to previous view controller, default is empty.
+     * @param level Which view contoller will be dismissed, default 0 is current VC, 1 is previous one VC.
+     * @param animated Whether dismiss view controller with animation.
+     * @param completion The optional callaback to be executed after animation is completed.
+     */
+    @objc open func dismiss(_ data: DataDictionary = [:], level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
+        self.level = level
+        self.dismissData = data
+        self.dismissAnimated = animated
+        self.dismissCompletion = completion
+        
+        dismissViewControllers()
+    }
+    
+    /**
+     * Send data to previous any page before current page dismissed.
+     * The level paramater is same with dismiss method's level parameter.
+     */
+    @objc open func sendDataBeforeBack(_ data: DataDictionary, level: Int = 0) {
+        guard let poppedVC = popStack(level) else { return }
+        let toVC = topViewController ?? poppedVC
+        _sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
+        pushStack(poppedVC)
+    }
+    
+    /**
+     * Send data to previous one page after current page dismissed.
+     * If current page is already dismissed, only send data to previous one page, so can't assign level.
+     * In iOS, user can pop view controller by swipe to right on left screen edge. But can't catch the event.
+     * For this edge case, we can call this method in deinit() to solve data passing issue.
+     */
+    @objc open func sendDataAfterBack(_ data: DataDictionary) {
+        guard let toVC = topViewController else { return }
+        _sendDataAfterBack(data, toVC: toVC)
+    }
+    
+    // Private
     private var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
     private var showAnimated: Bool = true
     private var dismissAnimated: Bool = true
@@ -62,7 +126,8 @@ import UIKit
     private var dismissCompletion: CompletionType = nil
     private var showModel: DataModel!
     private var dismissModel: DataModel!
-    private var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current viewcontroller, level 1 is previous VC. (Default is 0)
+    /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
+    private var level: Int = 0
     
     private var showData: DataDictionary = [:] {
         didSet {
@@ -74,37 +139,6 @@ import UIKit
             dismissModel = dataModelFromDictionay(dismissData)
         }
     }
-    
-    
-    // Functions
-    @objc open func show(_ data: DataDictionary, animated: Bool = true, completion: CompletionType = nil) {
-        self.showData = data
-        self.showAnimated = animated
-        self.showCompletion = completion
-        
-        showViewControllers()
-    }
-    
-    @objc open func dismiss(_ data: DataDictionary = [:], level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
-        self.level = level
-        self.dismissData = data
-        self.dismissAnimated = animated
-        self.dismissCompletion = completion
-        
-        dismissViewControllers()
-    }
-    
-    @objc open func sendDataBeforeBack(_ data: DataDictionary, level: Int = 0) {
-        guard let poppedVC = popStack(level) else { return }
-        let toVC = topViewController ?? poppedVC
-        _sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
-        pushStack(poppedVC)
-    }
-    
-    @objc open func sendDataAfterBack(_ data: DataDictionary) {
-        guard let toVC = topViewController else { return }
-        _sendDataAfterBack(data, toVC: toVC)
-    }
 }
 
 // MARK: - Private
@@ -113,12 +147,13 @@ private struct DataModel {
     var vcName: String?
     var navName: String?
     var mode: NavigatorMode = .push
-    var transitionStyle: NavigatorTransitionStyle = .system
+    var transitionStyle: UIModalTransitionStyle = .coverVertical
     var transitionName: String?
     var fallback: String?
 }
 
 private var navigatorModeAssociationKey: UInt8 = 0
+private var navigatorTransitionAssociationKey: UInt8 = 0
 
 private extension UIViewController {
     @objc var navigatorMode: NavigatorMode {
@@ -128,6 +163,15 @@ private extension UIViewController {
         }
         set {
             objc_setAssociatedObject(self, &navigatorModeAssociationKey, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    @objc var navigatorTransition: Transition? {
+        get {
+            return objc_getAssociatedObject(self, &navigatorTransitionAssociationKey) as? Transition
+        }
+        set {
+            objc_setAssociatedObject(self, &navigatorTransitionAssociationKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }
@@ -152,8 +196,8 @@ private extension Navigator {
         guard index < stackCount else { return nil }
         
         let poppedVC = stack.object(forKey: index as NSNumber)
-        for i in index..<stackCount where i > 0 {
-            stack.removeObject(forKey: i as NSNumber)
+        for key in index..<stackCount where key > 0 {
+            stack.removeObject(forKey: key as NSNumber)
         }
         return poppedVC
     }
@@ -166,13 +210,14 @@ private extension Navigator {
         }
     }
     
+    /// Convert passed data dictionary to data model
     func dataModelFromDictionay(_ dictionary: DataDictionary) -> DataModel {
         var dataModel = DataModel()
         dataModel.fallback = dictionary[NavigatorParametersKey.fallback] as? String
         dataModel.vcName = dictionary[NavigatorParametersKey.viewControllerName] as? String ?? dataModel.fallback
         dataModel.navName = dictionary[NavigatorParametersKey.navigationCtrlName] as? String
         dataModel.mode = dictionary[NavigatorParametersKey.mode] as? NavigatorMode ?? dataModel.mode
-        dataModel.transitionStyle = dictionary[NavigatorParametersKey.transitionStyle] as? NavigatorTransitionStyle ?? dataModel.transitionStyle
+        dataModel.transitionStyle = dictionary[NavigatorParametersKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
         dataModel.transitionName = dictionary[NavigatorParametersKey.transitionName] as? String
         return dataModel
     }
@@ -208,6 +253,7 @@ private extension Navigator {
         return showViewControler(viewController)
     }
     
+    /// Show view controller by push or present way. If mode is root, show the view controller directly.
     func showViewControler(_ viewController: UIViewController) -> Bool {
         _sendDataBeforeShow(showData, fromVC: topViewController, toVC: viewController)
         
@@ -215,8 +261,10 @@ private extension Navigator {
         
         switch showModel.mode {
         case .push:
+            setupTransition(showModel, for: topViewController?.navigationController)
             topViewController?.navigationController?.pushViewController(toVC, animated: showAnimated)
         case .present:
+            setupTransition(showModel, for: toVC)
             topViewController?.present(toVC, animated: showAnimated, completion: showCompletion)
         default:
             rootViewController = toVC
@@ -228,9 +276,21 @@ private extension Navigator {
         return true
     }
     
-    /**
-     * Create view controller with class name. If need embed it into navigation controller, create one with view controller.
-     */
+    /// Set custom tranistion animation when push or present a view controller
+    func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
+        if let name = dataModel.transitionName, !name.isEmpty, let vc = viewController {
+            vc.navigatorTransition = createTransition(name)
+            if vc is UINavigationController {
+                (vc as! UINavigationController).delegate = vc.navigatorTransition
+            } else {
+                vc.transitioningDelegate = vc.navigatorTransition
+            }
+        } else {
+            viewController?.modalTransitionStyle = dataModel.transitionStyle
+        }
+    }
+    
+    /// Create view controller with class name. If need embed it into navigation controller, create one with view controller.
     func createViewController(_ dataModel: DataModel) -> UIViewController? {
         guard let vcName = dataModel.vcName, !vcName.isEmpty else { return nil }
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
@@ -253,6 +313,17 @@ private extension Navigator {
         return viewController
     }
     
+    /// Create custom transition instance with class name.
+    func createTransition(_ className: String?) -> Transition? {
+        guard let name = className, !name.isEmpty else { return nil }
+        guard let type = NSClassFromString(name) as? Transition.Type else {
+            print("ZZZ: Can not find transition class \(name) in your modules")
+            return nil
+        }
+        return type.init()
+    }
+    
+    /// Add child view controllers for container view controllers like Navigation/Split/Tab view controller
     func addChildViewControllersIfExisted(_ data: Any, toViewController: UIViewController) {
         var viewControllers: [UIViewController] = []
         
@@ -262,7 +333,7 @@ private extension Navigator {
                 dataModel.vcName = vcName
                 guard let toVC = createViewController(dataModel) else { continue }
                 
-                let dataDict = [NavigatorParametersKey.viewControllerName : vcName]
+                let dataDict: DataDictionary = [NavigatorParametersKey.viewControllerName : vcName]
                 _sendDataBeforeShow(dataDict, fromVC: toViewController, toVC: toVC)
                 viewControllers.append(toVC.navigationController ?? toVC)
             }
@@ -280,8 +351,8 @@ private extension Navigator {
         for viewController in viewControllers {
             let vc = (viewController as? UINavigationController)?.topViewController ?? viewController
             vc.navigator = Navigator()
-            vc.navigator!.pushStack(vc)
-            vc.navigator!.rootViewController = viewController
+            vc.navigator?.pushStack(vc)
+            vc.navigator?.rootViewController = viewController
         }
         
         (toViewController as? UITabBarController)?.viewControllers = viewControllers
@@ -296,9 +367,6 @@ private extension Navigator {
     
     func dismissViewControllers() {
         guard let dismissedVC = popStack(level) else { return }
-        let toVC = topViewController ?? dismissedVC
-        
-        _sendDataBeforeBack(dismissData, fromVC: dismissedVC, toVC: toVC)
         
         if dismissedVC.navigatorMode == .present {
             dismissViewController(dismissedVC)
@@ -310,8 +378,6 @@ private extension Navigator {
         } else {
             dismissViewController(dismissedVC.navigationController ?? dismissedVC)
         }
-        
-        _sendDataAfterBack(dismissData, toVC: toVC)
     }
     
     func dismissViewController(_ viewController: UIViewController) {
@@ -327,7 +393,7 @@ private extension Navigator {
             fromNav.popToViewController(topViewController!, animated: dismissAnimated)
         } else {
             let presentingVC = presentingViewController(base: viewController, in: fromNav)
-            presentingVC.dismiss(animated: dismissAnimated, completion: {
+            presentingVC.dismiss(animated: false, completion: {
                 fromNav.popToViewController(self.topViewController!, animated: self.dismissAnimated)
             })
         }

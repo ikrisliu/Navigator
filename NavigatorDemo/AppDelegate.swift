@@ -14,28 +14,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-//        let data = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-//                    NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
-//                    NavigatorParametersKey.title : "Title"]
         
-//        let children = [NSStringFromClass(ViewController.self), NSStringFromClass(ViewController.self), NSStringFromClass(ViewController.self)]
-//        let data: [AnyHashable : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-//                                         NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
-//                                         NavigatorParametersKey.title : "Title",
-//                                         NavigatorParametersKey.children : children]
+        let favTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+                                      NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.favorites]
+        let hisTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+                                      NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.history]
+        let conTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+                                      NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.contacts]
+        let seaTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+                                      NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.search]
         
-        let children = [ [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self), NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self), NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.bookmarks],
-                         [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self), NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self), NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.history],
-                         [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self), NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self), NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.favorites],
-                         [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self), NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self), NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.search]]
-        let data: [AnyHashable : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(UITabBarController.self),
-                                         NavigatorParametersKey.title : "Title",
-                                         NavigatorParametersKey.children : children]
+        let data: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(UITabBarController.self),
+                                    NavigatorParametersKey.children : [favTab, hisTab, conTab, seaTab]]
         
-        Navigator.rootNavigator.window = window
-        Navigator.rootNavigator.show(data)
+        Navigator.root.show(data)
+        Navigator.root.window = window
         
         return true
     }
@@ -62,6 +60,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-
 }
-
