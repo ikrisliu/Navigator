@@ -41,30 +41,32 @@ class ViewController: UIViewController, DataProtocol {
     
     @objc func showViewControler() {
         let data: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                    NavigatorParametersKey.transitionName : NSStringFromClass(MatrixTransition.self),
-                                    NavigatorParametersKey.mode : NavigatorMode.present,
+//                                    NavigatorParametersKey.transitionName : NSStringFromClass(MatrixTransition.self),
+//                                    NavigatorParametersKey.mode : NavigatorMode.present,
                                     NavigatorParametersKey.title : String(arc4random())]
-        self.navigator?.show(data)
-        
+        let data2: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                    NavigatorParametersKey.title : String(arc4random())]
+//        self.navigator?.show(data)
+        Navigator.current.show(data=>data2)
         
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//            let para: [String : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-//                                             NavigatorParametersKey.mode : NavigatorMode.present,
-//                                             NavigatorParametersKey.title : String(arc4random())]
+//            let para: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+//                                        NavigatorParametersKey.mode : NavigatorMode.present,
+//                                        NavigatorParametersKey.title : String(arc4random())]
 //            self.navigator?.show(para)
 //        }
 //
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//            let para: [String : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-//                                             NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
-//                                             NavigatorParametersKey.mode : NavigatorMode.present,
-//                                             NavigatorParametersKey.title : String(arc4random())]
+//            let para: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+//                                        NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+//                                        NavigatorParametersKey.mode : NavigatorMode.present,
+//                                        NavigatorParametersKey.title : String(arc4random())]
 //            self.navigator?.show(para)
 //        }
 //
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//            let para: [String : Any] = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-//                                             NavigatorParametersKey.title : String(arc4random())]
+//            let para: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
+//                                        NavigatorParametersKey.title : String(arc4random())]
 //            self.navigator?.show(para)
 //        }
 //
