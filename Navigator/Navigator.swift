@@ -29,8 +29,11 @@ import UIKit
     /// Navigation or view controller's title
     @objc public static let title = "_title"
     
-    /// Fallback view controller class name if no VC found (like 404 Page)
+    /// Fallback view controller will show if no VC found (like 404 Page)
     @objc public static let fallback = "_fallback"
+    
+    /// Provide a data provider class to mock data
+    @objc public static let dataProvider = "_dataProvider"
     
     /// Can be a list of VC names, also can nest a series of VCs with required data
     @objc public static let children = "_children"
@@ -84,10 +87,10 @@ import UIKit
         self.showAnimated = animated
         self.showCompletion = completion
         
-        if data.next == nil {
-            showViewControllers()
+        if self === Navigator.root && showModel.mode == .reset {
+            showDeepLinkViewControllers(data)
         } else {
-            showDeepLinkViewControllers()
+            showViewControllers()
         }
     }
     
@@ -266,7 +269,19 @@ private extension Navigator {
         return showViewControler(viewController)
     }
     
-    func showDeepLinkViewControllers() {
+    /// Deep Link
+    func showDeepLinkViewControllers(_ data: DataDictionary) {
+        guard let topVC = topViewController else { return }
+        if topVC is UITabBarController || topVC is UISplitViewController {
+            let viewControllers = topVC is UITabBarController ? (topVC as! UITabBarController).viewControllers! : (topVC as! UISplitViewController).viewControllers
+            let rootVC: UIViewController? = viewControllers.filter({ String(describing: $0) != showModel.vcName }).first
+            if let rootVC = rootVC {
+                (topVC as? UITabBarController)?.selectedIndex = viewControllers.index(of: rootVC) ?? 0
+            }
+            rootVC?.navigator?.showDeepLinkViewControllers(data)
+            return
+        }
+        
         while stackCount > 1 {
             popStack()
         }
@@ -277,20 +292,20 @@ private extension Navigator {
             topViewController?.dismiss(animated: false, completion: nil)
         }
         
-        var next: DataDictionary? = showData
-        while let data = next {
-            let dataModel = dataModelFromDictionay(data)
+        var next: DataDictionary? = data
+        while let nextData = next {
+            let dataModel = dataModelFromDictionay(nextData)
             let viewController = createViewController(dataModel)
-            _showViewControler(viewController, data: data, animated: data.next == nil)
-            next = data.next
+            _showViewControler(viewController, data: nextData, animated: nextData.next == nil)
+            next = nextData.next
         }
     }
     
+    /// Show view controller by push or present way. If mode is root, show the view controller directly.
     func showViewControler(_ viewController: UIViewController) -> Bool {
         return _showViewControler(viewController, data: showData, animated: showAnimated)
     }
     
-    /// Show view controller by push or present way. If mode is root, show the view controller directly.
     @discardableResult
     func _showViewControler(_ viewController: UIViewController, data: DataDictionary, animated: Bool) -> Bool {
         _sendDataBeforeShow(data, fromVC: topViewController, toVC: viewController)
