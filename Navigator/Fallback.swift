@@ -12,6 +12,7 @@ import UIKit
     
     public func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?) {
         title = data[NavigatorParametersKey.viewControllerName] as? String
+        print("ZZZ: Received data before show from \(String(describing: fromViewController)): \(data)")
     }
     
     open override func viewDidLoad() {

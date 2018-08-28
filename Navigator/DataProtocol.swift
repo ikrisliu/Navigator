@@ -55,6 +55,11 @@ infix operator =>: AdditionPrecedence
         }
     }
     
+    /// For Objective-C usage
+    @objc public required init(_ dictionary: [String : Any]) {
+        data = dictionary
+    }
+    
     /// Use this custom operator to define navigation data for univeral linka and deep link
     public static func => (left: DataDictionary, right: DataDictionary) -> DataDictionary {
         var data = left
