@@ -70,7 +70,7 @@ import Foundation
     }
     
     private func random(min: CGFloat, max: CGFloat) -> CGFloat {
-        return CGFloat(arc4random()) / 0xFFFFFFFF * (max - min) + min
+        return CGFloat(arc4random()) / CGFloat(UInt32.max) * (max - min) + min
     }
     
     private func resetYPosForSliceViews(_ sliceViews: [UIView], yPos: CGFloat) {
