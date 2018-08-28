@@ -19,22 +19,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let favTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
                                       NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
                                       NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.favorites]
-        let hisTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
-                                      NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.history]
         let conTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
                                       NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
                                       NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.contacts]
-        let seaTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
-                                      NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.search]
         
         let data: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(UITabBarController.self),
-                                    NavigatorParametersKey.children : [favTab, hisTab, conTab, seaTab]]
+                                    NavigatorParametersKey.children : [favTab, conTab]]
         
-        Navigator.root.show(data)
         Navigator.root.window = window
-        
+        Navigator.root.show(data)
+
         return true
     }
 

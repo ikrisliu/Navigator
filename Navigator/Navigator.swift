@@ -59,17 +59,12 @@ import UIKit
     }
     private static var _current = root
     
-    /// Best Practice: Call navigator's show method first, then set this variable.
-    @objc public weak var window: UIWindow? {
-        didSet {
-            window?.rootViewController = rootViewController
-            window?.makeKeyAndVisible()
-        }
-    }
-    
+    /// NOTE: Must set the window variable first, then call navigator's show method.
+    @objc public weak var window: UIWindow?
     @objc private(set) weak var rootViewController: UIViewController? {
         didSet {
             window?.rootViewController = rootViewController
+            window?.makeKeyAndVisible()
         }
     }
     
