@@ -116,6 +116,7 @@ import UIKit
      * The level paramater is same with dismiss method's level parameter.
      */
     @objc open func sendDataBeforeBack(_ data: DataDictionary, level: Int = 0) {
+        guard !data.isEmpty else { return }
         guard let poppedVC = popStack(level) else { return }
         let toVC = topViewController ?? poppedVC
         _sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
@@ -129,6 +130,7 @@ import UIKit
      * For this edge case, we can call this method in deinit() to solve data passing issue.
      */
     @objc open func sendDataAfterBack(_ data: DataDictionary) {
+        guard !data.isEmpty else { return }
         guard let toVC = topViewController else { return }
         _sendDataAfterBack(data, toVC: toVC)
     }
@@ -462,19 +464,24 @@ private extension Navigator {
     
     func dismissViewController(_ viewController: UIViewController) {
         let vc = viewController.presentingViewController ?? viewController
+        self.sendDataBeforeBack(dismissData, level: level)
         vc.dismiss(animated: dismissAnimated, completion: {
-            self._sendDataAfterBack(self.dismissData, toVC: viewController)
+            self.sendDataAfterBack(self.dismissData)
             self.dismissCompletion?()
         })
     }
     
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
         if fromNav.visibleViewController === viewController {
+            self.sendDataBeforeBack(dismissData, level: level)
             fromNav.popToViewController(topViewController!, animated: dismissAnimated)
+            self.sendDataAfterBack(self.dismissData)
         } else {
             let presentingVC = presentingViewController(base: viewController, in: fromNav)
+            self.sendDataBeforeBack(dismissData, level: level)
             presentingVC.dismiss(animated: false, completion: {
                 fromNav.popToViewController(self.topViewController!, animated: self.dismissAnimated)
+                self.sendDataAfterBack(self.dismissData)
             })
         }
     }
