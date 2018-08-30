@@ -42,6 +42,7 @@ class ViewController: UIViewController, DataProtocol {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             let para: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
                                         NavigatorParametersKey.mode : NavigatorMode.present,
+                                        NavigatorParametersKey.transitionStyle : UIModalTransitionStyle.flipHorizontal,
                                         NavigatorParametersKey.title : String(arc4random())]
             self.navigator?.show(para)
         }
@@ -66,7 +67,7 @@ class ViewController: UIViewController, DataProtocol {
     }
     
     deinit {
-        print("FREE MEMORY: \(self)")
+        debugPrint("FREE MEMORY: \(self)")
         navigator?.sendDataAfterBack(data)
     }
 }

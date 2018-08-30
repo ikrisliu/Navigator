@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import os.log
 
 // MARK: - Public
 // MARK: -
@@ -363,7 +364,7 @@ private extension Navigator {
                     navigationController.viewControllers = [viewController]
                     navigationController.navigator = self
                 } else {
-                    print("ZZZ: Can not find navigation controller class \(navName) in your modules")
+                    os_log("ZZZ: Can not find navigation controller class %@ in your modules", navName)
                 }
             }
         }
@@ -373,7 +374,7 @@ private extension Navigator {
             return viewController
         }
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
-            print("ZZZ: Can not find view controller class \(vcName) in your modules")
+            os_log("ZZZ: Can not find view controller class %@ in your modules", vcName)
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
@@ -399,7 +400,7 @@ private extension Navigator {
     func createTransition(_ className: String?) -> Transition? {
         guard let name = className, !name.isEmpty else { return nil }
         guard let type = NSClassFromString(name) as? Transition.Type else {
-            print("ZZZ: Can not find transition class \(name) in your modules")
+            os_log("ZZZ: Can not find transition class %@ in your modules", name)
             return nil
         }
         return type.init()
@@ -513,19 +514,19 @@ private extension Navigator {
 private extension Navigator {
     
     func _sendDataBeforeShow(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {
-        print("ZZZ: Send data to \(toVC) before show: \(data)")
+        os_log("ZZZ: Send data to %@ before show: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
     func _sendDataBeforeBack(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {
-        print("ZZZ: Send data to \(toVC) before before: \(data)")
+        os_log("ZZZ: Send data to %@ before before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
     func _sendDataAfterBack(_ data: DataDictionary, toVC: UIViewController) {
-        print("ZZZ: Send data to \(toVC) after back: \(data)")
+        os_log("ZZZ: Send data to %@ after before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
     }
