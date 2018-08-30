@@ -478,16 +478,25 @@ private extension Navigator {
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
         if fromNav.visibleViewController === viewController {
             self.sendDataBeforeBack(dismissData, level: level)
-            fromNav.popToViewController(topViewController!, animated: dismissAnimated)
-            self.sendDataAfterBack(self.dismissData)
+            self.popTopViewController(fromNav: fromNav) {
+                self.sendDataAfterBack(self.dismissData)
+            }
         } else {
             let presentingVC = presentingViewController(base: viewController, in: fromNav)
             self.sendDataBeforeBack(dismissData, level: level)
             presentingVC.dismiss(animated: false, completion: {
-                fromNav.popToViewController(self.topViewController!, animated: self.dismissAnimated)
-                self.sendDataAfterBack(self.dismissData)
+                self.popTopViewController(fromNav: fromNav) {
+                    self.sendDataAfterBack(self.dismissData)
+                }
             })
         }
+    }
+    
+    func popTopViewController(fromNav: UINavigationController, completion:CompletionType) {
+        CATransaction.begin()
+        CATransaction.setCompletionBlock { completion?() }
+        fromNav.popToViewController(topViewController!, animated: dismissAnimated)
+        CATransaction.commit()
     }
     
     func presentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController {
