@@ -173,7 +173,7 @@ private var navigatorModeAssociationKey: UInt8 = 0
 private var navigatorTransitionAssociationKey: UInt8 = 0
 
 private extension UIViewController {
-    @objc var navigatorMode: NavigatorMode {
+    @objc var _navigatorMode: NavigatorMode {
         get {
             let rawValue = objc_getAssociatedObject(self, &navigatorModeAssociationKey) as! Int
             return NavigatorMode(rawValue: rawValue)!
@@ -183,7 +183,7 @@ private extension UIViewController {
         }
     }
     
-    @objc var navigatorTransition: Transition? {
+    @objc var _navigatorTransition: Transition? {
         get {
             return objc_getAssociatedObject(self, &navigatorTransitionAssociationKey) as? Transition
         }
@@ -204,7 +204,7 @@ private extension Navigator {
     }
     
     func pushStack(_ viewController: UIViewController) {
-        viewController.navigatorMode = showModel != nil ? showModel.mode : .reset
+        viewController._navigatorMode = showModel != nil ? showModel.mode : .reset
         stack.setObject(viewController, forKey: stackCount as NSNumber)
     }
     
@@ -234,9 +234,13 @@ private extension Navigator {
         dataModel.fallback = dictionary[NavigatorParametersKey.fallback] as? String
         dataModel.vcName = dictionary[NavigatorParametersKey.viewControllerName] as? String ?? dataModel.fallback
         dataModel.navName = dictionary[NavigatorParametersKey.navigationCtrlName] as? String
-        dataModel.mode = dictionary[NavigatorParametersKey.mode] as? NavigatorMode ?? dataModel.mode
         dataModel.transitionStyle = dictionary[NavigatorParametersKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
         dataModel.transitionName = dictionary[NavigatorParametersKey.transitionName] as? String
+        
+        if let mode = dictionary[NavigatorParametersKey.mode] {
+            dataModel.mode = mode is NSNumber ? NavigatorMode(rawValue: (mode as! NSNumber).intValue)! : mode as! NavigatorMode
+        }
+        
         return dataModel
     }
 }
@@ -320,7 +324,7 @@ private extension Navigator {
             setupTransition(dataModel, for: topViewController?.navigationController)
             topViewController?.navigationController?.pushViewController(toVC, animated: animated)
         case .present:
-            setupTransition(dataModel, for: toVC)
+            setupTransition(dataModel, for: toVC.navigationController ?? toVC)
             topViewController?.present(toVC, animated: animated, completion: nil)
         default:
             break
@@ -338,11 +342,11 @@ private extension Navigator {
     /// Set custom tranistion animation when push or present a view controller
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
         if let name = dataModel.transitionName, !name.isEmpty, let vc = viewController {
-            vc.navigatorTransition = createTransition(name)
-            if vc is UINavigationController {
-                (vc as! UINavigationController).delegate = vc.navigatorTransition
-            } else {
-                vc.transitioningDelegate = vc.navigatorTransition
+            vc._navigatorTransition = createTransition(name)
+            if dataModel.mode == .push {
+                (vc as! UINavigationController).delegate = vc._navigatorTransition
+            } else if dataModel.mode == .present {
+                vc.transitioningDelegate = vc._navigatorTransition
             }
         } else {
             viewController?.modalTransitionStyle = dataModel.transitionStyle
@@ -426,7 +430,7 @@ private extension Navigator {
         
         for (idx, viewController) in viewControllers.enumerated() {
             let vc = (viewController as? UINavigationController)?.topViewController ?? viewController
-            vc.navigatorMode = .reset
+            vc._navigatorMode = .reset
             vc.navigator = Navigator()
             vc.navigator?.pushStack(vc)
             vc.navigator?.rootViewController = viewController
@@ -450,7 +454,7 @@ private extension Navigator {
     func dismissViewControllers() {
         guard let dismissedVC = popStack(level) else { return }
         
-        if dismissedVC.navigatorMode == .present {
+        if dismissedVC._navigatorMode == .present {
             dismissViewController(dismissedVC)
             return
         }
@@ -500,16 +504,19 @@ private extension Navigator {
 private extension Navigator {
     
     func _sendDataBeforeShow(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {
+        print("ZZZ: Send data to \(toVC) before show: \(data)")
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
     func _sendDataBeforeBack(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {
+        print("ZZZ: Send data to \(toVC) before before: \(data)")
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
     func _sendDataAfterBack(_ data: DataDictionary, toVC: UIViewController) {
+        print("ZZZ: Send data to \(toVC) after back: \(data)")
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
     }
