@@ -205,7 +205,6 @@ private extension Navigator {
     }
     
     func pushStack(_ viewController: UIViewController) {
-        viewController._navigatorMode = showModel != nil ? showModel.mode : .reset
         stack.setObject(viewController, forKey: stackCount as NSNumber)
     }
     
@@ -335,6 +334,8 @@ private extension Navigator {
             showModel.mode = .reset
             rootViewController = toVC
         }
+        
+        viewController._navigatorMode = showModel.mode
         pushStack(viewController)
         
         return true
