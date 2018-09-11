@@ -10,14 +10,7 @@ import UIKit
 
 // MARK: - Public
 // MARK: -
-@objc public enum TransitionOrientation: Int {
-    case `default`
-    case horizontal
-    case vertical
-}
-
-
-@objc public protocol TransitionPresentationDelegate {
+@objc public protocol TransitionPresentationDelegate: AnyObject {
     
     @objc optional func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController?
 }
@@ -25,11 +18,18 @@ import UIKit
 
 @objc open class Transition: UIPercentDrivenInteractiveTransition, UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate, UINavigationControllerDelegate {
     
+    @objc(TransitionOrientation)
+    public enum Orientation: Int {
+        /// push transition orientation is horizontal, present transition orientation is vertical.
+        case `default`
+        case horizontal
+        case vertical
+    }
+    
     /// Whether enable gesture to pop/dismiss current view controller, default is false.
     @objc open var interactiveGestureEnabled = true
     
-    /// By defautl, push transition orientation is horizontal, present transition orientation is vertical.
-    @objc open var orientation: TransitionOrientation = .default
+    @objc open var orientation: Orientation = .default
     @objc public var isVertical: Bool { return orientation == .vertical }
     
     /// This delegate is for handling popup view controller

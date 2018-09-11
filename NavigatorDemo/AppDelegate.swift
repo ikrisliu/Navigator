@@ -16,19 +16,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        let favTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+        let favTab: DataDictionary = [Navigator.ParamKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                      Navigator.ParamKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
                                       NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.favorites]
-        let conTab: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(ViewController.self),
-                                      NavigatorParametersKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
+        let conTab: DataDictionary = [Navigator.ParamKey.viewControllerName : NSStringFromClass(ViewController.self),
+                                      Navigator.ParamKey.navigationCtrlName : NSStringFromClass(UINavigationController.self),
                                       NSStringFromClass(UITabBarItem.self) : UITabBarSystemItem.contacts]
         
-        let data: DataDictionary = [NavigatorParametersKey.viewControllerName : NSStringFromClass(UITabBarController.self),
-                                    NavigatorParametersKey.children : [favTab, conTab]]
+        let data: DataDictionary = [Navigator.ParamKey.viewControllerName : NSStringFromClass(UITabBarController.self),
+                                    Navigator.ParamKey.children : [favTab, conTab]]
         
         Navigator.root.window = window
         Navigator.root.show(data)
-
+        
         return true
     }
 

@@ -56,6 +56,10 @@ infix operator =>: AdditionPrecedence
     }
     
     /// For Objective-C usage
+    @objc public static func dataWithDictionary(_ dictionary: [String : Any]) -> DataDictionary {
+        return DataDictionary(dictionary)
+    }
+    
     @objc public required init(_ dictionary: [String : Any]) {
         data = dictionary
     }
@@ -78,7 +82,7 @@ infix operator =>: AdditionPrecedence
 
 
 /// View controller need implement this protocol for receiving data from previous or next view controller
-@objc public protocol DataProtocol {
+@objc public protocol DataProtocol where Self: UIViewController {
     
     /// Receive data from previous page before current page show
     @objc optional func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?)
@@ -91,18 +95,23 @@ infix operator =>: AdditionPrecedence
 }
 
 
-private var navigatorAssociationKey: UInt8 = 0
 /// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
 ///   1.If the VC is instanciated and opened by navigator, it can use navigator to open other VCs.
 ///   2.If the VC is instanciated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
-@objc public extension UIViewController {
+extension UIViewController {
     
-    @objc var navigator: Navigator? {
+    enum AssociationKey {
+        static var navigator: UInt8 = 0
+        static var navigatorMode: UInt8 = 0
+        static var navigatorTransition: UInt8 = 0
+    }
+    
+    @objc public var navigator: Navigator? {
         get {
-            return objc_getAssociatedObject(self, &navigatorAssociationKey) as? Navigator
+            return objc_getAssociatedObject(self, &AssociationKey.navigator) as? Navigator
         }
         set {
-            objc_setAssociatedObject(self, &navigatorAssociationKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociationKey.navigator, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }

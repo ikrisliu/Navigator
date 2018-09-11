@@ -9,44 +9,8 @@
 import UIKit
 import os.log
 
-// MARK: - Public
+// MARK: - PUBLIC
 // MARK: -
-@objc open class NavigatorParametersKey: NSObject {
-    /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    @objc public static let viewControllerName = "_viewControllerName"
-    
-    /// Navigation controller class name (Used for embedding the view controller)
-    @objc public static let navigationCtrlName = "_navigationCtrlName"
-    
-    /// @see UIModalTransitionStyle, If has transition class, ignore the style.
-    @objc public static let transitionStyle = "_transitionStyle"
-    
-    /// Transition class name for custom transition animation
-    @objc public static let transitionName = "_transitionName"
-    
-    /// @see NavigatorMode
-    @objc public static let mode = "_mode"
-    
-    /// Navigation or view controller's title
-    @objc public static let title = "_title"
-    
-    /// Fallback view controller will show if no VC found (like 404 Page)
-    @objc public static let fallback = "_fallback"
-    
-    /// Provide a data provider class to mock data
-    @objc public static let dataProvider = "_dataProvider"
-    
-    /// Can be a list of VC names, also can nest a series of VCs with required data
-    @objc public static let children = "_children"
-}
-
-@objc public enum NavigatorMode: Int {
-    case push
-    case present
-    /// Reset view controller stack when initialize a new VC or deep link
-    case reset
-}
-
 @objc open class Navigator: NSObject {
     
     /// Use root navigator to open the initial view controller when App launch
@@ -159,42 +123,88 @@ import os.log
     }
 }
 
-// MARK: - Private
+// MARK: - Navigator Parameter Key
 // MARK: -
-private struct DataModel {
-    var vcName: String?
-    var navName: String?
-    var mode: NavigatorMode = .push
-    var transitionStyle: UIModalTransitionStyle = .coverVertical
-    var transitionName: String?
-    var fallback: String?
+extension Navigator {
+    
+    @objc(NavigatorParamKey)
+    public class ParamKey: NSObject {
+        /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
+        @objc public static let viewControllerName = "_viewControllerName"
+        
+        /// Navigation controller class name (Used for embedding the view controller)
+        @objc public static let navigationCtrlName = "_navigationCtrlName"
+        
+        /// @see UIModalTransitionStyle, If has transition class, ignore the style.
+        @objc public static let transitionStyle = "_transitionStyle"
+        
+        /// Transition class name for custom transition animation
+        @objc public static let transitionName = "_transitionName"
+        
+        /// @see NavigatorMode
+        @objc public static let mode = "_mode"
+        
+        /// Navigation or view controller's title
+        @objc public static let title = "_title"
+        
+        /// Fallback view controller will show if no VC found (like 404 Page)
+        @objc public static let fallback = "_fallback"
+        
+        /// Provide a data provider class to mock data
+        @objc public static let dataProvider = "_dataProvider"
+        
+        /// Can be a list of VC names, also can nest a series of VCs with required data
+        @objc public static let children = "_children"
+    }
 }
 
-private var navigatorModeAssociationKey: UInt8 = 0
-private var navigatorTransitionAssociationKey: UInt8 = 0
+// MARK: - Navigator Mode
+// MARK: -
+extension Navigator {
+    
+    @objc(NavigatorMode)
+    public enum Mode: Int {
+        case push
+        case present
+        /// Reset view controller stack when initialize a new VC or deep link
+        case reset
+    }
+}
 
+
+// MARK: - PRIVATE
+// MARK: -
 private extension UIViewController {
-    @objc var _navigatorMode: NavigatorMode {
+    @objc var _navigatorMode: Navigator.Mode {
         get {
-            let rawValue = objc_getAssociatedObject(self, &navigatorModeAssociationKey) as! Int
-            return NavigatorMode(rawValue: rawValue)!
+            let rawValue = objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as! Int
+            return Navigator.Mode(rawValue: rawValue)!
         }
         set {
-            objc_setAssociatedObject(self, &navigatorModeAssociationKey, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
     
     @objc var _navigatorTransition: Transition? {
         get {
-            return objc_getAssociatedObject(self, &navigatorTransitionAssociationKey) as? Transition
+            return objc_getAssociatedObject(self, &AssociationKey.navigatorTransition) as? Transition
         }
         set {
-            objc_setAssociatedObject(self, &navigatorTransitionAssociationKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociationKey.navigatorTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }
 
 private extension Navigator {
+    
+    struct DataModel {
+        var vcName: String?
+        var navName: String?
+        var mode: Navigator.Mode = .push
+        var transitionStyle: UIModalTransitionStyle = .coverVertical
+        var transitionName: String?
+        var fallback: String?
+    }
     
     var stackCount: Int {
         return stack.dictionaryRepresentation().count
@@ -221,24 +231,24 @@ private extension Navigator {
     }
     
     var children: [Any] {
-        if let classNames = showData[NavigatorParametersKey.children] as? [String] {
+        if let classNames = showData[ParamKey.children] as? [String] {
             return classNames
         } else {
-            return (showData[NavigatorParametersKey.children] as? [DataDictionary]) ?? []
+            return (showData[ParamKey.children] as? [DataDictionary]) ?? []
         }
     }
     
     /// Convert passed data dictionary to data model
     func dataModelFromDictionay(_ dictionary: DataDictionary) -> DataModel {
         var dataModel = DataModel()
-        dataModel.fallback = dictionary[NavigatorParametersKey.fallback] as? String
-        dataModel.vcName = dictionary[NavigatorParametersKey.viewControllerName] as? String ?? dataModel.fallback
-        dataModel.navName = dictionary[NavigatorParametersKey.navigationCtrlName] as? String
-        dataModel.transitionStyle = dictionary[NavigatorParametersKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
-        dataModel.transitionName = dictionary[NavigatorParametersKey.transitionName] as? String
+        dataModel.fallback = dictionary[ParamKey.fallback] as? String
+        dataModel.vcName = dictionary[ParamKey.viewControllerName] as? String ?? dataModel.fallback
+        dataModel.navName = dictionary[ParamKey.navigationCtrlName] as? String
+        dataModel.transitionStyle = dictionary[ParamKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
+        dataModel.transitionName = dictionary[ParamKey.transitionName] as? String
         
-        if let mode = dictionary[NavigatorParametersKey.mode] {
-            dataModel.mode = mode is NSNumber ? NavigatorMode(rawValue: (mode as! NSNumber).intValue)! : mode as! NavigatorMode
+        if let mode = dictionary[ParamKey.mode] {
+            dataModel.mode = mode is NSNumber ? Mode(rawValue: (mode as! NSNumber).intValue)! : mode as! Mode
         }
         
         return dataModel
@@ -416,7 +426,7 @@ private extension Navigator {
                 var dataModel = DataModel()
                 dataModel.vcName = vcName
                 let toVC = createViewController(dataModel)
-                let dataDict: DataDictionary = [NavigatorParametersKey.viewControllerName : vcName]
+                let dataDict: DataDictionary = [ParamKey.viewControllerName : vcName]
                 _sendDataBeforeShow(dataDict, fromVC: toViewController, toVC: toVC)
                 viewControllers.append(toVC.navigationController ?? toVC)
             }
