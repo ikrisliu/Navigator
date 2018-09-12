@@ -8,8 +8,7 @@
 
 import UIKit
 
-// MARK: - Public
-// MARK: -
+// MARK: - Public -
 @objc public protocol TransitionPresentationDelegate: AnyObject {
     
     @objc optional func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController?
@@ -53,14 +52,10 @@ import UIKit
         return transitionDuration(using: transitionContext)
     }
     
-    /**
-     * For modal present or dismiss, need overwrite by subclass if define a custom transition
-     */
+    /// For modal present or dismiss, need overwrite by subclass if define a custom transition
     @objc open func animatePresentingTransition(from fromVC: UIViewController, to toVC: UIViewController) { }
     
-    /**
-     * For navigation push or pop, need overwrite by subclass if define a custom transition
-     */
+    /// For navigation push or pop, need overwrite by subclass if define a custom transition
     @objc open func animateNavigationTransition(from fromVC: UIViewController, to toVC: UIViewController) { }
     
     
@@ -83,8 +78,7 @@ import UIKit
     private weak var navController: UINavigationController?
 }
 
-// MARK: - UIViewControllerAnimatedTransitioning
-// MARK: -
+// MARK: - UIViewControllerAnimatedTransitioning -
 @objc public extension Transition {
     
     public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
@@ -113,8 +107,7 @@ import UIKit
     }
 }
 
-// MARK: - UIViewControllerTransitioningDelegate
-// MARK: -
+// MARK: - UIViewControllerTransitioningDelegate -
 @objc public extension Transition {
     
     public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
@@ -147,8 +140,7 @@ import UIKit
     }
 }
 
-// MARK: - UINavigationControllerDelegate
-// MARK: -
+// MARK: - UINavigationControllerDelegate -
 @objc public extension Transition {
     
     public func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
@@ -169,9 +161,8 @@ import UIKit
     }
 }
 
-// MARK: - Private
-// MARK: -
-/// Handle interactive gesture for pop/dismiss current view controller
+// MARK: - Private -
+// Handle interactive gesture for pop/dismiss current view controller
 private extension Transition {
     
     private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController) {

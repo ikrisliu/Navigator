@@ -8,6 +8,7 @@
 
 import UIKit
 
+// MARK: - DataDictionary -
 infix operator =>: AdditionPrecedence
 
 /// Use this data structure to do data passing between two pages
@@ -81,6 +82,7 @@ infix operator =>: AdditionPrecedence
 }
 
 
+// MARK: - DataProtocol -
 /// View controller need implement this protocol for receiving data from previous or next view controller
 @objc public protocol DataProtocol where Self: UIViewController {
     
@@ -95,9 +97,10 @@ infix operator =>: AdditionPrecedence
 }
 
 
+// MARK: - Navigator Property -
 /// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
-///   1.If the VC is instanciated and opened by navigator, it can use navigator to open other VCs.
-///   2.If the VC is instanciated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
+///   - If the VC is instantiated and opened by navigator, it can use navigator to open other VCs.
+///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
 extension UIViewController {
     
     enum AssociationKey {
