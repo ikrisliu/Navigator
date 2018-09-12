@@ -232,7 +232,7 @@ private extension Navigator {
     
     func stackIndex(of vcName: String) -> Int? {
         for (key, value) in zip(stack.keyEnumerator(), stack.objectEnumerator()!) {
-            if String(describing: value) == vcName {
+            if NSStringFromClass(type(of: value as AnyObject)) == vcName {
                 return (key as! NSNumber).intValue
             }
         }
@@ -314,8 +314,8 @@ private extension Navigator {
         guard let topVC = topViewController else { return }
         if topVC is UITabBarController || topVC is UISplitViewController {
             let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController: UIViewController? = viewControllers.filter({ String(describing: $0) == showModel.vcName }).first
-            if let vc = viewController, let index = viewControllers.index(of: vc.navigationController ?? vc) {
+            let viewController: UIViewController? = viewControllers.filter({ NSStringFromClass(type(of: $0)) == showModel.vcName }).first
+            if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
             }
             viewController?.navigator?.showDeepLinkViewControllers(data)
@@ -350,7 +350,7 @@ private extension Navigator {
             viewControllers = (viewController as! UISplitViewController).viewControllers
         }
         
-        return viewControllers
+        return viewControllers.map({ $0 is UINavigationController ? ($0 as! UINavigationController).topViewController! : $0 })
     }
     
     // Show view controller by push or present way. If mode is root, show the view controller directly.
@@ -561,8 +561,9 @@ private extension Navigator {
     func gotoViewControllerIfExisted(_ vcName: String) -> Bool {
         guard self !== Navigator.root else {
             let viewControllers = Navigator.childViewControllers(of: self.rootViewController!)
-            let viewController = viewControllers.filter({ String(describing: $0) == vcName }).first
-            if let vc = viewController, let index = viewControllers.index(of: vc.navigationController ?? vc) {
+            // NOTE: Method `String(describing:)` returned string always doesn't match with `vcName`
+            let viewController = viewControllers.filter({ NSStringFromClass(type(of: $0)) == vcName }).first
+            if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (rootViewController as? UITabBarController)?.selectedIndex = index
                 return true
             }
@@ -575,7 +576,7 @@ private extension Navigator {
         }
         
         let viewControllers = Navigator.childViewControllers(of: Navigator.root.rootViewController!)
-        if let index = viewControllers.index(of: rootViewController?.navigationController ?? rootViewController!) {
+        if let index = viewControllers.index(of: rootViewController!) {
             (rootViewController as? UITabBarController)?.selectedIndex = index
         }
         
