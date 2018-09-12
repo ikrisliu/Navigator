@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public class ScaleTransition : Transition {
+@objc public class ScaleTransition: Transition {
     
     public override func animateNavigationTransition(from fromVC: UIViewController, to toVC: UIViewController) {
         animatePresentingTransition(from: fromVC, to: toVC)

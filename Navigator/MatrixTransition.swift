@@ -9,7 +9,7 @@
 import Foundation
 
 
-@objc public class MatrixTransition : Transition {
+@objc public class MatrixTransition: Transition {
     
     public override var animationDuration: TimeInterval {
         return 1.0

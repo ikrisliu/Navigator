@@ -13,9 +13,9 @@ infix operator =>: AdditionPrecedence
 
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
-@objc public class DataDictionary : NSObject, ExpressibleByDictionaryLiteral {
+@objc public class DataDictionary: NSObject, ExpressibleByDictionaryLiteral {
 
-    @objc public private(set) var data: [String : Any] = [:]
+    @objc public private(set) var data: [String: Any] = [:]
     
     /// The next navigating view controller name with required data
     /// Use this variable to build linked node when you handle universal link or deep link
@@ -57,11 +57,11 @@ infix operator =>: AdditionPrecedence
     }
     
     /// For Objective-C usage
-    @objc public static func dataWithDictionary(_ dictionary: [String : Any]) -> DataDictionary {
+    @objc public static func dataWithDictionary(_ dictionary: [String: Any]) -> DataDictionary {
         return DataDictionary(dictionary)
     }
     
-    @objc public required init(_ dictionary: [String : Any]) {
+    @objc public required init(_ dictionary: [String: Any]) {
         data = dictionary
     }
     

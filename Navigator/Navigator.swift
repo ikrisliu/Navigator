@@ -220,6 +220,7 @@ private extension Navigator {
         var transitionStyle: UIModalTransitionStyle = .coverVertical
         var transitionName: String?
         var fallback: String?
+        var children: [DataDictionary] = []
     }
     
     var stackCount: Int {
@@ -255,13 +256,13 @@ private extension Navigator {
         return poppedVC
     }
     
-    var children: [Any] {
-        if let classNames = showData[ParamKey.children] as? [String] {
-            return classNames
-        } else {
-            return (showData[ParamKey.children] as? [DataDictionary]) ?? []
-        }
-    }
+//    var children: [Any] {
+//        if let classNames = showData[ParamKey.children] as? [String] {
+//            return classNames
+//        } else {
+//            return (showData[ParamKey.children] as? [DataDictionary]) ?? []
+//        }
+//    }
     
     // Convert passed data dictionary to data model
     func dataModelFromDictionay(_ dictionary: DataDictionary) -> DataModel {
@@ -271,6 +272,12 @@ private extension Navigator {
         dataModel.navName = dictionary[ParamKey.navigationCtrlName] as? String
         dataModel.transitionStyle = dictionary[ParamKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
         dataModel.transitionName = dictionary[ParamKey.transitionName] as? String
+        
+        if let children = dictionary[ParamKey.children] as? [DataDictionary] {
+            dataModel.children = children
+        } else if let vcNames = dictionary[ParamKey.children] as? [String] {
+            dataModel.children = vcNames.map({ [ParamKey.viewControllerName: $0] as DataDictionary })
+        }
         
         if let mode = dictionary[ParamKey.mode] {
             dataModel.mode = mode is NSNumber ? Mode(rawValue: (mode as! NSNumber).intValue)! : mode as! Mode
@@ -293,19 +300,19 @@ private extension Navigator {
     
     func showTabBarControlerIfExisted(_ viewController: UIViewController) -> Bool {
         guard let tabVC = viewController as? UITabBarController else { return false }
-        addChildViewControllersIfExisted(children, toViewController: tabVC)
+        addChildViewControllersIfExisted(showModel.children, toViewController: tabVC)
         return showViewControler(viewController)
     }
     
     func showSplitViewControllerIfExisted(_ viewController: UIViewController) -> Bool {
         guard let splitVC = viewController as? UISplitViewController else { return false }
-        addChildViewControllersIfExisted(children, toViewController: splitVC)
+        addChildViewControllersIfExisted(showModel.children, toViewController: splitVC)
         return showViewControler(viewController)
     }
     
     func showNavigationControlerIfExisted(_ viewController: UIViewController) -> Bool {
         guard let navVC = viewController as? UINavigationController else { return false }
-        addChildViewControllersIfExisted(children, toViewController: navVC)
+        addChildViewControllersIfExisted(showModel.children, toViewController: navVC)
         return showViewControler(viewController)
     }
     
@@ -454,23 +461,17 @@ private extension Navigator {
     }
     
     // Add child view controllers for container view controllers like Navigation/Split/Tab view controller
-    func addChildViewControllersIfExisted(_ data: Any, toViewController: UIViewController) {
+    func addChildViewControllersIfExisted(_ data: [DataDictionary], toViewController: UIViewController) {
         var viewControllers: [UIViewController] = []
         
-        if let vcNames = data as? [String] {
-            for vcName in vcNames {
-                var dataModel = DataModel()
-                dataModel.vcName = vcName
-                let toVC = createViewController(dataModel)
-                let dataDict: DataDictionary = [ParamKey.viewControllerName : vcName]
-                p_sendDataBeforeShow(dataDict, fromVC: toViewController, toVC: toVC)
-                viewControllers.append(toVC.navigationController ?? toVC)
-            }
-        } else if let list = data as? [DataDictionary] {
-            for item in list {
-                let toVC = createViewController(dataModelFromDictionay(item))
-                p_sendDataBeforeShow(item, fromVC: toViewController, toVC: toVC)
-                viewControllers.append(toVC.navigationController ?? toVC)
+        for item in data {
+            let dataModel = dataModelFromDictionay(item)
+            let toVC = createViewController(dataModel)
+            p_sendDataBeforeShow(item, fromVC: toViewController, toVC: toVC)
+            viewControllers.append(toVC.navigationController ?? toVC)
+            
+            if !dataModel.children.isEmpty {
+                addChildViewControllersIfExisted(dataModel.children, toViewController: toVC)
             }
         }
         
