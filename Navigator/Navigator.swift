@@ -10,7 +10,7 @@ import UIKit
 import os.log
 
 // MARK: - PUBLIC -
-@objc open class Navigator: NSObject {
+@objc public class Navigator: NSObject {
     
     /// Use root navigator to open the initial view controller when App launch
     /// Also can use it to open any view controller for quick launch and debug, only need provide VC required data.
@@ -46,7 +46,7 @@ import os.log
     ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc open func show(_ data: DataDictionary, animated: Bool = true, completion: CompletionType = nil) {
+    @objc public func show(_ data: DataDictionary, animated: Bool = true, completion: CompletionType = nil) {
         Navigator._current = self
         
         self.showData = data
@@ -68,7 +68,7 @@ import os.log
     ///   - level: Which view controller will be dismissed, default 0 is current VC, 1 is previous one VC.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc open func dismiss(_ data: DataDictionary = [:], level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
+    @objc public func dismiss(_ data: DataDictionary = [:], level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
         self.level = level
         self.dismissData = data
         self.dismissAnimated = animated
@@ -83,7 +83,7 @@ import os.log
     /// - Parameters:
     ///   - data: The data is passed to previous any view controller.
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
-    @objc open func sendDataBeforeBack(_ data: DataDictionary, level: Int = 0) {
+    @objc public func sendDataBeforeBack(_ data: DataDictionary, level: Int = 0) {
         guard !data.isEmpty else { return }
         guard let poppedVC = popStack(from: level) else { return }
         let toVC = topViewController ?? poppedVC
@@ -97,7 +97,7 @@ import os.log
     /// For this edge case, we can call this method in deinit() to solve data passing issue.
     ///
     /// - Parameter data: The data is passed to previous view controller.
-    @objc open func sendDataAfterBack(_ data: DataDictionary) {
+    @objc public func sendDataAfterBack(_ data: DataDictionary) {
         guard !data.isEmpty else { return }
         guard let toVC = topViewController else { return }
         p_sendDataAfterBack(data, toVC: toVC)
@@ -107,7 +107,7 @@ import os.log
     /// Can jump to another navigator's VC from one navigator. (e.g. jump to any tab in UITabBarController)
     ///
     /// - Parameter vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
-    @objc open class func goto(viewController vcName: String) {
+    @objc public class func goto(viewController vcName: String) {
         guard !root.gotoViewControllerIfExisted(vcName) else { return }
         
         let viewControllers = childViewControllers(of: root.rootViewController!)
