@@ -391,11 +391,7 @@ private extension Navigator {
             setupTransition(dataModel, for: toVC.navigationController ?? toVC)
             topViewController?.present(toVC, animated: animated, completion: nil)
         case .reset:
-            if let splitVC = topViewController?.splitViewController {
-                splitVC.showDetailViewController(toVC, sender: nil)
-            }
-            popStackAll()
-            setupNavigatorForViewController(toVC)
+            resetViewController(toVC)
         }
         
         if rootViewController == nil {
@@ -407,6 +403,22 @@ private extension Navigator {
         pushStack(viewController)
         
         return true
+    }
+    
+    func resetViewController(_ viewController: UIViewController) {
+        guard let splitVC = topViewController?.splitViewController else {
+            popStackAll()
+            setupNavigatorForViewController(viewController)
+            return
+        }
+        
+        if splitVC.viewControllers.count == 1 {     // For Phone
+            (splitVC.viewControllers.first as? UINavigationController)?.pushViewController(viewController, animated: true)
+        } else {
+            splitVC.showDetailViewController(viewController, sender: nil)
+            popStackAll()
+            setupNavigatorForViewController(viewController)
+        }
     }
     
     // Set custom tranistion animation when push or present a view controller

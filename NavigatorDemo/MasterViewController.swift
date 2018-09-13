@@ -29,8 +29,6 @@ class MasterViewController: UITableViewController, DataProtocol {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        
         let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
         let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(DetailViewController.self),
                                     Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self),

@@ -19,12 +19,26 @@ class DetailViewController: UIViewController, DataProtocol {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showViewControler)))
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapShowViewControler)))
+        
+        guard UIDevice.current.userInterfaceIdiom == .pad else { return }
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
     }
     
-    @objc func showViewControler() {
-        let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(DetailViewController.self),
+    @objc func onTapOpenMaster() {
+        UIView.animate(withDuration: CATransaction.animationDuration()) {
+            let isHidden = self.splitViewController?.displayMode == .primaryHidden
+            self.splitViewController?.preferredDisplayMode = isHidden ? (UIDevice.current.orientation.isPortrait ? .primaryOverlay : .allVisible) : .primaryHidden
+        }
+    }
+    
+    @objc func onTapShowViewControler() {
+        let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
                                     Navigator.ParamKey.title: String(arc4random())]
         self.navigator?.show(data)
+    }
+    
+    deinit {
+        debugPrint("FREE MEMORY: \(self)")
     }
 }

@@ -30,10 +30,10 @@ class ViewController: UIViewController, DataProtocol {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showViewControler)))
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapShowViewControler)))
     }
     
-    @objc func showViewControler() {
+    @objc func onTapShowViewControler() {
         let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
                                     Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self),
                                     Navigator.ParamKey.mode: Navigator.Mode.present,
