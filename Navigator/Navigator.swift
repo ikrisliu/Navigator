@@ -142,7 +142,7 @@ import os.log
     }
 }
 
-// MARK: - Navigator Parameter Key -
+// MARK: - Navigator Parameter Key
 extension Navigator {
     
     @objc(NavigatorParamKey)
@@ -153,17 +153,25 @@ extension Navigator {
         /// Navigation controller class name (Used for embedding the view controller)
         @objc public static let navigationCtrlName = "_navigationCtrlName"
         
-        /// @see UIModalTransitionStyle, If has transition class, ignore the style.
+        /// See **UIModalTransitionStyle**. If has transition class, ignore the style.
         @objc public static let transitionStyle = "_transitionStyle"
+        
+        /// See **UIModalPresentationStyle**. If style is *UIModalPresentationCustom*,
+        /// need pass a transition class which creates a custom presentation view controller.
+        @objc public static let presentationStyle = "_presentationStyle"
         
         /// Transition class name for custom transition animation
         @objc public static let transitionName = "_transitionName"
         
-        /// @see NavigatorMode
+        /// See **Navigator.Mode**
         @objc public static let mode = "_mode"
         
         /// Navigation or view controller's title
         @objc public static let title = "_title"
+        
+        /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass one of below two parameters.
+        @objc public static let sourceView = "_sourceView"  // UIView instance
+        @objc public static let sourceRect = "_sourceRect"
         
         /// Fallback view controller will show if no VC found (like 404 Page)
         @objc public static let fallback = "_fallback"
@@ -176,7 +184,7 @@ extension Navigator {
     }
 }
 
-// MARK: - Navigator Mode -
+// MARK: - Navigator Mode
 extension Navigator {
     
     @objc(NavigatorMode)
@@ -218,7 +226,10 @@ private extension Navigator {
         var navName: String?
         var mode: Navigator.Mode = .push
         var transitionStyle: UIModalTransitionStyle = .coverVertical
+        var presentationStyle: UIModalPresentationStyle = .fullScreen
         var transitionName: String?
+        var sourceView: UIView?
+        var sourceRect: CGRect?
         var fallback: String?
         var children: [DataDictionary] = []
     }
@@ -250,19 +261,16 @@ private extension Navigator {
         guard index < stackCount else { return nil }
         
         let poppedVC = stack.object(forKey: index as NSNumber)
-        for key in index..<stackCount where key > 0 {
+        for key in index..<stackCount {
             stack.removeObject(forKey: key as NSNumber)
         }
         return poppedVC
     }
     
-//    var children: [Any] {
-//        if let classNames = showData[ParamKey.children] as? [String] {
-//            return classNames
-//        } else {
-//            return (showData[ParamKey.children] as? [DataDictionary]) ?? []
-//        }
-//    }
+    @discardableResult
+    func popStackAll() -> UIViewController? {
+        return popStack(from: stackCount-1)
+    }
     
     // Convert passed data dictionary to data model
     func dataModelFromDictionay(_ dictionary: DataDictionary) -> DataModel {
@@ -270,8 +278,15 @@ private extension Navigator {
         dataModel.fallback = dictionary[ParamKey.fallback] as? String
         dataModel.vcName = dictionary[ParamKey.viewControllerName] as? String ?? dataModel.fallback
         dataModel.navName = dictionary[ParamKey.navigationCtrlName] as? String
-        dataModel.transitionStyle = dictionary[ParamKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
         dataModel.transitionName = dictionary[ParamKey.transitionName] as? String
+        dataModel.transitionStyle = dictionary[ParamKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
+        dataModel.presentationStyle = dictionary[ParamKey.presentationStyle] as? UIModalPresentationStyle ?? dataModel.presentationStyle
+        dataModel.sourceView = dictionary[ParamKey.sourceView] as? UIView
+        dataModel.sourceRect = dictionary[ParamKey.sourceRect] as? CGRect
+        
+        if let mode = dictionary[ParamKey.mode] {
+            dataModel.mode = mode is NSNumber ? Mode(rawValue: (mode as! NSNumber).intValue)! : mode as! Mode
+        }
         
         if let children = dictionary[ParamKey.children] as? [DataDictionary] {
             dataModel.children = children
@@ -279,15 +294,11 @@ private extension Navigator {
             dataModel.children = vcNames.map({ [ParamKey.viewControllerName: $0] as DataDictionary })
         }
         
-        if let mode = dictionary[ParamKey.mode] {
-            dataModel.mode = mode is NSNumber ? Mode(rawValue: (mode as! NSNumber).intValue)! : mode as! Mode
-        }
-        
         return dataModel
     }
 }
 
-// MARK: - Show View Controllers -
+// MARK: - Show View Controllers
 private extension Navigator {
     
     func showViewControllers() {
@@ -329,9 +340,7 @@ private extension Navigator {
             return
         }
         
-        while stackCount > 1 {
-            popStack()
-        }
+        popStack(from: stackCount-2)    // Pop stack until remain 1 element
         
         if let navControler = topViewController?.navigationController {
             navControler.popToRootViewController(animated: false)
@@ -367,10 +376,12 @@ private extension Navigator {
     
     @discardableResult
     func p_showViewControler(_ viewController: UIViewController, data: DataDictionary, animated: Bool) -> Bool {
-        p_sendDataBeforeShow(data, fromVC: topViewController, toVC: viewController)
-        
         let dataModel = dataModelFromDictionay(data)
         let toVC = viewController.navigationController ?? viewController
+        
+        // Must set presentation style first for `UIModalPresentationStylePopover`
+        toVC.modalPresentationStyle = dataModel.presentationStyle
+        p_sendDataBeforeShow(data, fromVC: topViewController, toVC: viewController)
         
         switch dataModel.mode {
         case .push:
@@ -379,8 +390,12 @@ private extension Navigator {
         case .present:
             setupTransition(dataModel, for: toVC.navigationController ?? toVC)
             topViewController?.present(toVC, animated: animated, completion: nil)
-        default:
-            break
+        case .reset:
+            if let splitVC = topViewController?.splitViewController {
+                splitVC.showDetailViewController(toVC, sender: nil)
+            }
+            popStackAll()
+            setupNavigatorForViewController(toVC)
         }
         
         if rootViewController == nil {
@@ -405,6 +420,13 @@ private extension Navigator {
             }
         } else {
             viewController?.modalTransitionStyle = dataModel.transitionStyle
+        }
+        
+        guard dataModel.presentationStyle == .popover else { return }
+        
+        viewController?.popoverPresentationController?.sourceView = dataModel.sourceView
+        if let sourceRect = dataModel.sourceRect {
+            viewController?.popoverPresentationController?.sourceRect = sourceRect
         }
     }
     
@@ -477,16 +499,15 @@ private extension Navigator {
         
         guard !viewControllers.isEmpty else { return }
         
-        for (idx, viewController) in viewControllers.enumerated() {
-            let vc = (viewController as? UINavigationController)?.topViewController ?? viewController
-            vc._navigatorMode = .reset
-            vc.navigator = Navigator()
-            vc.navigator?.pushStack(vc)
-            vc.navigator?.rootViewController = viewController
-            vc.navigationController?.navigator = vc.navigator
+        for (idx, vc) in viewControllers.enumerated() {
+            let childVC = (vc as? UINavigationController)?.topViewController ?? vc
+            
+            let navigator = Navigator()
+            navigator.setupNavigatorForViewController(vc)
+            navigator.pushStack(childVC)
             
             if (idx == 0) {
-                Navigator._current = vc.navigator!
+                Navigator._current = childVC.navigator!
             }
         }
         
@@ -494,9 +515,17 @@ private extension Navigator {
         (toViewController as? UISplitViewController)?.viewControllers = viewControllers
         (toViewController as? UINavigationController)?.viewControllers = viewControllers
     }
+    
+    func setupNavigatorForViewController(_ viewController: UIViewController) {
+        rootViewController = viewController
+        viewController._navigatorMode = .reset
+        viewController.navigator = self
+        viewController.navigationController?.navigator = self
+        (viewController as? UINavigationController)?.topViewController?.navigator = self
+    }
 }
 
-// MARK: - Dismiss View Controllers -
+// MARK: - Dismiss View Controllers
 private extension Navigator {
     
     func dismissViewControllers() {
@@ -556,7 +585,7 @@ private extension Navigator {
     }
 }
 
-// MARK: - Goto View Controller -
+// MARK: - Goto View Controller
 private extension Navigator {
     
     func gotoViewControllerIfExisted(_ vcName: String) -> Bool {
@@ -591,7 +620,7 @@ private extension Navigator {
     }
 }
 
-// MARK: - Send and Receive Data -
+// MARK: - Send and Receive Data
 private extension Navigator {
     
     func p_sendDataBeforeShow(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {

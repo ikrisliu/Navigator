@@ -9,7 +9,6 @@
 import UIKit
 import Navigator
 
-
 class ViewController: UIViewController, DataProtocol {
 
     private var data: DataDictionary = [:]
@@ -18,10 +17,9 @@ class ViewController: UIViewController, DataProtocol {
         print("Received data before show from \(String(describing: fromViewController)): \(data)")
         
         self.data = data
-        self.title = data[Navigator.ParamKey.title] as? String
         
-        guard let tabBarSystemItem = data[NSStringFromClass(UITabBarItem.self)] else { return }
-        tabBarItem = UITabBarItem(tabBarSystemItem: tabBarSystemItem as! UITabBarSystemItem, tag: 0)
+        title = data[Navigator.ParamKey.title] as? String ?? "Favorites"
+        tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
     }
     
     func onDataReceiveAfterBack(_ data: DataDictionary, fromViewController: UIViewController?) {
@@ -30,6 +28,7 @@ class ViewController: UIViewController, DataProtocol {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showViewControler)))
     }

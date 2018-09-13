@@ -9,12 +9,6 @@
 import UIKit
 
 // MARK: - Public -
-@objc public protocol TransitionPresentationDelegate: AnyObject {
-    
-    @objc optional func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController?
-}
-
-
 @objc open class Transition: UIPercentDrivenInteractiveTransition, UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate, UINavigationControllerDelegate {
     
     @objc(TransitionOrientation)
@@ -27,12 +21,8 @@ import UIKit
     
     /// Whether enable gesture to pop/dismiss current view controller, default is false.
     @objc open var interactiveGestureEnabled = true
-    
     @objc open var orientation: Orientation = .default
     @objc public var isVertical: Bool { return orientation == .vertical }
-    
-    /// This delegate is for handling popup view controller
-    @objc open weak var presentationDelegate: TransitionPresentationDelegate?
     @objc public private(set) weak var transitionContext: UIViewControllerContextTransitioning!
     
     /// Show or Dismiss
@@ -45,7 +35,6 @@ import UIKit
             }
         }
     }
-    
     
     /// Overwrite this variable to assign a custom animation duration
     @objc open var animationDuration: TimeInterval {
@@ -78,7 +67,7 @@ import UIKit
     private weak var navController: UINavigationController?
 }
 
-// MARK: - UIViewControllerAnimatedTransitioning -
+// MARK: - UIViewControllerAnimatedTransitioning
 @objc public extension Transition {
     
     public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
@@ -107,7 +96,7 @@ import UIKit
     }
 }
 
-// MARK: - UIViewControllerTransitioningDelegate -
+// MARK: - UIViewControllerTransitioningDelegate
 @objc public extension Transition {
     
     public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
@@ -133,14 +122,13 @@ import UIKit
 //        return isInteractive ? self : nil
 //    }
     
+    /// NOTE: If need custom popover presentation controller, can overwrite this method to provide one.
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        guard let presentationController = presentationDelegate?.presentationController?(forPresented: presented, presenting: presenting, source: source) else { return nil }
-        presented.modalPresentationStyle = .custom
-        return presentationController
+        return nil
     }
 }
 
-// MARK: - UINavigationControllerDelegate -
+// MARK: - UINavigationControllerDelegate
 @objc public extension Transition {
     
     public func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {

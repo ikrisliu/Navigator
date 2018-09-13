@@ -16,21 +16,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        let favTab: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-                                      Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self),
-                                      NSStringFromClass(UITabBarItem.self): UITabBarSystemItem.favorites]
+        let tab1: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
+                                    Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
         
-        let priTab: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
+        let master: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(MasterViewController.self),
                                       Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
-        let detTab: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
+        let detail: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(DetailViewController.self),
                                       Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
-        
-        let conTab: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(UISplitViewController.self),
-                                      NSStringFromClass(UITabBarItem.self): UITabBarSystemItem.contacts,
-                                      Navigator.ParamKey.children: [priTab, detTab]]
+        let tab2: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(SplitViewController.self),
+                                    Navigator.ParamKey.children: [master, detail]]
         
         let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(UITabBarController.self),
-                                    Navigator.ParamKey.children: [favTab, conTab]]
+                                    Navigator.ParamKey.children: [tab1, tab2]]
         
         Navigator.root.window = window
         Navigator.root.show(data)
