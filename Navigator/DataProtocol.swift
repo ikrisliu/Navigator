@@ -95,26 +95,3 @@ infix operator =>: AdditionPrecedence
     /// Receive data from next page after next page dismiss animation end
     @objc optional func onDataReceiveAfterBack(_ data: DataDictionary, fromViewController: UIViewController?)
 }
-
-
-// MARK: - Navigator Property
-/// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
-///   - If the VC is instantiated and opened by navigator, it can use navigator to open other VCs.
-///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
-extension UIViewController {
-    
-    enum AssociationKey {
-        static var navigator: UInt8 = 0
-        static var navigatorMode: UInt8 = 0
-        static var navigatorTransition: UInt8 = 0
-    }
-    
-    @objc public var navigator: Navigator? {
-        get {
-            return objc_getAssociatedObject(self, &AssociationKey.navigator) as? Navigator
-        }
-        set {
-            objc_setAssociatedObject(self, &AssociationKey.navigator, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-}

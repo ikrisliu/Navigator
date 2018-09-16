@@ -11,7 +11,9 @@ import Navigator
 
 class ViewController: UIViewController, DataProtocol {
 
+    private typealias TupleType = (greeting: String, message: UInt32)
     private var data: DataDictionary = [:]
+    private var tuple: TupleType?
     
     func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?) {
         print("Received data before show from \(String(describing: fromViewController)): \(data)")
@@ -19,6 +21,7 @@ class ViewController: UIViewController, DataProtocol {
         self.data = data
         
         title = data[Navigator.ParamKey.title] as? String ?? "Favorites"
+        tuple = data[Navigator.ParamKey.additionalData] as? TupleType
         tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
     }
     
@@ -31,6 +34,14 @@ class ViewController: UIViewController, DataProtocol {
         
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapShowViewControler)))
+        
+        guard let tuple = tuple else { return }
+        let label = UILabel()
+        label.frame = view.frame
+        label.autoresizingMask = [.flexibleWidth, .flexibleWidth]
+        label.textAlignment = .center
+        label.text = tuple.greeting + String(tuple.message)
+        view.addSubview(label)
     }
     
     @objc func onTapShowViewControler() {

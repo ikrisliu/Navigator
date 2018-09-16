@@ -34,7 +34,8 @@ class DetailViewController: UIViewController, DataProtocol {
     
     @objc func onTapShowViewControler() {
         let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-                                    Navigator.ParamKey.title: String(arc4random())]
+                                    Navigator.ParamKey.title: String(arc4random()),
+                                    Navigator.ParamKey.additionalData: (greeting: "Hello: ", message: arc4random())]
         self.navigator?.show(data)
     }
     

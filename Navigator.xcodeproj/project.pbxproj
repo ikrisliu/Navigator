@@ -23,6 +23,7 @@
 		01FB8EB220A5C4AD00776808 /* Navigator.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01FB8E8120A5C34B00776808 /* Navigator.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01FB8EBA20A5D87700776808 /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB8EB920A5D87700776808 /* Navigator.swift */; };
 		01FB8EBC20A5D88500776808 /* DataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB8EBB20A5D88500776808 /* DataProtocol.swift */; };
+		01FFDA92214BF02300D3CFC6 /* Navigator+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFDA91214BF02300D3CFC6 /* Navigator+Private.swift */; };
 		4435E45E214A40FB008F2806 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4435E45D214A40FA008F2806 /* SplitViewController.swift */; };
 		4435E460214A425D008F2806 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4435E45F214A425D008F2806 /* DetailViewController.swift */; };
 		4435E462214A46D8008F2806 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4435E461214A46D8008F2806 /* MasterViewController.swift */; };
@@ -81,6 +82,7 @@
 		01FB8EB820A5D83300776808 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = SOURCE_ROOT; };
 		01FB8EB920A5D87700776808 /* Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
 		01FB8EBB20A5D88500776808 /* DataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProtocol.swift; sourceTree = "<group>"; };
+		01FFDA91214BF02300D3CFC6 /* Navigator+Private.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Navigator+Private.swift"; sourceTree = "<group>"; };
 		4435E45D214A40FA008F2806 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		4435E45F214A425D008F2806 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		4435E461214A46D8008F2806 /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 			children = (
 				01FB8EBB20A5D88500776808 /* DataProtocol.swift */,
 				01FB8EB920A5D87700776808 /* Navigator.swift */,
+				01FFDA91214BF02300D3CFC6 /* Navigator+Private.swift */,
 				44847C2C2133D7D200812A69 /* Fallback.swift */,
 				01B3C31820BC3EDD00286D91 /* Transition.swift */,
 				01A93A6021319BB2002F206A /* Transition */,
@@ -356,6 +359,7 @@
 				01B3C31920BC3EDD00286D91 /* Transition.swift in Sources */,
 				01FB8EBA20A5D87700776808 /* Navigator.swift in Sources */,
 				01F23B7521319E00001BD0DF /* ScaleTransition.swift in Sources */,
+				01FFDA92214BF02300D3CFC6 /* Navigator+Private.swift in Sources */,
 				01F23B7721319E12001BD0DF /* MatrixTransition.swift in Sources */,
 				01F23B7321319D62001BD0DF /* CircleTransition.swift in Sources */,
 				44847C2D2133D7D200812A69 /* Fallback.swift in Sources */,
