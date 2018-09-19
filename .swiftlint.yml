@@ -1,11 +1,32 @@
 disabled_rules: # rule identifiers to exclude from running
-  - colon
-  - comma
-  - control_statement
   - force_cast
+  - trailing_comma
 
 opt_in_rules: # Find all the available rules by running: swiftlint rules
+  - anyobject_protocol
+  - array_init
+  - closure_spacing
+  - discouraged_object_literal
+  - discouraged_optional_boolean
   - empty_count
+  - empty_string
+  - explicit_init
+  - fallthrough
+  - first_where
+  - identical_operands
+  - implicit_return
+  - let_var_whitespace
+  - multiline_function_chains
+  - multiline_parameters
+  - overridden_super_call
+  - override_in_extension
+  - pattern_matching_keywords
+  - private_action
+  - private_outlet
+  - prohibited_super_call
+  - sorted_first_last
+  - unused_import
+  - yoda_condition
 
 included: # paths to include during linting. `--path` is ignored if present.
   - ./
@@ -39,14 +60,32 @@ type_name:
   excluded: iPhone # excluded via string
 
 identifier_name:
-  min_length: 2
+  min_length: 3
   max_length:
     warning: 40
     error: 50
   allowed_symbols: "_"
   excluded: # excluded via string array
     - id
+    - in
+    - vc
     - URL
     - GlobalAPIKey
+
+large_tuple:
+  warning: 4
+  error: 5
+
+custom_rules:
+  attributes_with_name:
+    name: 'Attribute with Name'
+    regex: '(@objc|@nonobjc){1}\({1}[A-Za-z0-9]+\){1}[ A-Za-z0-9]+'
+    message: "Attributes should be on their own lines if has name in parentheses."
+    severity: warning
+  attributes_without_name:
+    name: 'Attribute without Name'
+    regex: '(@objc|@nonobjc){1}[()]{0}\n+'
+    message: "Attributes should be on the same line if hasn't name in parentheses."
+    severity: warning
 
 reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit, html, emoji)

@@ -9,7 +9,7 @@
 import UIKit
 import Navigator
 
-class MasterViewController: UITableViewController, DataProtocol {
+class MasterViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +29,10 @@ class MasterViewController: UITableViewController, DataProtocol {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if UIDevice.current.orientation == .portrait {
+            splitViewController?.updateMasterVisibility()
+        }
+        
         let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
         let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(DetailViewController.self),
                                     Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self),

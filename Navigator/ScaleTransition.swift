@@ -19,11 +19,11 @@ import Foundation
         let fromView = fromVC.view!
         let toView = toVC.view!
 
-        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: kCAMediaTimingFunctionDefault))
+        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: CAMediaTimingFunctionName.default))
         
         if isShow {
             containerView.addSubview(toView)
-            var scaleTransform = CATransform3DMakeScale(0.93, 0.93, 1)
+            var scaleTransform = CATransform3DMakeScale(0.9, 0.9, 1)
             scaleTransform.m34 = 1.0 / -500.0
             toView.layer.transform = isVertical ? CATransform3DMakeTranslation(0, toView.bounds.height, 0) : CATransform3DMakeTranslation(toView.bounds.width, 0, 0)
             UIView.animate(withDuration: animationDuration, animations: {

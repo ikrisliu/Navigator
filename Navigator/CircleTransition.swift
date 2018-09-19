@@ -29,7 +29,7 @@ import Foundation
         circleAnimation.duration = animationDuration
         // Avoid screen flash
         circleAnimation.isRemovedOnCompletion = false
-        circleAnimation.fillMode = kCAFillModeBoth
+        circleAnimation.fillMode = CAMediaTimingFillMode.both
         
         if isShow {
             containerView.addSubview(toView)

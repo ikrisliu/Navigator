@@ -9,13 +9,11 @@
 import UIKit
 import Navigator
 
-class SplitViewController: UISplitViewController, UISplitViewControllerDelegate, DataProtocol {
+class SplitViewController: UISplitViewController, UISplitViewControllerDelegate {
     
-    func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?) {
-        print("Received data before show from \(String(describing: fromViewController)): \(data)")
-        
-        title = data[Navigator.ParamKey.title] as? String
-        tabBarItem = UITabBarItem(tabBarSystemItem: .contacts, tag: 1)
+    convenience init() {
+        self.init(nibName: nil, bundle: nil)
+        self.tabBarItem = UITabBarItem(tabBarSystemItem: .contacts, tag: 1)
     }
     
     override func viewDidLoad() {
@@ -32,5 +30,15 @@ class SplitViewController: UISplitViewController, UISplitViewControllerDelegate,
     
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
         return UIDevice.current.userInterfaceIdiom == .phone
+    }
+}
+
+extension UISplitViewController {
+    
+    func updateMasterVisibility() {
+        UIView.animate(withDuration: CATransaction.animationDuration()) {
+            let isHidden = self.displayMode == .primaryHidden
+            self.preferredDisplayMode = isHidden ? (UIDevice.current.orientation.isPortrait ? .primaryOverlay : .allVisible) : .primaryHidden
+        }
     }
 }

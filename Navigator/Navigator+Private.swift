@@ -123,7 +123,7 @@ extension Navigator {
         guard let topVC = topViewController else { return }
         if topVC is UITabBarController || topVC is UISplitViewController {
             let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController: UIViewController? = viewControllers.filter({ NSStringFromClass(type(of: $0)) == showModel.vcName }).first
+            let viewController: UIViewController? = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == showModel.vcName })
             if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
             }
@@ -309,7 +309,7 @@ extension Navigator {
             navigator.setupNavigatorForViewController(vc)
             navigator.pushStack(childVC)
             
-            if (idx == 0) {
+            if idx == 0 {
                 Navigator._current = childVC.navigator!
             }
         }
@@ -372,7 +372,7 @@ extension Navigator {
         }
     }
     
-    func popTopViewController(fromNav: UINavigationController, completion:CompletionType) {
+    func popTopViewController(fromNav: UINavigationController, completion: CompletionType) {
         CATransaction.begin()
         CATransaction.setCompletionBlock { completion?() }
         fromNav.popToViewController(topViewController!, animated: dismissAnimated)
@@ -395,7 +395,7 @@ extension Navigator {
         guard self !== Navigator.root else {
             let viewControllers = Navigator.childViewControllers(of: self.rootViewController!)
             // NOTE: Method `String(describing:)` returned string always doesn't match with `vcName`
-            let viewController = viewControllers.filter({ NSStringFromClass(type(of: $0)) == vcName }).first
+            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == vcName })
             if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (rootViewController as? UITabBarController)?.selectedIndex = index
                 return true

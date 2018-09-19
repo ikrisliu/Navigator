@@ -26,10 +26,7 @@ class DetailViewController: UIViewController, DataProtocol {
     }
     
     @objc func onTapOpenMaster() {
-        UIView.animate(withDuration: CATransaction.animationDuration()) {
-            let isHidden = self.splitViewController?.displayMode == .primaryHidden
-            self.splitViewController?.preferredDisplayMode = isHidden ? (UIDevice.current.orientation.isPortrait ? .primaryOverlay : .allVisible) : .primaryHidden
-        }
+        splitViewController?.updateMasterVisibility()
     }
     
     @objc func onTapShowViewControler() {

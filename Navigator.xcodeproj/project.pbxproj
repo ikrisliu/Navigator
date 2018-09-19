@@ -150,9 +150,9 @@
 			isa = PBXGroup;
 			children = (
 				01FB8EBB20A5D88500776808 /* DataProtocol.swift */,
+				44847C2C2133D7D200812A69 /* Fallback.swift */,
 				01FB8EB920A5D87700776808 /* Navigator.swift */,
 				01FFDA91214BF02300D3CFC6 /* Navigator+Private.swift */,
-				44847C2C2133D7D200812A69 /* Fallback.swift */,
 				01B3C31820BC3EDD00286D91 /* Transition.swift */,
 				01A93A6021319BB2002F206A /* Transition */,
 				01FB8EB720A5D79500776808 /* Supporting Files */,
@@ -277,13 +277,14 @@
 				TargetAttributes = {
 					01FB8E8020A5C34B00776808 = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 0930;
+						LastSwiftMigration = 1000;
 					};
 					01FB8E8920A5C34B00776808 = {
 						CreatedOnToolsVersion = 9.3;
 					};
 					01FB8E9E20A5C44800776808 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 1000;
 					};
 				};
 			};
@@ -568,7 +569,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -596,7 +597,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.Navigator;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -657,7 +658,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.NavigatorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -678,7 +679,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.NavigatorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

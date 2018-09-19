@@ -51,32 +51,6 @@ class ViewController: UIViewController, DataProtocol {
                                     Navigator.ParamKey.transitionName: NSStringFromClass(ScaleTransition.self),
                                     Navigator.ParamKey.title: String(arc4random())]
         self.navigator?.show(data)
-
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//            let para: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-//                                        Navigator.ParamKey.mode: Navigator.Mode.present,
-//                                        Navigator.ParamKey.transitionStyle: UIModalTransitionStyle.flipHorizontal,
-//                                        Navigator.ParamKey.title: String(arc4random())]
-//            self.navigator?.show(para)
-//        }
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//            let para: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-//                                        Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self),
-//                                        Navigator.ParamKey.mode: Navigator.Mode.present,
-//                                        Navigator.ParamKey.title: String(arc4random())]
-//            self.navigator?.show(para)
-//        }
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//            let para: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-//                                        Navigator.ParamKey.title: String(arc4random())]
-//            self.navigator?.show(para)
-//        }
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-//            self.navigator?.dismiss([:], level: 2, animated: true, completion: nil)
-//        }
     }
     
     deinit {
@@ -84,7 +58,6 @@ class ViewController: UIViewController, DataProtocol {
         navigator?.sendDataAfterBack(data)
     }
 }
-
 
 extension CGFloat {
     static func random() -> CGFloat {

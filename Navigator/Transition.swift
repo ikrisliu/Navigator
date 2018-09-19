@@ -136,7 +136,8 @@ import UIKit
         return isInteractive ? self : nil
     }
     
-    public func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation,
+    // swiftlint:disable multiline_parameters
+    public func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation,
                                      from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         guard operation != .none else { return nil }
         
@@ -186,11 +187,7 @@ private extension Transition {
             isInteractive = false
             let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - self.startLocation.y/2) : CGFloat.maximum(velocity.x, translation.x - self.startLocation.x/2)
             let isFinish = self.isVertical ? offset > recognizerView.bounds.height/4 : offset > recognizerView.bounds.width/2
-            if (isFinish) {
-                finish()
-            } else {
-                cancel()
-            }
+            isFinish ? finish() : cancel()
             
         case .failed, .cancelled:
             isInteractive = false

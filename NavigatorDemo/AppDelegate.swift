@@ -14,23 +14,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        let tab1: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-                                    Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
+        let fstTab: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
+                                      Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
         
         let master: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(MasterViewController.self),
                                       Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
         let detail: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(DetailViewController.self),
                                       Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self)]
-        let tab2: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(SplitViewController.self),
-                                    Navigator.ParamKey.children: [master, detail]]
+        let secTab: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(SplitViewController.self),
+                                      Navigator.ParamKey.children: [master, detail]]
         
-        let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(UITabBarController.self),
-                                    Navigator.ParamKey.children: [tab1, tab2]]
+        let vcData: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(UITabBarController.self),
+                                      Navigator.ParamKey.children: [fstTab, secTab]]
         
         Navigator.root.window = window
-        Navigator.root.show(data)
+        Navigator.root.show(vcData)
+        
+        print(String(describing: URLSession.self))
+        print(NSStringFromClass(URLSession.self))
         
         return true
     }
