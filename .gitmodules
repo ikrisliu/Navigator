@@ -1,3 +1,4 @@
 [submodule "Scripts"]
 	path = Scripts
 	url = git@github.com:iKrisLiu/Scripts.git
+	branch = master
