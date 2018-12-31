@@ -9,46 +9,17 @@
 import UIKit
 
 // MARK: - Data Dictionary
-infix operator =>: AdditionPrecedence
+infix operator -->: AdditionPrecedence
 
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
-@objc public class DataDictionary: NSObject, ExpressibleByDictionaryLiteral {
+@objc public class DataDictionary: NSObject {
 
     @objc public private(set) var data: [String: Any] = [:]
     
     /// The next navigating view controller name with required data
     /// Use this variable to build linked node when you handle universal link or deep link
     @objc public var next: DataDictionary?
-    
-    @objc public var count: Int {
-        return data.count
-    }
-    
-    @objc public var isEmpty: Bool {
-        return data.isEmpty
-    }
-    
-    @objc public subscript(key: String) -> Any? {
-        return data[key]
-    }
-    
-    @objc public override var description: String {
-        var desc = "", indent = ""
-        var index = 0
-        var curr: DataDictionary? = self
-        repeat {
-            desc += indent + curr!.data.description
-            curr = curr?.next
-            index += 1
-            indent = "\n" + String(repeating: "  ", count: index)
-        } while curr != nil
-        return desc
-    }
-    
-    @objc public override var debugDescription: String {
-        return self.description
-    }
     
     public required init(dictionaryLiteral elements: (String, Any)...) {
         for (key, value) in elements {
@@ -66,7 +37,7 @@ infix operator =>: AdditionPrecedence
     }
     
     /// Use this custom operator to define navigation data for univeral linka and deep link
-    public static func => (left: DataDictionary, right: DataDictionary) -> DataDictionary {
+    public static func --> (left: DataDictionary, right: DataDictionary) -> DataDictionary {
         var data = left
         if left.isEmpty {
             data = right
@@ -78,6 +49,45 @@ infix operator =>: AdditionPrecedence
             curr.next = right
         }
         return data
+    }
+}
+
+extension DataDictionary {
+    
+    @objc public var count: Int {
+        return data.count
+    }
+    
+    @objc public var isEmpty: Bool {
+        return data.isEmpty
+    }
+    
+    @objc public subscript(key: String) -> Any? {
+        return data[key]
+    }
+    
+    @objc public func removeAll() {
+        data.removeAll()
+    }
+}
+
+extension DataDictionary: ExpressibleByDictionaryLiteral {
+    
+    @objc public override var description: String {
+        var desc = "", indent = ""
+        var index = 0
+        var curr: DataDictionary? = self
+        repeat {
+            desc += indent + curr!.data.description
+            curr = curr?.next
+            index += 1
+            indent = "\n" + String(repeating: "  ", count: index)
+        } while curr != nil
+        return desc
+    }
+    
+    @objc public override var debugDescription: String {
+        return self.description
     }
 }
 

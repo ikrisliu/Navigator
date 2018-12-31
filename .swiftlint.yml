@@ -7,7 +7,6 @@ opt_in_rules: # Find all the available rules by running: swiftlint rules
   - array_init
   - closure_spacing
   - discouraged_object_literal
-  - discouraged_optional_boolean
   - empty_count
   - empty_string
   - explicit_init
@@ -16,7 +15,6 @@ opt_in_rules: # Find all the available rules by running: swiftlint rules
   - identical_operands
   - implicit_return
   - let_var_whitespace
-  - multiline_function_chains
   - multiline_parameters
   - overridden_super_call
   - override_in_extension
@@ -52,12 +50,27 @@ file_length:
   warning: 500
   error: 1200
 
+function_parameter_count:
+  warning: 8
+  error: 10
+
+function_body_length:
+  warning: 80
+  error: 100
+
+cyclomatic_complexity:
+  warning: 15
+  warning: 20
+
 type_name:
-  min_length: 4 # only warning
+  min_length: 3 # only warning
   max_length: 
     warning: 40
     error: 50
-  excluded: iPhone # excluded via string
+  excluded:
+    - R
+    - ID
+    - Key
 
 identifier_name:
   min_length: 3
@@ -67,21 +80,32 @@ identifier_name:
   allowed_symbols: "_"
   excluded: # excluded via string array
     - id
+    - ip
     - in
     - vc
     - URL
-    - GlobalAPIKey
 
 large_tuple:
   warning: 4
   error: 5
 
+nesting:
+  type_level:
+    warning: 2
+
 custom_rules:
+  line_break_after_curly_brackets:
+    name: 'Line break after curly brackets'
+    regex: '^[^\n]*[ \t](?!class|struct|enum|protocol|extension)[ \t][^\n]+\{$\n\s*$'
+    message: "Blank line should be removed after left curly brackets({)."
+    severity: warning
+
   attributes_with_name:
     name: 'Attribute with Name'
     regex: '(@objc|@nonobjc){1}\({1}[A-Za-z0-9]+\){1}[ A-Za-z0-9]+'
     message: "Attributes should be on their own lines if has name in parentheses."
     severity: warning
+
   attributes_without_name:
     name: 'Attribute without Name'
     regex: '(@objc|@nonobjc){1}[()]{0}\n+'

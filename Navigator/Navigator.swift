@@ -48,15 +48,17 @@ import os.log
     @objc public func show(_ data: DataDictionary, animated: Bool = true, completion: CompletionType = nil) {
         Navigator._current = self
         
-        self.showData = data
-        self.showAnimated = animated
-        self.showCompletion = completion
+        showData = data
+        showAnimated = animated
+        showCompletion = completion
         
         if self === Navigator.root && showModel.mode == .reset {
             showDeepLinkViewControllers(data)
         } else {
             showViewControllers()
         }
+        
+        showData.removeAll()
     }
     
     /// Dismiss any view controller with optional data in dictionary.
@@ -69,11 +71,13 @@ import os.log
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc public func dismiss(_ data: DataDictionary = [:], level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
         self.level = level
-        self.dismissData = data
-        self.dismissAnimated = animated
-        self.dismissCompletion = completion
+        dismissData = data
+        dismissAnimated = animated
+        dismissCompletion = completion
         
         dismissViewControllers()
+        
+        dismissData.removeAll()
     }
     
     /// Send data to previous any page before current page dismissed.
