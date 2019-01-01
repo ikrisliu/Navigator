@@ -11,8 +11,8 @@ import os.log
 
 @objc open class Fallback: UIViewController, DataProtocol {
     
-    public func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?) {
-        title = data[Navigator.ParamKey.viewControllerName] as? String
+    public func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
+        title = data.title
         os_log("ZZZ: Received data from %@ before show: %@", String(describing: fromViewController), data)
     }
     

@@ -105,6 +105,7 @@ import UIKit
         presentedVC = presented
         presentingVC = presenting
         addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC!)
+        
         return self
     }
     
@@ -150,6 +151,7 @@ import UIKit
         
         return self
     }
+    // swiftlint:enable multiline_parameters
 }
 
 // MARK: - Private -

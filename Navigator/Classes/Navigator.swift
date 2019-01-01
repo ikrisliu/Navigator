@@ -45,20 +45,18 @@ import os.log
     ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc public func show(_ data: DataDictionary, animated: Bool = true, completion: CompletionType = nil) {
+    @objc public func show(_ data: DataModel, animated: Bool = true, completion: CompletionType = nil) {
         Navigator._current = self
         
-        showData = data
+        showModel = data
         showAnimated = animated
         showCompletion = completion
         
-        if self === Navigator.root && showModel.mode == .reset {
+        if let showModel = showModel, self === Navigator.root && showModel.mode == .reset {
             showDeepLinkViewControllers(data)
         } else {
             showViewControllers()
         }
-        
-        showData.removeAll()
     }
     
     /// Dismiss any view controller with optional data in dictionary.
@@ -69,15 +67,13 @@ import os.log
     ///   - level: Which view controller will be dismissed, default 0 is current VC, 1 is previous one VC.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc public func dismiss(_ data: DataDictionary = [:], level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
+    @objc public func dismiss(_ data: DataModel? = nil, level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
         self.level = level
-        dismissData = data
+        dismissModel = data
         dismissAnimated = animated
         dismissCompletion = completion
         
         dismissViewControllers()
-        
-        dismissData.removeAll()
     }
     
     /// Send data to previous any page before current page dismissed.
@@ -86,9 +82,8 @@ import os.log
     /// - Parameters:
     ///   - data: The data is passed to previous any view controller.
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
-    @objc public func sendDataBeforeBack(_ data: DataDictionary, level: Int = 0) {
-        guard !data.isEmpty else { return }
-        guard let poppedVC = popStack(from: level) else { return }
+    @objc public func sendDataBeforeBack(_ data: DataModel?, level: Int = 0) {
+        guard let data = data, let poppedVC = popStack(from: level) else { return }
         let toVC = topViewController ?? poppedVC
         p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
         pushStack(poppedVC)
@@ -100,8 +95,8 @@ import os.log
     /// For this edge case, we can call this method in deinit() to solve data passing issue.
     ///
     /// - Parameter data: The data is passed to previous view controller.
-    @objc public func sendDataAfterBack(_ data: DataDictionary) {
-        guard !data.isEmpty else { return }
+    @objc public func sendDataAfterBack(_ data: DataModel?) {
+        guard let data = data else { return }
         guard let toVC = topViewController else { return }
         p_sendDataAfterBack(data, toVC: toVC)
     }
@@ -128,77 +123,29 @@ import os.log
     var dismissAnimated: Bool = true
     var showCompletion: CompletionType = nil
     var dismissCompletion: CompletionType = nil
-    var showModel: DataModel!
-    var dismissModel: DataModel!
+    weak var showModel: DataModel?
+    weak var dismissModel: DataModel?
     /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
     var level: Int = 0
-    
-    var showData: DataDictionary = [:] {
-        didSet {
-            showModel = dataModelFromDictionay(showData)
-        }
-    }
-    var dismissData: DataDictionary = [:] {
-        didSet {
-            dismissModel = dataModelFromDictionay(dismissData)
-        }
-    }
-}
-
-// MARK: - Navigator Parameter Key
-extension Navigator {
-    
-    @objc(NavigatorParamKey)
-    public class ParamKey: NSObject {
-        /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
-        @objc public static let viewControllerName = "_viewControllerName"
-        
-        /// Navigation controller class name (Used for embedding the view controller)
-        @objc public static let navigationCtrlName = "_navigationCtrlName"
-        
-        /// See **Navigator.Mode**
-        @objc public static let mode = "_mode"
-        
-        /// Navigation or view controller's title
-        @objc public static let title = "_title"
-        
-        /// See **UIModalTransitionStyle**. If has transition class, ignore the style.
-        @objc public static let transitionStyle = "_transitionStyle"
-        
-        /// See **UIModalPresentationStyle**. If style is *UIModalPresentationCustom*,
-        /// need pass a transition class which creates a custom presentation view controller.
-        @objc public static let presentationStyle = "_presentationStyle"
-        
-        /// Transition class name for custom transition animation
-        @objc public static let transitionName = "_transitionName"
-        
-        /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass one of below two parameters.
-        @objc public static let sourceView = "_sourceView"  // UIView instance
-        @objc public static let sourceRect = "_sourceRect"
-        
-        /// Fallback view controller will show if no VC found (like 404 Page)
-        @objc public static let fallback = "_fallback"
-        
-        /// Provide a data provider class to mock data
-        @objc public static let dataProvider = "_dataProvider"
-        
-        /// Additional data for passing to previous or next view controller. Pass tuple for mutiple values.
-        @objc public static let additionalData = "_additionalData"
-        
-        /// Can be a list of VC names, also can nest a series of VCs with required data
-        @objc public static let children = "_children"
-    }
 }
 
 // MARK: - Navigator Mode
 extension Navigator {
     
     @objc(NavigatorMode)
-    public enum Mode: Int {
+    public enum Mode: Int, CustomStringConvertible {
         case push
         case present
         /// Reset view controller stack when initialize a new VC or deep link
         case reset
+        
+        public var description: String {
+            switch self {
+            case .push: return "push"
+            case .present: return "present"
+            case .reset: return "reset"
+            }
+        }
     }
 }
 

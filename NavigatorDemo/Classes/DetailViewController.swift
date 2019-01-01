@@ -11,8 +11,8 @@ import Navigator
 
 class DetailViewController: UIViewController, DataProtocol {
     
-    func onDataReceiveBeforeShow(_ data: DataDictionary, fromViewController: UIViewController?) {
-        title = data[Navigator.ParamKey.title] as? String ?? "Detail"
+    func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
+        title = data.title ?? "Detail"
     }
     
     override func viewDidLoad() {
@@ -30,9 +30,7 @@ class DetailViewController: UIViewController, DataProtocol {
     }
     
     @objc func onTapShowViewControler() {
-        let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(ViewController.self),
-                                    Navigator.ParamKey.title: String(arc4random()),
-                                    Navigator.ParamKey.additionalData: (greeting: "Hello: ", message: arc4random())]
+        let data = DataModel(viewController: NSStringFromClass(ViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
         self.navigator?.show(data)
     }
     

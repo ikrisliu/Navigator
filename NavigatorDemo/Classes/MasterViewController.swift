@@ -34,10 +34,8 @@ class MasterViewController: UITableViewController {
         }
         
         let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
-        let data: DataDictionary = [Navigator.ParamKey.viewControllerName: NSStringFromClass(DetailViewController.self),
-                                    Navigator.ParamKey.navigationCtrlName: NSStringFromClass(UINavigationController.self),
-                                    Navigator.ParamKey.mode: Navigator.Mode.reset,
-                                    Navigator.ParamKey.title: title]
+        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset, title: title)
+        
         splitViewController?.viewControllers.last?.navigator?.show(data)
     }
 }

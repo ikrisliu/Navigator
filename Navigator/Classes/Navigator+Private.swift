@@ -12,19 +12,6 @@ import os.log
 // MARK: - Data Stack
 extension Navigator {
     
-    struct DataModel {
-        var vcName: String?
-        var navName: String?
-        var mode: Navigator.Mode = .push
-        var transitionStyle: UIModalTransitionStyle = .coverVertical
-        var presentationStyle: UIModalPresentationStyle = .fullScreen
-        var transitionName: String?
-        var sourceView: UIView?
-        var sourceRect: CGRect?
-        var fallback: String?
-        var children: [DataDictionary] = []
-    }
-    
     var stackCount: Int {
         return stack.dictionaryRepresentation().count
     }
@@ -62,37 +49,14 @@ extension Navigator {
     func popStackAll() -> UIViewController? {
         return popStack(from: stackCount-1)
     }
-    
-    // Convert passed data dictionary to data model
-    func dataModelFromDictionay(_ dictionary: DataDictionary) -> DataModel {
-        var dataModel = DataModel()
-        dataModel.fallback = dictionary[ParamKey.fallback] as? String
-        dataModel.vcName = dictionary[ParamKey.viewControllerName] as? String ?? dataModel.fallback
-        dataModel.navName = dictionary[ParamKey.navigationCtrlName] as? String
-        dataModel.transitionName = dictionary[ParamKey.transitionName] as? String
-        dataModel.transitionStyle = dictionary[ParamKey.transitionStyle] as? UIModalTransitionStyle ?? dataModel.transitionStyle
-        dataModel.presentationStyle = dictionary[ParamKey.presentationStyle] as? UIModalPresentationStyle ?? dataModel.presentationStyle
-        dataModel.sourceView = dictionary[ParamKey.sourceView] as? UIView
-        dataModel.sourceRect = dictionary[ParamKey.sourceRect] as? CGRect
-        
-        if let mode = dictionary[ParamKey.mode] {
-            dataModel.mode = mode is NSNumber ? Mode(rawValue: (mode as! NSNumber).intValue)! : mode as! Mode
-        }
-        
-        if let children = dictionary[ParamKey.children] as? [DataDictionary] {
-            dataModel.children = children
-        } else if let vcNames = dictionary[ParamKey.children] as? [String] {
-            dataModel.children = vcNames.map({ [ParamKey.viewControllerName: $0] as DataDictionary })
-        }
-        
-        return dataModel
-    }
 }
 
 // MARK: - Show View Controllers
 extension Navigator {
     
     func showViewControllers() {
+        guard let showModel = showModel else { return }
+        
         let viewController = createViewController(showModel)
         guard !showTabBarControlerIfExisted(viewController) else { return }
         guard !showSplitViewControllerIfExisted(viewController) else { return }
@@ -101,29 +65,36 @@ extension Navigator {
     }
     
     func showTabBarControlerIfExisted(_ viewController: UIViewController) -> Bool {
+        guard let showModel = showModel else { return false }
+        
         guard let tabVC = viewController as? UITabBarController else { return false }
         addChildViewControllersIfExisted(showModel.children, toViewController: tabVC)
         return showViewControler(viewController)
     }
     
     func showSplitViewControllerIfExisted(_ viewController: UIViewController) -> Bool {
+        guard let showModel = showModel else { return false }
+        
         guard let splitVC = viewController as? UISplitViewController else { return false }
         addChildViewControllersIfExisted(showModel.children, toViewController: splitVC)
         return showViewControler(viewController)
     }
     
     func showNavigationControlerIfExisted(_ viewController: UIViewController) -> Bool {
+        guard let showModel = showModel else { return false }
+        
         guard let navVC = viewController as? UINavigationController else { return false }
         addChildViewControllersIfExisted(showModel.children, toViewController: navVC)
         return showViewControler(viewController)
     }
     
     // Deep Link
-    func showDeepLinkViewControllers(_ data: DataDictionary) {
+    func showDeepLinkViewControllers(_ data: DataModel) {
         guard let topVC = topViewController else { return }
+        
         if topVC is UITabBarController || topVC is UISplitViewController {
             let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController: UIViewController? = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == showModel.vcName })
+            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == showModel!.viewController })
             if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
             }
@@ -139,11 +110,11 @@ extension Navigator {
             topViewController?.dismiss(animated: false, completion: nil)
         }
         
-        var next: DataDictionary? = data
+        var next: DataModel? = data
+        
         while let nextData = next {
-            let dataModel = dataModelFromDictionay(nextData)
-            let viewController = createViewController(dataModel)
-            p_showViewControler(viewController, data: nextData, animated: nextData.next == nil)
+            let viewController = createViewController(nextData)
+            p_showViewControler(viewController, dataModel: nextData, animated: nextData.next == nil)
             next = nextData.next
         }
     }
@@ -162,17 +133,18 @@ extension Navigator {
     
     // Show view controller by push or present way. If mode is root, show the view controller directly.
     func showViewControler(_ viewController: UIViewController) -> Bool {
-        return p_showViewControler(viewController, data: showData, animated: showAnimated)
+        guard let showModel = showModel else { return false }
+        
+        return p_showViewControler(viewController, dataModel: showModel, animated: showAnimated)
     }
     
     @discardableResult
-    func p_showViewControler(_ viewController: UIViewController, data: DataDictionary, animated: Bool) -> Bool {
-        let dataModel = dataModelFromDictionay(data)
+    func p_showViewControler(_ viewController: UIViewController, dataModel: DataModel, animated: Bool) -> Bool {
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
         toVC.modalPresentationStyle = dataModel.presentationStyle
-        p_sendDataBeforeShow(data, fromVC: topViewController, toVC: viewController)
+        p_sendDataBeforeShow(dataModel, fromVC: topViewController, toVC: viewController)
         
         switch dataModel.mode {
         case .push:
@@ -186,11 +158,11 @@ extension Navigator {
         }
         
         if rootViewController == nil {
-            showModel.mode = .reset
+            showModel!.mode = .reset
             rootViewController = toVC
         }
         
-        viewController._navigatorMode = showModel.mode
+        viewController._navigatorMode = showModel!.mode
         pushStack(viewController)
         
         return true
@@ -214,8 +186,9 @@ extension Navigator {
     
     // Set custom tranistion animation when push or present a view controller
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
-        if let name = dataModel.transitionName, !name.isEmpty, let vc = viewController {
+        if let name = dataModel.transitionClass, !name.isEmpty, let vc = viewController {
             vc._navigatorTransition = createTransition(name)
+            
             if dataModel.mode == .push {
                 (vc as! UINavigationController).delegate = vc._navigatorTransition
             } else if dataModel.mode == .present {
@@ -228,16 +201,18 @@ extension Navigator {
         guard dataModel.presentationStyle == .popover else { return }
         
         viewController?.popoverPresentationController?.sourceView = dataModel.sourceView
+        
         if let sourceRect = dataModel.sourceRect {
-            viewController?.popoverPresentationController?.sourceRect = sourceRect
+            viewController?.popoverPresentationController?.sourceRect = sourceRect.cgRectValue
         }
     }
     
     // Create view controller with class name. If need embed it into navigation controller, create one with view controller.
     func createViewController(_ dataModel: DataModel) -> UIViewController {
         var viewController: UIViewController!
+        
         defer {
-            if let navName = dataModel.navName, !navName.isEmpty {
+            if let navName = dataModel.navigationController, !navName.isEmpty {
                 if let navType = NSClassFromString(navName) as? UINavigationController.Type {
                     let navigationController = navType.init()
                     navigationController.viewControllers = [viewController]
@@ -248,15 +223,18 @@ extension Navigator {
             }
         }
         
-        guard let vcName = dataModel.vcName, !vcName.isEmpty else {
+        let vcName = dataModel.viewController
+        guard !vcName.isEmpty else {
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
+        
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
             os_log("ZZZ: Can not find view controller class %@ in your modules", vcName)
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
+        
         viewController = vcType.init()
         viewController.navigator = self
         
@@ -270,8 +248,10 @@ extension Navigator {
             viewController.navigator = self
             return viewController
         }
+        
         let viewController = vcType.init()
         viewController.navigator = self
+        
         return viewController
     }
     
@@ -286,17 +266,19 @@ extension Navigator {
     }
     
     // Add child view controllers for container view controllers like Navigation/Split/Tab view controller
-    func addChildViewControllersIfExisted(_ data: [DataDictionary], toViewController: UIViewController) {
+    func addChildViewControllersIfExisted(_ data: [DataModel]?, toViewController: UIViewController) {
+        guard let data = data else { return }
+        
         var viewControllers: [UIViewController] = []
         
-        for item in data {
-            let dataModel = dataModelFromDictionay(item)
-            let toVC = createViewController(dataModel)
-            p_sendDataBeforeShow(item, fromVC: toViewController, toVC: toVC)
+        for itemModel in data {
+            let toVC = createViewController(itemModel)
+            
+            p_sendDataBeforeShow(itemModel, fromVC: toViewController, toVC: toVC)
             viewControllers.append(toVC.navigationController ?? toVC)
             
-            if !dataModel.children.isEmpty {
-                addChildViewControllersIfExisted(dataModel.children, toViewController: toVC)
+            if let children = itemModel.children, !children.isEmpty {
+                addChildViewControllersIfExisted(itemModel.children, toViewController: toVC)
             }
         }
         
@@ -304,8 +286,8 @@ extension Navigator {
         
         for (idx, vc) in viewControllers.enumerated() {
             let childVC = (vc as? UINavigationController)?.topViewController ?? vc
-            
             let navigator = Navigator()
+            
             navigator.setupNavigatorForViewController(vc)
             navigator.pushStack(childVC)
             
@@ -348,25 +330,30 @@ extension Navigator {
     
     func dismissViewController(_ viewController: UIViewController) {
         let vc = viewController.presentingViewController ?? viewController
-        self.sendDataBeforeBack(dismissData, level: level)
+        
+        self.sendDataBeforeBack(dismissModel, level: level)
+        
         vc.dismiss(animated: dismissAnimated, completion: {
-            self.sendDataAfterBack(self.dismissData)
+            self.sendDataAfterBack(self.dismissModel)
             self.dismissCompletion?()
         })
     }
     
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
         if fromNav.visibleViewController === viewController {
-            self.sendDataBeforeBack(dismissData, level: level)
+            self.sendDataBeforeBack(dismissModel, level: level)
+            
             self.popTopViewController(fromNav: fromNav) {
-                self.sendDataAfterBack(self.dismissData)
+                self.sendDataAfterBack(self.dismissModel)
             }
         } else {
             let presentingVC = presentingViewController(base: viewController, in: fromNav)
-            self.sendDataBeforeBack(dismissData, level: level)
+            
+            self.sendDataBeforeBack(dismissModel, level: level)
+            
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
-                    self.sendDataAfterBack(self.dismissData)
+                    self.sendDataAfterBack(self.dismissModel)
                 }
             })
         }
@@ -381,9 +368,11 @@ extension Navigator {
     
     func presentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController {
         let baseIndex = navController.viewControllers.index(of: viewController) ?? 0
+        
         for (index, vc) in (navController.viewControllers as Array).enumerated() where index >= baseIndex && vc.presentedViewController != nil {
             return vc
         }
+        
         return viewController
     }
 }
@@ -394,12 +383,15 @@ extension Navigator {
     func gotoViewControllerIfExisted(_ vcName: String) -> Bool {
         guard self !== Navigator.root else {
             let viewControllers = Navigator.childViewControllers(of: self.rootViewController!)
+            
             // NOTE: Method `String(describing:)` returned string always doesn't match with `vcName`
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == vcName })
+            
             if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (rootViewController as? UITabBarController)?.selectedIndex = index
                 return true
             }
+            
             return false
         }
         
@@ -426,19 +418,19 @@ extension Navigator {
 // MARK: - Send and Receive Data
 extension Navigator {
     
-    func p_sendDataBeforeShow(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {
+    func p_sendDataBeforeShow(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("ZZZ: Send data to %@ before show: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
-    func p_sendDataBeforeBack(_ data: DataDictionary, fromVC: UIViewController?, toVC: UIViewController) {
+    func p_sendDataBeforeBack(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("ZZZ: Send data to %@ before before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
-    func p_sendDataAfterBack(_ data: DataDictionary, toVC: UIViewController) {
+    func p_sendDataAfterBack(_ data: DataModel, toVC: UIViewController) {
         os_log("ZZZ: Send data to %@ after before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
