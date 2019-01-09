@@ -28,8 +28,8 @@ import os.log
     /// NOTE: Must set the window variable first, then call navigator's show method.
     @objc public weak var window: UIWindow?
     @objc internal weak var rootViewController: UIViewController? {
-        didSet {
-            window?.rootViewController = rootViewController
+        willSet {
+            window?.rootViewController = newValue
             window?.makeKeyAndVisible()
         }
     }

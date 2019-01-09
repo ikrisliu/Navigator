@@ -20,6 +20,23 @@ extension Navigator {
         return stackCount > 0 ? stack.object(forKey: (stackCount - 1) as NSNumber) : nil
     }
     
+    var navigationController: UINavigationController? {
+        if let navigationController = topViewController?.navigationController {
+            return navigationController
+        }
+        
+        for _ in 0..<stackCount {
+            assertionFailure("\(topViewController!) has not been released immediately.")
+            popStack()
+            
+            if let navigationController = topViewController?.navigationController {
+                return navigationController
+            }
+        }
+        
+        return nil
+    }
+    
     func stackIndex(of vcName: String) -> Int? {
         for (key, value) in zip(stack.keyEnumerator(), stack.objectEnumerator()!) {
             if NSStringFromClass(type(of: value as AnyObject)) == vcName {
@@ -39,9 +56,8 @@ extension Navigator {
         guard index < stackCount else { return nil }
         
         let poppedVC = stack.object(forKey: index as NSNumber)
-        for key in index..<stackCount {
-            stack.removeObject(forKey: key as NSNumber)
-        }
+        (index..<stackCount).forEach({ stack.removeObject(forKey: $0 as NSNumber) })
+        
         return poppedVC
     }
     
@@ -149,10 +165,12 @@ extension Navigator {
         switch dataModel.mode {
         case .push:
             setupTransition(dataModel, for: topViewController?.navigationController)
-            topViewController?.navigationController?.pushViewController(toVC, animated: animated)
+            navigationController?.pushViewController(toVC, animated: animated)
+            
         case .present:
             setupTransition(dataModel, for: toVC.navigationController ?? toVC)
             topViewController?.present(toVC, animated: animated, completion: nil)
+            
         case .reset:
             resetViewController(toVC)
         }
@@ -169,7 +187,11 @@ extension Navigator {
     }
     
     func resetViewController(_ viewController: UIViewController) {
-        guard let splitVC = topViewController?.splitViewController else {
+        var splitViewController = topViewController?.splitViewController
+        splitViewController = splitViewController ?? navigationController?.splitViewController
+        
+        guard let splitVC = splitViewController else {
+            window = Navigator.root.window
             popStackAll()
             setupNavigatorForViewController(viewController)
             return
@@ -218,7 +240,7 @@ extension Navigator {
                     navigationController.viewControllers = [viewController]
                     navigationController.navigator = self
                 } else {
-                    os_log("ZZZ: Can not find navigation controller class %@ in your modules", navName)
+                    os_log("🧭❌ Can not find navigation controller class %@ in your modules", navName)
                 }
             }
         }
@@ -230,7 +252,7 @@ extension Navigator {
         }
         
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
-            os_log("ZZZ: Can not find view controller class %@ in your modules", vcName)
+            os_log("🧭❌ Can not find view controller class %@ in your modules", vcName)
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
@@ -259,7 +281,7 @@ extension Navigator {
     func createTransition(_ className: String?) -> Transition? {
         guard let name = className, !name.isEmpty else { return nil }
         guard let type = NSClassFromString(name) as? Transition.Type else {
-            os_log("ZZZ: Can not find transition class %@ in your modules", name)
+            os_log("🧭❌ Can not find transition class %@ in your modules", name)
             return nil
         }
         return type.init()
@@ -362,7 +384,13 @@ extension Navigator {
     func popTopViewController(fromNav: UINavigationController, completion: CompletionType) {
         CATransaction.begin()
         CATransaction.setCompletionBlock { completion?() }
-        fromNav.popToViewController(topViewController!, animated: dismissAnimated)
+        
+        if fromNav.viewControllers.contains(topViewController!) {
+            fromNav.popToViewController(topViewController!, animated: dismissAnimated)
+        } else {
+            fromNav.popToRootViewController(animated: dismissAnimated)
+        }
+        
         CATransaction.commit()
     }
     
@@ -419,19 +447,19 @@ extension Navigator {
 extension Navigator {
     
     func p_sendDataBeforeShow(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("ZZZ: Send data to %@ before show: %@", toVC, data)
+        os_log("🧭 Send data to %@ before show: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
     func p_sendDataBeforeBack(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("ZZZ: Send data to %@ before before: %@", toVC, data)
+        os_log("⬅️ Send data to %@ before before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
     func p_sendDataAfterBack(_ data: DataModel, toVC: UIViewController) {
-        os_log("ZZZ: Send data to %@ after before: %@", toVC, data)
+        os_log("⬅️ Send data to %@ after before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
     }

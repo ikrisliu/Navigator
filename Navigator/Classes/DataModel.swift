@@ -39,8 +39,8 @@ public class DataModel: NSObject {
     public var sourceView: UIView?
     public var sourceRect: NSValue?
     
-    /// Provide a class to fetch data from server or mock data
-    public var dataProvider: String?
+    /// Provide a class instance to fetch data from server or mock data
+    public var dataProvider: Any?
     
     /// Additional data for passing to previous or next view controller. Pass tuple for mutiple values.
     public var additionalData: Any?
@@ -56,7 +56,7 @@ public class DataModel: NSObject {
     public private(set) var next: DataModel?
     
     // swiftlint:disable multiline_parameters
-    public init(viewController: String, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, dataProvider: String? = nil,
+    public init(viewController: String, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, dataProvider: Any? = nil,
                 transitionStyle: UIModalTransitionStyle = .coverVertical, presentationStyle: UIModalPresentationStyle = .fullScreen, transitionClass: String? = nil,
                 sourceView: UIView? = nil, sourceRect: NSValue? = nil, additionalData: Any? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
         self.viewController = viewController
@@ -95,11 +95,11 @@ extension DataModel {
         self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, dataProvider: nil)
     }
     
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String, dataProvider: String) {
+    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String, dataProvider: Any) {
         self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, dataProvider: dataProvider, additionalData: nil)
     }
     
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String, dataProvider: String, additionalData: Any) {
+    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String, dataProvider: Any, additionalData: Any) {
         self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, dataProvider: dataProvider, additionalData: additionalData, fallback: nil)
     }
 }
