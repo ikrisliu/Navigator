@@ -25,12 +25,12 @@ class DetailViewController: UIViewController, DataProtocol {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
     }
     
-    @objc func onTapOpenMaster() {
+    @objc private func onTapOpenMaster() {
         splitViewController?.updateMasterVisibility()
     }
     
-    @objc func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(ViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
+    @objc private func onTapShowViewControler() {
+        let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
         self.navigator?.show(data)
     }
     

@@ -106,19 +106,28 @@ extension Navigator {
     
     // Deep Link
     func showDeepLinkViewControllers(_ data: DataModel) {
-        guard let topVC = topViewController else { return }
-        
-        if topVC is UITabBarController || topVC is UISplitViewController {
-            let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == showModel!.viewController })
-            if let vc = viewController, let index = viewControllers.index(of: vc) {
-                (topVC as? UITabBarController)?.selectedIndex = index
-            }
-            viewController?.navigator?.showDeepLinkViewControllers(data)
+        guard let topVC = topViewController else {
+            self.showViewControllers()
+            Navigator.root.showDeepLinkViewControllers(data.next!)
             return
         }
         
-        popStack(from: stackCount-2)    // Pop stack until remain 1 element
+        if topVC is UITabBarController || topVC is UISplitViewController {
+            let viewControllers = Navigator.childViewControllers(of: topVC)
+            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == data.viewController })
+            
+            if let vc = viewController, let index = viewControllers.index(of: vc) {
+                (topVC as? UITabBarController)?.selectedIndex = index
+            }
+            
+            if let vcData = data.next {
+                viewController?.navigator?.showDeepLinkViewControllers(vcData)
+            }
+            
+            return
+        }
+        
+        popStack(from: stackCount-2)    // Pop stack until remain 1 elementc
         
         if let navControler = topViewController?.navigationController {
             navControler.popToRootViewController(animated: false)
@@ -164,12 +173,15 @@ extension Navigator {
         
         switch dataModel.mode {
         case .push:
+            CATransaction.begin()
+            CATransaction.setCompletionBlock { self.showCompletion?() }
             setupTransition(dataModel, for: topViewController?.navigationController)
             navigationController?.pushViewController(toVC, animated: animated)
+            CATransaction.commit()
             
         case .present:
             setupTransition(dataModel, for: toVC.navigationController ?? toVC)
-            topViewController?.present(toVC, animated: animated, completion: nil)
+            topViewController?.present(toVC, animated: animated, completion: showCompletion)
             
         case .reset:
             resetViewController(toVC)
@@ -180,7 +192,7 @@ extension Navigator {
             rootViewController = toVC
         }
         
-        viewController._navigatorMode = showModel!.mode
+        viewController._navigatorMode = dataModel.mode
         pushStack(viewController)
         
         return true
@@ -234,7 +246,7 @@ extension Navigator {
         var viewController: UIViewController!
         
         defer {
-            if let navName = dataModel.navigationController, !navName.isEmpty {
+            if let navName = dataModel.navigationController, !navName.isEmpty, !(viewController is UINavigationController) {
                 if let navType = NSClassFromString(navName) as? UINavigationController.Type {
                     let navigationController = navType.init()
                     navigationController.viewControllers = [viewController]
@@ -376,6 +388,7 @@ extension Navigator {
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
                     self.sendDataAfterBack(self.dismissModel)
+                    self.dismissCompletion?()
                 }
             })
         }
@@ -384,13 +397,11 @@ extension Navigator {
     func popTopViewController(fromNav: UINavigationController, completion: CompletionType) {
         CATransaction.begin()
         CATransaction.setCompletionBlock { completion?() }
-        
         if fromNav.viewControllers.contains(topViewController!) {
             fromNav.popToViewController(topViewController!, animated: dismissAnimated)
         } else {
             fromNav.popToRootViewController(animated: dismissAnimated)
         }
-        
         CATransaction.commit()
     }
     
@@ -418,9 +429,10 @@ extension Navigator {
             if let vc = viewController, let index = viewControllers.index(of: vc) {
                 (rootViewController as? UITabBarController)?.selectedIndex = index
                 return true
+            } else {
+                os_log("🧭❌ Can not find view controller class %@ in navigation stack", vcName)
+                return false
             }
-            
-            return false
         }
         
         guard let index = stackIndex(of: vcName) else { return false }

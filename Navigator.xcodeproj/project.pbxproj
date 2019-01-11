@@ -12,7 +12,7 @@
 		01F9F13C21DB2AE9001DB147 /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13321DB2AE9001DB147 /* DataModel.swift */; };
 		01F9F14021DB2AE9001DB147 /* Navigator+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */; };
 		01F9F14221DB2AE9001DB147 /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13921DB2AE9001DB147 /* Navigator.swift */; };
-		01F9F14921DB2B06001DB147 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F14421DB2B06001DB147 /* ViewController.swift */; };
+		01F9F14921DB2B06001DB147 /* TabItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F14421DB2B06001DB147 /* TabItemViewController.swift */; };
 		01F9F14A21DB2B06001DB147 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F14521DB2B06001DB147 /* SplitViewController.swift */; };
 		01F9F14B21DB2B06001DB147 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F14621DB2B06001DB147 /* DetailViewController.swift */; };
 		01F9F14C21DB2B06001DB147 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F14721DB2B06001DB147 /* AppDelegate.swift */; };
@@ -75,7 +75,7 @@
 		01F9F13321DB2AE9001DB147 /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
 		01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Navigator+Private.swift"; sourceTree = "<group>"; };
 		01F9F13921DB2AE9001DB147 /* Navigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
-		01F9F14421DB2B06001DB147 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		01F9F14421DB2B06001DB147 /* TabItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabItemViewController.swift; sourceTree = "<group>"; };
 		01F9F14521DB2B06001DB147 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		01F9F14621DB2B06001DB147 /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		01F9F14721DB2B06001DB147 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -156,7 +156,7 @@
 				01F9F14621DB2B06001DB147 /* DetailViewController.swift */,
 				01F9F14821DB2B06001DB147 /* MasterViewController.swift */,
 				01F9F14521DB2B06001DB147 /* SplitViewController.swift */,
-				01F9F14421DB2B06001DB147 /* ViewController.swift */,
+				01F9F14421DB2B06001DB147 /* TabItemViewController.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -422,7 +422,7 @@
 				01F9F14B21DB2B06001DB147 /* DetailViewController.swift in Sources */,
 				01F9F14D21DB2B06001DB147 /* MasterViewController.swift in Sources */,
 				01F9F14A21DB2B06001DB147 /* SplitViewController.swift in Sources */,
-				01F9F14921DB2B06001DB147 /* ViewController.swift in Sources */,
+				01F9F14921DB2B06001DB147 /* TabItemViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

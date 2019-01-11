@@ -16,10 +16,12 @@ public class DataModel: NSObject {
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
     public let viewController: String
     
-    /// Navigation controller class name (Used for embedding the view controller)
+    /// Navigation controller class name (Used for containing the view controller)
+    /// If `viewController` is actually UINavigationController or its subclass, ignore this variable.
     public let navigationController: String?
     
     /// See **Navigator.Mode** (push or present)
+     /// If is present mode and `navigationController` is nil, will create a navigation controller for `viewController`.
     public var mode: Navigator.Mode
     
     /// Navigation or view controller's title
@@ -60,7 +62,6 @@ public class DataModel: NSObject {
                 transitionStyle: UIModalTransitionStyle = .coverVertical, presentationStyle: UIModalPresentationStyle = .fullScreen, transitionClass: String? = nil,
                 sourceView: UIView? = nil, sourceRect: NSValue? = nil, additionalData: Any? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
         self.viewController = viewController
-        self.navigationController = navigationController
         self.mode = mode
         self.title = title
         self.transitionStyle = transitionStyle
@@ -72,6 +73,12 @@ public class DataModel: NSObject {
         self.additionalData = additionalData
         self.fallback = fallback
         self.children = children
+        
+        if mode == .present && navigationController == nil {
+            self.navigationController = NSStringFromClass(UINavigationController.self)
+        } else {
+            self.navigationController = navigationController
+        }
     }
     // swiftlint:enable multiline_parameters
 }
@@ -150,7 +157,7 @@ extension DataModel {
             desc += indent + (curr!.stringRepresentation ?? "")
             curr = curr?.next
             index += 1
-            indent = "\n" + String(repeating: "  ", count: index)
+            indent = " -->\n"
         } while curr != nil
         
         return desc

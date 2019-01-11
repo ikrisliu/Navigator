@@ -34,7 +34,7 @@ class MasterViewController: UITableViewController {
         }
         
         let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
-        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset, title: title)
+        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .reset, title: title)
         
         splitViewController?.viewControllers.last?.navigator?.show(data)
     }

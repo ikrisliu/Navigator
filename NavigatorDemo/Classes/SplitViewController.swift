@@ -28,7 +28,7 @@ class SplitViewController: UISplitViewController, UISplitViewControllerDelegate 
         preferredDisplayMode = UIDevice.current.orientation.isPortrait ? .primaryOverlay : .allVisible
     }
     
-    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+    private func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
         return UIDevice.current.userInterfaceIdiom == .phone
     }
 }

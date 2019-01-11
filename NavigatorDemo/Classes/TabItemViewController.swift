@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  TabItemViewController.swift
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 5/11/18.
@@ -9,7 +9,7 @@
 import UIKit
 import Navigator
 
-class ViewController: UIViewController, DataProtocol {
+class TabItemViewController: UIViewController, DataProtocol {
 
     private typealias TupleType = (greeting: String, message: UInt32)
     private var dataModel: DataModel?
@@ -23,6 +23,8 @@ class ViewController: UIViewController, DataProtocol {
         tuple = data.additionalData as? TupleType
         
         tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Goto", style: .plain, target: self, action: #selector(onGoto))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "DeepLink", style: .plain, target: self, action: #selector(onDeepLink))
     }
     
     func onDataReceiveAfterBack(_ data: DataModel, fromViewController: UIViewController?) {
@@ -45,9 +47,17 @@ class ViewController: UIViewController, DataProtocol {
     }
     
     @objc func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(ViewController.self), navigationController: NSStringFromClass(UINavigationController.self),
-                             mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(ScaleTransition.self))
+        let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(ScaleTransition.self))
         self.navigator?.show(data)
+    }
+    
+    @objc dynamic private func onGoto() {
+        Navigator.goto(viewController: NSStringFromClass(SplitViewController.self))
+    }
+    
+    @objc dynamic private func onDeepLink() {
+        let data = DataModel(viewController: NSStringFromClass(MasterViewController.self))
+        Navigator.current.show(data)
     }
     
     deinit {

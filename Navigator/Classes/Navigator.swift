@@ -18,7 +18,13 @@ import os.log
     /// Use current navigator to open a universal link or deep link, append current page directly.
     @objc public static var current: Navigator {
         if let tabVC = _current.topViewController?.tabBarController {
-            return tabVC.selectedViewController?.navigator ?? _current
+            if let splitVC = tabVC.selectedViewController as? UISplitViewController {
+                return splitVC.viewControllers.last?.navigator ?? _current
+            } else {
+                return tabVC.selectedViewController?.navigator ?? _current
+            }
+        } else if let splitVC = _current.topViewController?.splitViewController {
+            return splitVC.viewControllers.last?.navigator ?? _current
         } else {
             return _current
         }
@@ -52,7 +58,7 @@ import os.log
         showAnimated = animated
         showCompletion = completion
         
-        if let showModel = showModel, self === Navigator.root && showModel.mode == .reset {
+        if data.next != nil && data.mode == .reset {
             showDeepLinkViewControllers(data)
         } else {
             showViewControllers()
