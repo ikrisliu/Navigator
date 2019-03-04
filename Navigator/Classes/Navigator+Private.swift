@@ -11,7 +11,6 @@ import os.log
 
 // MARK: - Data Stack
 extension Navigator {
-    
     var stackCount: Int {
         return stack.dictionaryRepresentation().count
     }
@@ -69,7 +68,6 @@ extension Navigator {
 
 // MARK: - Show View Controllers
 extension Navigator {
-    
     func showViewControllers() {
         guard let showModel = showModel else { return }
         
@@ -252,7 +250,7 @@ extension Navigator {
                     navigationController.viewControllers = [viewController]
                     navigationController.navigator = self
                 } else {
-                    os_log("🧭❌ Can not find navigation controller class %@ in your modules", navName)
+                    os_log("❌ Can not find navigation controller class %@ in your modules", navName)
                 }
             }
         }
@@ -264,7 +262,7 @@ extension Navigator {
         }
         
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
-            os_log("🧭❌ Can not find view controller class %@ in your modules", vcName)
+            os_log("❌ Can not find view controller class %@ in your modules", vcName)
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
@@ -293,7 +291,7 @@ extension Navigator {
     func createTransition(_ className: String?) -> Transition? {
         guard let name = className, !name.isEmpty else { return nil }
         guard let type = NSClassFromString(name) as? Transition.Type else {
-            os_log("🧭❌ Can not find transition class %@ in your modules", name)
+            os_log("❌ Can not find transition class %@ in your modules", name)
             return nil
         }
         return type.init()
@@ -346,7 +344,6 @@ extension Navigator {
 
 // MARK: - Dismiss View Controllers
 extension Navigator {
-    
     func dismissViewControllers() {
         guard let dismissedVC = popStack(from: level) else { return }
         
@@ -367,8 +364,10 @@ extension Navigator {
         
         self.sendDataBeforeBack(dismissModel, level: level)
         
+        // Sometimes the dismissModel will be released, use a local variable which can be catched by block to make data hold a moment.
+        let dataModel = dismissModel
         vc.dismiss(animated: dismissAnimated, completion: {
-            self.sendDataAfterBack(self.dismissModel)
+            self.sendDataAfterBack(dataModel)
             self.dismissCompletion?()
         })
     }
@@ -377,17 +376,19 @@ extension Navigator {
         if fromNav.visibleViewController === viewController {
             self.sendDataBeforeBack(dismissModel, level: level)
             
+            let dataModel = dismissModel
             self.popTopViewController(fromNav: fromNav) {
-                self.sendDataAfterBack(self.dismissModel)
+                self.sendDataAfterBack(dataModel)
             }
         } else {
             let presentingVC = presentingViewController(base: viewController, in: fromNav)
             
             self.sendDataBeforeBack(dismissModel, level: level)
             
+            let dataModel = dismissModel
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
-                    self.sendDataAfterBack(self.dismissModel)
+                    self.sendDataAfterBack(dataModel)
                     self.dismissCompletion?()
                 }
             })
@@ -418,7 +419,6 @@ extension Navigator {
 
 // MARK: - Goto View Controller
 extension Navigator {
-    
     func gotoViewControllerIfExisted(_ vcName: String) -> Bool {
         guard self !== Navigator.root else {
             let viewControllers = Navigator.childViewControllers(of: self.rootViewController!)
@@ -430,7 +430,7 @@ extension Navigator {
                 (rootViewController as? UITabBarController)?.selectedIndex = index
                 return true
             } else {
-                os_log("🧭❌ Can not find view controller class %@ in navigation stack", vcName)
+                os_log("❌ Can not find view controller class %@ in navigation stack", vcName)
                 return false
             }
         }
@@ -457,9 +457,8 @@ extension Navigator {
 
 // MARK: - Send and Receive Data
 extension Navigator {
-    
     func p_sendDataBeforeShow(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("🧭 Send data to %@ before show: %@", toVC, data)
+        os_log("➡️ Send data to %@ before show: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }

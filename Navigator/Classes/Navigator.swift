@@ -42,6 +42,15 @@ import os.log
     
     public typealias CompletionType = (() -> Void)?
     
+    @objc public init(rootViewController: UIViewController? = nil) {
+        super.init()
+        
+        if let vc = rootViewController {
+            pushStack(vc)
+            self.rootViewController = vc
+        }
+    }
+    
     /// Show a view controller with required data in dictionary.
     /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
     /// - Note:

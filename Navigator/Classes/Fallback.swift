@@ -13,7 +13,7 @@ import os.log
     
     public func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
         title = data.title
-        os_log("🧭 Received data from %@ before show: %@", String(describing: fromViewController), data)
+        os_log("➡️ Received data from %@ before show: %@", String(describing: fromViewController), data)
     }
     
     open override func viewDidLoad() {
