@@ -22,13 +22,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let secondTab = DataModel(viewController: NSStringFromClass(SplitViewController.self), children: [master, detail])
         
         let tabData = DataModel(viewController: NSStringFromClass(UITabBarController.self), mode: .reset, children: [firstTab, secondTab])
-        let splitData = DataModel(viewController: NSStringFromClass(SplitViewController.self))
-        let navData = DataModel(viewController: NSStringFromClass(UINavigationController.self))
-        let vcData = DataModel(viewController: NSStringFromClass(DetailViewController.self))
+//        let splitData = DataModel(viewController: NSStringFromClass(SplitViewController.self))
+//        let navData = DataModel(viewController: NSStringFromClass(UINavigationController.self))
+//        let vcData = DataModel(viewController: NSStringFromClass(DetailViewController.self))
         
         Navigator.root.window = window
-//        Navigator.root.show(tabData)
-        Navigator.root.show(tabData --> splitData --> navData --> vcData)
+        Navigator.root.show(tabData)
+//        Navigator.root.show(tabData --> splitData --> navData --> vcData)
         
         return true
     }

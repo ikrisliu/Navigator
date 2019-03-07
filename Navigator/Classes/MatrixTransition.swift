@@ -51,9 +51,10 @@ import Foundation
         
         for xPos in stride(from: CGFloat(0), to: view.bounds.width, by: sliceWith) {
             let rect = CGRect(x: xPos, y: 0, width: sliceWith, height: view.bounds.height)
-            let sliceView = view.resizableSnapshotView(from: rect, afterScreenUpdates: true, withCapInsets: .zero)!
-            sliceView.frame = rect
-            sliceViews.append(sliceView)
+            if let sliceView = view.resizableSnapshotView(from: rect, afterScreenUpdates: true, withCapInsets: .zero) {
+                sliceView.frame = rect
+                sliceViews.append(sliceView)
+            }
         }
         
         return sliceViews

@@ -34,8 +34,10 @@ class MasterViewController: UITableViewController {
         }
         
         let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
-        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .reset, title: title)
+        let navController = UIDevice.current.userInterfaceIdiom == .pad ? NSStringFromClass(UINavigationController.self) : nil
+        let mode: Navigator.Mode = UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push
+        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), navigationController: navController, mode: mode, title: title)
         
-        splitViewController?.viewControllers.last?.navigator?.show(data)
+        navigator?.show(data)
     }
 }

@@ -40,8 +40,6 @@ import os.log
         }
     }
     
-    public typealias CompletionType = (() -> Void)?
-    
     @objc public init(rootViewController: UIViewController? = nil) {
         super.init()
         
@@ -50,6 +48,22 @@ import os.log
             self.rootViewController = vc
         }
     }
+    
+    public typealias CompletionType = (() -> Void)?
+    
+    // Private Properties
+    var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
+    var showAnimated: Bool = true
+    var dismissAnimated: Bool = true
+    var showCompletion: CompletionType = nil
+    var dismissCompletion: CompletionType = nil
+    weak var showModel: DataModel?
+    weak var dismissModel: DataModel?
+    /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
+    var level: Int = 0
+}
+
+public extension Navigator {
     
     /// Show a view controller with required data in dictionary.
     /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
@@ -60,7 +74,7 @@ import os.log
     ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc public func show(_ data: DataModel, animated: Bool = true, completion: CompletionType = nil) {
+    @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionType = nil) {
         Navigator._current = self
         
         showModel = data
@@ -80,9 +94,10 @@ import os.log
     /// - Parameters:
     ///   - data: The data is passed to previous view controller, default is empty.
     ///   - level: Which view controller will be dismissed, default 0 is current VC, 1 is previous one VC.
+    ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc public func dismiss(_ data: DataModel? = nil, level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
+    @objc func dismiss(_ data: DataModel? = nil, level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
         self.level = level
         dismissModel = data
         dismissAnimated = animated
@@ -97,10 +112,13 @@ import os.log
     /// - Parameters:
     ///   - data: The data is passed to previous any view controller.
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
-    @objc public func sendDataBeforeBack(_ data: DataModel?, level: Int = 0) {
-        guard let data = data, let poppedVC = popStack(from: level) else { return }
+    ///            If level is equal to -1, it will send data to root view controller of current navigator.
+    @objc func sendDataBeforeBack(_ data: DataModel?, level: Int = 0) {
+        guard let data = data, let poppedVC = (level == -1 ? popStackToRoot() : popStack(from: level)) else { return }
+        
         let toVC = topViewController ?? poppedVC
         p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
+        
         pushStack(poppedVC)
     }
     
@@ -113,6 +131,7 @@ import os.log
     @objc public func sendDataAfterBack(_ data: DataModel?) {
         guard let data = data else { return }
         guard let toVC = topViewController else { return }
+        
         p_sendDataAfterBack(data, toVC: toVC)
     }
     
@@ -120,10 +139,10 @@ import os.log
     /// Can jump to another navigator's VC from one navigator. (e.g. jump to any tab in UITabBarController)
     ///
     /// - Parameter vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
-    @objc public class func goto(viewController vcName: String) {
-        guard !root.gotoViewControllerIfExisted(vcName) else { return }
+    @objc class func goto(viewController vcName: String) {
+        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName) else { return }
         
-        let viewControllers = childViewControllers(of: root.rootViewController!)
+        let viewControllers = childViewControllers(of: rootVC)
         
         for vc in viewControllers where vc.navigator != nil {
             if vc.navigator!.gotoViewControllerIfExisted(vcName) {
@@ -131,17 +150,6 @@ import os.log
             }
         }
     }
-    
-    // Private Properties
-    var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
-    var showAnimated: Bool = true
-    var dismissAnimated: Bool = true
-    var showCompletion: CompletionType = nil
-    var dismissCompletion: CompletionType = nil
-    weak var showModel: DataModel?
-    weak var dismissModel: DataModel?
-    /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
-    var level: Int = 0
 }
 
 // MARK: - Navigator Mode
@@ -160,28 +168,6 @@ extension Navigator {
             case .present: return "present"
             case .reset: return "reset"
             }
-        }
-    }
-}
-
-// MARK: - Associated Property
-/// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
-///   - If the VC is instantiated and opened by navigator, it can use navigator to open other VCs.
-///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
-extension UIViewController {
-    
-    enum AssociationKey {
-        static var navigator: UInt8 = 0
-        static var navigatorMode: UInt8 = 0
-        static var navigatorTransition: UInt8 = 0
-    }
-    
-    @objc public var navigator: Navigator? {
-        get {
-            return objc_getAssociatedObject(self, &AssociationKey.navigator) as? Navigator
-        }
-        set {
-            objc_setAssociatedObject(self, &AssociationKey.navigator, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }

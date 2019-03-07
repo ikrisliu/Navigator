@@ -31,7 +31,7 @@ class DetailViewController: UIViewController, DataProtocol {
     
     @objc private func onTapShowViewControler() {
         let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
-        self.navigator?.show(data)
+        navigator?.show(data)
     }
     
     deinit {

@@ -13,7 +13,7 @@ class SplitViewController: UISplitViewController, UISplitViewControllerDelegate 
     
     convenience init() {
         self.init(nibName: nil, bundle: nil)
-        self.tabBarItem = UITabBarItem(tabBarSystemItem: .contacts, tag: 1)
+        tabBarItem = UITabBarItem(tabBarSystemItem: .contacts, tag: 1)
     }
     
     override func viewDidLoad() {

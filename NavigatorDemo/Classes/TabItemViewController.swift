@@ -23,8 +23,8 @@ class TabItemViewController: UIViewController, DataProtocol {
         tuple = data.additionalData as? TupleType
         
         tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Goto", style: .plain, target: self, action: #selector(onGoto))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "DeepLink", style: .plain, target: self, action: #selector(onDeepLink))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "DeepLink", style: .plain, target: self, action: #selector(onDeepLink))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
     func onDataReceiveAfterBack(_ data: DataModel, fromViewController: UIViewController?) {
@@ -47,12 +47,12 @@ class TabItemViewController: UIViewController, DataProtocol {
     }
     
     @objc func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(ScaleTransition.self))
-        self.navigator?.show(data)
+        let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(CircleTransition.self))
+        navigator?.show(data)
     }
     
-    @objc dynamic private func onGoto() {
-        Navigator.goto(viewController: NSStringFromClass(SplitViewController.self))
+    @objc dynamic private func onHome() {
+        navigator?.dismiss(level: -1)
     }
     
     @objc dynamic private func onDeepLink() {

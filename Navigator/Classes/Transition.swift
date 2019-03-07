@@ -104,7 +104,8 @@ import UIKit
         isModal = true
         presentedVC = presented
         presentingVC = presenting
-        addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC!)
+        
+        addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC)
         
         return self
     }
@@ -137,37 +138,40 @@ import UIKit
         return isInteractive ? self : nil
     }
     
-    // swiftlint:disable multiline_parameters
-    public func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation,
-                                     from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    public func navigationController(_ navigationController: UINavigationController,
+                                     animationControllerFor operation: UINavigationController.Operation,
+                                     from fromVC: UIViewController,
+                                     to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         guard operation != .none else { return nil }
         
         navController = navigationController
+        
         let fromIndex = navController?.viewControllers.index(of: fromVC)
         let toIndex = navController?.viewControllers.index(of: toVC)
+        
         isShow = (fromIndex != nil && toIndex != nil && toIndex! > fromIndex!)
         isModal = false
-        addInteractiveGestureToViewControllerIfNeeded(viewController: navController!)
+        
+        addInteractiveGestureToViewControllerIfNeeded(viewController: navController)
         
         return self
     }
-    // swiftlint:enable multiline_parameters
 }
 
 // MARK: - Private -
 // Handle interactive gesture for pop/dismiss current view controller
 private extension Transition {
     
-    private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController) {
-        guard interactiveGestureEnabled else { return }
+    private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController?) {
+        guard let vc = viewController, interactiveGestureEnabled else { return }
         
         if isVertical {
             panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
         } else {
             panGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
-            (panGesture as! UIScreenEdgePanGestureRecognizer).edges = .left
+            (panGesture as? UIScreenEdgePanGestureRecognizer)?.edges = .left
         }
-        viewController.view.addGestureRecognizer(panGesture!)
+        vc.view.addGestureRecognizer(panGesture)
     }
     
     @objc private func handlePanGesture(recognizer: UIPanGestureRecognizer) {
@@ -187,8 +191,8 @@ private extension Transition {
             
         case .ended:
             isInteractive = false
-            let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - self.startLocation.y/2) : CGFloat.maximum(velocity.x, translation.x - self.startLocation.x/2)
-            let isFinish = self.isVertical ? offset > recognizerView.bounds.height/4 : offset > recognizerView.bounds.width/2
+            let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - startLocation.y/2) : CGFloat.maximum(velocity.x, translation.x - startLocation.x/2)
+            let isFinish = isVertical ? offset > recognizerView.bounds.height/4 : offset > recognizerView.bounds.width/2
             isFinish ? finish() : cancel()
             
         case .failed, .cancelled:

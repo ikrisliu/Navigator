@@ -11,6 +11,7 @@ import os.log
 
 // MARK: - Data Stack
 extension Navigator {
+    
     var stackCount: Int {
         return stack.dictionaryRepresentation().count
     }
@@ -37,11 +38,15 @@ extension Navigator {
     }
     
     func stackIndex(of vcName: String) -> Int? {
-        for (key, value) in zip(stack.keyEnumerator(), stack.objectEnumerator()!) {
+        guard let objEnumerator = stack.objectEnumerator() else { return nil }
+        let keyEnumerator = stack.keyEnumerator()
+        
+        for (key, value) in zip(keyEnumerator, objEnumerator) {
             if NSStringFromClass(type(of: value as AnyObject)) == vcName {
-                return (key as! NSNumber).intValue
+                return (key as? NSNumber)?.intValue
             }
         }
+        
         return nil
     }
     
@@ -61,13 +66,19 @@ extension Navigator {
     }
     
     @discardableResult
-    func popStackAll() -> UIViewController? {
-        return popStack(from: stackCount-1)
+    func popStackToRoot() -> UIViewController? {    // Excluding root vc
+        return popStack(from: stackCount - 2)
+    }
+    
+    @discardableResult
+    func popStackAll() -> UIViewController? {       // Including root vc
+        return popStack(from: stackCount - 1)
     }
 }
 
 // MARK: - Show View Controllers
 extension Navigator {
+    
     func showViewControllers() {
         guard let showModel = showModel else { return }
         
@@ -80,24 +91,24 @@ extension Navigator {
     
     func showTabBarControlerIfExisted(_ viewController: UIViewController) -> Bool {
         guard let showModel = showModel else { return false }
-        
         guard let tabVC = viewController as? UITabBarController else { return false }
+        
         addChildViewControllersIfExisted(showModel.children, toViewController: tabVC)
         return showViewControler(viewController)
     }
     
     func showSplitViewControllerIfExisted(_ viewController: UIViewController) -> Bool {
         guard let showModel = showModel else { return false }
-        
         guard let splitVC = viewController as? UISplitViewController else { return false }
+        
         addChildViewControllersIfExisted(showModel.children, toViewController: splitVC)
         return showViewControler(viewController)
     }
     
     func showNavigationControlerIfExisted(_ viewController: UIViewController) -> Bool {
         guard let showModel = showModel else { return false }
-        
         guard let navVC = viewController as? UINavigationController else { return false }
+        
         addChildViewControllersIfExisted(showModel.children, toViewController: navVC)
         return showViewControler(viewController)
     }
@@ -105,8 +116,10 @@ extension Navigator {
     // Deep Link
     func showDeepLinkViewControllers(_ data: DataModel) {
         guard let topVC = topViewController else {
-            self.showViewControllers()
-            Navigator.root.showDeepLinkViewControllers(data.next!)
+            showViewControllers()
+            if let next = data.next {
+                Navigator.root.showDeepLinkViewControllers(next)
+            }
             return
         }
         
@@ -118,14 +131,14 @@ extension Navigator {
                 (topVC as? UITabBarController)?.selectedIndex = index
             }
             
-            if let vcData = data.next {
-                viewController?.navigator?.showDeepLinkViewControllers(vcData)
+            if let next = data.next {
+                viewController?.navigator?.showDeepLinkViewControllers(next)
             }
             
             return
         }
         
-        popStack(from: stackCount-2)    // Pop stack until remain 1 elementc
+        popStackToRoot()    // Pop stack until remain 1 root view controller
         
         if let navControler = topViewController?.navigationController {
             navControler.popToRootViewController(animated: false)
@@ -145,13 +158,13 @@ extension Navigator {
     static func childViewControllers(of viewController: UIViewController) -> [UIViewController] {
         var viewControllers: [UIViewController] = []
         
-        if viewController is UITabBarController {
-            viewControllers = (viewController as! UITabBarController).viewControllers!
-        } else if viewController is UISplitViewController {
-            viewControllers = (viewController as! UISplitViewController).viewControllers
+        if let tabVC = viewController as? UITabBarController {
+            viewControllers = tabVC.viewControllers ?? []
+        } else if let splitVC = viewController as? UISplitViewController {
+            viewControllers = splitVC.viewControllers
         }
         
-        return viewControllers.map({ $0 is UINavigationController ? ($0 as! UINavigationController).topViewController! : $0 })
+        return viewControllers.map({ ($0 as? UINavigationController)?.topViewController ?? $0 })
     }
     
     // Show view controller by push or present way. If mode is root, show the view controller directly.
@@ -186,11 +199,11 @@ extension Navigator {
         }
         
         if rootViewController == nil {
-            showModel!.mode = .reset
+            showModel?.mode = .reset
             rootViewController = toVC
         }
         
-        viewController._navigatorMode = dataModel.mode
+        viewController.p_navigatorMode = dataModel.mode
         pushStack(viewController)
         
         return true
@@ -200,31 +213,25 @@ extension Navigator {
         var splitViewController = topViewController?.splitViewController
         splitViewController = splitViewController ?? navigationController?.splitViewController
         
-        guard let splitVC = splitViewController else {
+        if let splitVC = splitViewController, splitVC.viewControllers.count > 1 {   // iPad
+            splitVC.showDetailViewController(viewController, sender: nil)
+        } else {
             window = Navigator.root.window
-            popStackAll()
-            setupNavigatorForViewController(viewController)
-            return
         }
         
-        if splitVC.viewControllers.count == 1 {     // For Phone
-            (splitVC.viewControllers.first as? UINavigationController)?.pushViewController(viewController, animated: true)
-        } else {
-            splitVC.showDetailViewController(viewController, sender: nil)
-            popStackAll()
-            setupNavigatorForViewController(viewController)
-        }
+        popStackAll()
+        setupNavigatorForViewController(viewController)
     }
     
     // Set custom tranistion animation when push or present a view controller
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
         if let name = dataModel.transitionClass, !name.isEmpty, let vc = viewController {
-            vc._navigatorTransition = createTransition(name)
+            vc.p_navigatorTransition = createTransition(name)
             
-            if dataModel.mode == .push {
-                (vc as! UINavigationController).delegate = vc._navigatorTransition
+            if let nav = vc as? UINavigationController, dataModel.mode == .push {
+                nav.delegate = vc.p_navigatorTransition
             } else if dataModel.mode == .present {
-                vc.transitioningDelegate = vc._navigatorTransition
+                vc.transitioningDelegate = vc.p_navigatorTransition
             }
         } else {
             viewController?.modalTransitionStyle = dataModel.transitionStyle
@@ -241,7 +248,7 @@ extension Navigator {
     
     // Create view controller with class name. If need embed it into navigation controller, create one with view controller.
     func createViewController(_ dataModel: DataModel) -> UIViewController {
-        var viewController: UIViewController!
+        let viewController: UIViewController
         
         defer {
             if let navName = dataModel.navigationController, !navName.isEmpty, !(viewController is UINavigationController) {
@@ -250,7 +257,7 @@ extension Navigator {
                     navigationController.viewControllers = [viewController]
                     navigationController.navigator = self
                 } else {
-                    os_log("❌ Can not find navigation controller class %@ in your modules", navName)
+                    os_log("❌ [Navigator]: Can not find navigation controller class %@ in your modules", navName)
                 }
             }
         }
@@ -262,7 +269,7 @@ extension Navigator {
         }
         
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
-            os_log("❌ Can not find view controller class %@ in your modules", vcName)
+            os_log("❌ [Navigator]: Can not find view controller class %@ in your modules", vcName)
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
@@ -291,7 +298,7 @@ extension Navigator {
     func createTransition(_ className: String?) -> Transition? {
         guard let name = className, !name.isEmpty else { return nil }
         guard let type = NSClassFromString(name) as? Transition.Type else {
-            os_log("❌ Can not find transition class %@ in your modules", name)
+            os_log("❌ [Navigator]: Can not find transition class %@ in your modules", name)
             return nil
         }
         return type.init()
@@ -323,8 +330,8 @@ extension Navigator {
             navigator.setupNavigatorForViewController(vc)
             navigator.pushStack(childVC)
             
-            if idx == 0 {
-                Navigator._current = childVC.navigator!
+            if idx == 0, let navigator = childVC.navigator {
+                Navigator._current = navigator
             }
         }
         
@@ -335,7 +342,7 @@ extension Navigator {
     
     func setupNavigatorForViewController(_ viewController: UIViewController) {
         rootViewController = viewController
-        viewController._navigatorMode = .reset
+        viewController.p_navigatorMode = .reset
         viewController.navigator = self
         viewController.navigationController?.navigator = self
         (viewController as? UINavigationController)?.topViewController?.navigator = self
@@ -344,10 +351,11 @@ extension Navigator {
 
 // MARK: - Dismiss View Controllers
 extension Navigator {
+    
     func dismissViewControllers() {
-        guard let dismissedVC = popStack(from: level) else { return }
+        guard let dismissedVC = (level == -1 ? popStackToRoot() : popStack(from: level)) else { return }
         
-        if dismissedVC._navigatorMode == .present {
+        if dismissedVC.p_navigatorMode == .present {
             dismissViewController(dismissedVC)
             return
         }
@@ -360,74 +368,72 @@ extension Navigator {
     }
     
     func dismissViewController(_ viewController: UIViewController) {
+        // Sometimes the dismissModel will be released, use a local variable which can be catched by block to make data hold a moment.
+        let dismissModel = self.dismissModel
         let vc = viewController.presentingViewController ?? viewController
         
-        self.sendDataBeforeBack(dismissModel, level: level)
+        sendDataBeforeBack(dismissModel, level: level)
         
-        // Sometimes the dismissModel will be released, use a local variable which can be catched by block to make data hold a moment.
-        let dataModel = dismissModel
         vc.dismiss(animated: dismissAnimated, completion: {
-            self.sendDataAfterBack(dataModel)
+            self.sendDataAfterBack(dismissModel)
             self.dismissCompletion?()
         })
     }
     
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
-        if fromNav.visibleViewController === viewController {
-            self.sendDataBeforeBack(dismissModel, level: level)
-            
-            let dataModel = dismissModel
-            self.popTopViewController(fromNav: fromNav) {
-                self.sendDataAfterBack(dataModel)
-            }
-        } else {
-            let presentingVC = presentingViewController(base: viewController, in: fromNav)
-            
-            self.sendDataBeforeBack(dismissModel, level: level)
-            
-            let dataModel = dismissModel
+        let dismissModel = self.dismissModel
+        
+        sendDataBeforeBack(dismissModel, level: level)
+        
+        if let presentingVC = findPresentingViewController(base: viewController, in: fromNav) {
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
-                    self.sendDataAfterBack(dataModel)
+                    self.sendDataAfterBack(dismissModel)
                     self.dismissCompletion?()
                 }
             })
+        } else {
+            popTopViewController(fromNav: fromNav) {
+                self.sendDataAfterBack(dismissModel)
+            }
         }
     }
     
     func popTopViewController(fromNav: UINavigationController, completion: CompletionType) {
         CATransaction.begin()
         CATransaction.setCompletionBlock { completion?() }
-        if fromNav.viewControllers.contains(topViewController!) {
-            fromNav.popToViewController(topViewController!, animated: dismissAnimated)
+        if let topVC = topViewController, fromNav.viewControllers.contains(topVC) {
+            fromNav.popToViewController(topVC, animated: dismissAnimated)
         } else {
             fromNav.popToRootViewController(animated: dismissAnimated)
         }
         CATransaction.commit()
     }
     
-    func presentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController {
+    func findPresentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController? {
         let baseIndex = navController.viewControllers.index(of: viewController) ?? 0
         
         for (index, vc) in (navController.viewControllers as Array).enumerated() where index >= baseIndex && vc.presentedViewController != nil {
             return vc
         }
         
-        return viewController
+        return nil
     }
 }
 
 // MARK: - Goto View Controller
 extension Navigator {
+    
     func gotoViewControllerIfExisted(_ vcName: String) -> Bool {
         guard self !== Navigator.root else {
-            let viewControllers = Navigator.childViewControllers(of: self.rootViewController!)
+            guard let rootVC = rootViewController else { return false }
             
+            let viewControllers = Navigator.childViewControllers(of: rootVC)
             // NOTE: Method `String(describing:)` returned string always doesn't match with `vcName`
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == vcName })
             
             if let vc = viewController, let index = viewControllers.index(of: vc) {
-                (rootViewController as? UITabBarController)?.selectedIndex = index
+                (rootVC as? UITabBarController)?.selectedIndex = index
                 return true
             } else {
                 os_log("❌ Can not find view controller class %@ in navigation stack", vcName)
@@ -436,19 +442,23 @@ extension Navigator {
         }
         
         guard let index = stackIndex(of: vcName) else { return false }
-        if index+1 < stackCount {
-            popStack(from: index+1)
+        if index + 1 < stackCount {
+            popStack(from: index + 1)
         }
         
-        let viewControllers = Navigator.childViewControllers(of: Navigator.root.rootViewController!)
-        if let index = viewControllers.index(of: rootViewController!) {
+        guard let rootVC = Navigator.root.rootViewController else { return false }
+        
+        let viewControllers = Navigator.childViewControllers(of: rootVC)
+        if let rootVC = rootViewController, let index = viewControllers.index(of: rootVC) {
             (rootViewController as? UITabBarController)?.selectedIndex = index
         }
         
-        if let navControler = topViewController?.navigationController {
-            navControler.popToViewController(topViewController!, animated: false)
+        guard let topVC = topViewController else { return false }
+        
+        if let navControler = topVC.navigationController {
+            navControler.popToViewController(topVC, animated: false)
         } else {
-            topViewController?.dismiss(animated: false, completion: nil)
+            topVC.dismiss(animated: false, completion: nil)
         }
         
         return true
@@ -457,43 +467,22 @@ extension Navigator {
 
 // MARK: - Send and Receive Data
 extension Navigator {
+    
     func p_sendDataBeforeShow(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("➡️ Send data to %@ before show: %@", toVC, data)
+        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
     func p_sendDataBeforeBack(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("⬅️ Send data to %@ before before: %@", toVC, data)
+        os_log("⬅️ [Navigator]: Send data from %@ before before: %@", String(describing: fromVC), data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
     func p_sendDataAfterBack(_ data: DataModel, toVC: UIViewController) {
-        os_log("⬅️ Send data to %@ after before: %@", toVC, data)
+        os_log("⬅️ [Navigator]: Send data to %@ after before: %@", toVC, data)
         guard let dataProtocolVC = toVC as? DataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
-    }
-}
-
-// MARK: - Associated Properties
-private extension UIViewController {
-    var _navigatorMode: Navigator.Mode {
-        get {
-            let rawValue = objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as! Int
-            return Navigator.Mode(rawValue: rawValue)!
-        }
-        set {
-            objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-    
-    var _navigatorTransition: Transition? {
-        get {
-            return objc_getAssociatedObject(self, &AssociationKey.navigatorTransition) as? Transition
-        }
-        set {
-            objc_setAssociatedObject(self, &AssociationKey.navigatorTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
     }
 }
