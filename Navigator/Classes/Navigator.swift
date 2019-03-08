@@ -114,8 +114,10 @@ public extension Navigator {
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
     ///            If level is equal to -1, it will send data to root view controller of current navigator.
     @objc func sendDataBeforeBack(_ data: DataModel?, level: Int = 0) {
-        let level = self.level > 0 ? self.level : stackCount + self.level - 1
-        guard let data = data, let poppedVC = popStack(from: level) else { return }
+        self.level = level
+
+        let lvl = level >= 0 ? level : stackCount + level - 1
+        guard let data = data, let poppedVC = popStack(from: lvl) else { return }
         
         let toVC = topViewController ?? poppedVC
         p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)

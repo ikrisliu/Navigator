@@ -353,8 +353,8 @@ extension Navigator {
 extension Navigator {
     
     func dismissViewControllers() {
-        let level = self.level > 0 ? self.level : stackCount + self.level - 1
-        guard let dismissedVC = popStack(from: level) else { return }
+        let lvl = level >= 0 ? level : stackCount + level - 1
+        guard let dismissedVC = popStack(from: lvl) else { return }
         
         if dismissedVC.p_navigatorMode == .present {
             dismissViewController(dismissedVC)
