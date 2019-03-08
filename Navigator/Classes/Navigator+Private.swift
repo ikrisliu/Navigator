@@ -138,7 +138,7 @@ extension Navigator {
             return
         }
         
-        popStackToRoot()    // Pop stack until remain 1 root view controller
+        popStack(from: -1)  // Pop stack until remain 1 root view controller
         
         if let navControler = topViewController?.navigationController {
             navControler.popToRootViewController(animated: false)
@@ -353,7 +353,8 @@ extension Navigator {
 extension Navigator {
     
     func dismissViewControllers() {
-        guard let dismissedVC = (level == -1 ? popStackToRoot() : popStack(from: level)) else { return }
+        let level = self.level > 0 ? self.level : stackCount + self.level - 1
+        guard let dismissedVC = popStack(from: level) else { return }
         
         if dismissedVC.p_navigatorMode == .present {
             dismissViewController(dismissedVC)
