@@ -97,7 +97,6 @@
 		01FB8EA820A5C44B00776808 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		01FB8EAB20A5C44B00776808 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		01FB8EAD20A5C44B00776808 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		01FB8EB820A5D83300776808 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,7 +226,6 @@
 			children = (
 				01FB8E8520A5C34B00776808 /* Info.plist */,
 				01FB8E8420A5C34B00776808 /* Navigator.h */,
-				01FB8EB820A5D83300776808 /* Version.xcconfig */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -472,7 +470,6 @@
 /* Begin XCBuildConfiguration section */
 		01FB8E9320A5C34B00776808 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -537,7 +534,6 @@
 		};
 		01FB8E9420A5C34B00776808 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -596,7 +592,6 @@
 		};
 		01FB8E9620A5C34B00776808 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -624,7 +619,6 @@
 		};
 		01FB8E9720A5C34B00776808 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -651,7 +645,6 @@
 		};
 		01FB8E9920A5C34B00776808 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -673,7 +666,6 @@
 		};
 		01FB8E9A20A5C34B00776808 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -695,7 +687,6 @@
 		};
 		01FB8EAF20A5C44B00776808 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -715,7 +706,6 @@
 		};
 		01FB8EB020A5C44B00776808 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 01FB8EB820A5D83300776808 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
