@@ -44,7 +44,7 @@ pod 'SmartNavigator', '~> 1.0'
 ##### NavigatonControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-	// View controller class name (The swift class name should be "ModuleName.ClassName")
+    // View controller class name (The swift class name should be "ModuleName.ClassName")
     let main = DataModel(viewController: NSStringFromClass(UIViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset)
     
     Navigator.root.window = window
@@ -89,12 +89,12 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ### DeepLink
 ```swift
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-	let main = DataModel(viewController: NSStringFromClass(UIViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset)
+    let main = DataModel(viewController: NSStringFromClass(UIViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset)
     let middle = DataModel(viewController: NSStringFromClass(UIViewController.self))
     let top = DataModel(viewController: NSStringFromClass(UIViewController.self))
     
-    Navigator.current.show(top)	// Show top view controller base on current vc stack
-    Navigator.root.show(main --> middle --> top)	// Reset root view controller
+    Navigator.current.show(top)     // Show top view controller base on current vc stack
+    Navigator.root.show(main --> middle --> top)    // Reset root view controller
     
     return true
 }
@@ -113,9 +113,9 @@ class DetailViewController: UIViewController {
     @objc private func onTapDismissViewControler() {
         let data = DataModel(additionalData: "You can pass any type object")
         
-        navigator?.dismiss()			// 0: dimiss current view controller, 1: dismiss top two view controllers.
-        navigator?.dismiss(level: -1)	// Dismiss to root view controller of current navigator
-        navigator?.dismiss(data)		// Pass data to previous view controller when dismiss
+        navigator?.dismiss()            // 0: dimiss current view controller, 1: dismiss top two view controllers.
+        navigator?.dismiss(level: -1)   // Dismiss to root view controller of current navigator
+        navigator?.dismiss(data)        // Pass data to previous view controller when dismiss
     }
 }
 ```
@@ -123,10 +123,10 @@ class DetailViewController: UIViewController {
 ### Data Passing
 ```swift
 class DetailViewController: UIViewController, DataProtocol {
-	private var data: Any?
-
-	// Receive this callback when open by other view controller
-	func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
+    private var data: Any?
+    
+    // Receive this callback when open by other view controller
+    func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
         title = data.title
         data = data.additionalData
     }
