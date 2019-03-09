@@ -262,8 +262,7 @@ extension Navigator {
             }
         }
         
-        let vcName = dataModel.viewController
-        guard !vcName.isEmpty else {
+        guard let vcName = dataModel.viewController, !vcName.isEmpty else {
             viewController = createFallbackViewController(dataModel)
             return viewController
         }

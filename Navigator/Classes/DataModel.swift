@@ -14,7 +14,7 @@ import UIKit
 public class DataModel: NSObject {
     
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    public let viewController: String
+    public let viewController: String?
     
     /// Navigation controller class name (Used for containing the view controller)
     /// If `viewController` is actually UINavigationController or its subclass, ignore this variable.
@@ -58,7 +58,7 @@ public class DataModel: NSObject {
     public private(set) var next: DataModel?
     
     // swiftlint:disable multiline_parameters
-    public init(viewController: String, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, dataProvider: Any? = nil,
+    public init(viewController: String? = nil, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, dataProvider: Any? = nil,
                 transitionStyle: UIModalTransitionStyle = .coverVertical, presentationStyle: UIModalPresentationStyle = .fullScreen, transitionClass: String? = nil,
                 sourceView: UIView? = nil, sourceRect: NSValue? = nil, additionalData: Any? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
         self.viewController = viewController
