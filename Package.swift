@@ -13,7 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "Navigator",
-            path: "Source")
+            path: "Navigator")
     ],
     swiftLanguageVersions: [.v4]
 )

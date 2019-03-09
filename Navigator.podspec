@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name = 'Navigator'
+  s.name = 'SmartNavigator'
   s.version = '1.0.0'
   s.license = 'MIT'
   s.summary = 'Generic navigation framework for view controllers'
@@ -10,5 +10,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '10.0'
   s.swift_version = '4.2'
   
+  s.module_name = 'Navigator'
   s.source_files = 'Navigator/**/*.{h,m,swift}'
 end
