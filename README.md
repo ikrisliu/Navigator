@@ -35,7 +35,7 @@ github "iKrisLiu/Navigator" ~> 1.0
 [CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. To integrate Navigator into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
 ```ruby
-pod 'Navigator', '~> 1.0'
+pod 'SmartNavigator', '~> 1.0'
 ```
 
 ## Usage
