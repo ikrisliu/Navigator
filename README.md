@@ -1,7 +1,9 @@
 # Navigator
-[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/SmartNavigator.svg)](https://img.shields.io/cocoapods/v/SmartNavigator.svg)
-[![Platform](https://img.shields.io/cocoapods/p/SmartNavigator.svg?style=flat)](https://github.com/iKrisLiu/Navigator)
+
+[![badge-version](https://img.shields.io/cocoapods/v/SmartNavigator.svg?label=version)](https://github.com/iKrisLiu/Navigator/releases)
+[![badge-pms](https://img.shields.io/badge/languages-Swift|ObjC-orange.svg)]()
+[![badge-languages](https://img.shields.io/badge/supports-Carthage|CocoaPods|SwiftPM-green.svg)]()
+[![badge-platforms](https://img.shields.io/cocoapods/p/SmartNavigator.svg?style=flat)]()
 
 Navigator is a generic navigation framework for view controllers. It can decouple the dependency of different modules/components/view controllers.
 
