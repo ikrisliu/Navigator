@@ -436,7 +436,7 @@ extension Navigator {
                 (rootVC as? UITabBarController)?.selectedIndex = index
                 return true
             } else {
-                os_log("❌ Can not find view controller class %@ in navigation stack", vcName)
+                os_log("❌ [Navigator]: Can not find view controller class %@ in navigation stack", vcName)
                 return false
             }
         }

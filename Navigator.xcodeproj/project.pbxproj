@@ -71,6 +71,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0131718222353EE400E87E5E /* SmartNavigator.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SmartNavigator.podspec; sourceTree = "<group>"; };
+		0131718322353EE400E87E5E /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		0131718422353EE400E87E5E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Navigator.swift"; sourceTree = "<group>"; };
 		01F9F13121DB2AE9001DB147 /* Fallback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fallback.swift; sourceTree = "<group>"; };
 		01F9F13221DB2AE9001DB147 /* DataProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataProtocol.swift; sourceTree = "<group>"; };
@@ -126,6 +129,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0131718122353EB300E87E5E /* Deployment */ = {
+			isa = PBXGroup;
+			children = (
+				0131718322353EE400E87E5E /* Package.swift */,
+				0131718422353EE400E87E5E /* README.md */,
+				0131718222353EE400E87E5E /* SmartNavigator.podspec */,
+			);
+			name = Deployment;
+			sourceTree = "<group>";
+		};
 		01F9F12F21DB2A5F001DB147 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -177,6 +190,7 @@
 		01FB8E7720A5C34B00776808 = {
 			isa = PBXGroup;
 			children = (
+				0131718122353EB300E87E5E /* Deployment */,
 				01FB8E8320A5C34B00776808 /* Navigator */,
 				01FB8EA020A5C44800776808 /* NavigatorDemo */,
 				01FB8E8E20A5C34B00776808 /* NavigatorTests */,
