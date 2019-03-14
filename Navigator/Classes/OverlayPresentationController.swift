@@ -10,23 +10,27 @@ import Foundation
 
 class OverlayPresentationController: UIPresentationController {
     
-    private var preferedHeight: CGFloat
+    private var preferredHeight: CGFloat
     private let dimmedBackgroundView = UIView()
     
-    init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?, preferedHeight: CGFloat) {
-        self.preferedHeight = preferedHeight
+    init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?, preferredHeight: CGFloat) {
+        self.preferredHeight = preferredHeight
         
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
         
         dimmedBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapDimmedBackgroundView)))
     }
     
-    override var frameOfPresentedViewInContainerView: CGRect {
-        var frame = CGRect.zero
+    override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+        
         if let bounds = containerView?.bounds {
-            frame = CGRect(x: 0, y: bounds.height - preferedHeight, width: bounds.width, height: preferedHeight)
+            presentedView?.frame = CGRect(x: 0, y: bounds.height - preferredHeight, width: bounds.width, height: preferredHeight)
         }
-        return frame
+    }
+    
+    override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+        containerView?.setNeedsLayout()
     }
     
     override func presentationTransitionWillBegin() {

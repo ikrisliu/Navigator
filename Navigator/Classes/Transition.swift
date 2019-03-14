@@ -128,7 +128,7 @@ import UIKit
     
     /// NOTE: If need custom popover presentation controller, can overwrite this method to provide one.
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return OverlayPresentationController(presentedViewController: presented, presenting: presenting, preferedHeight: preferredPresentationHeight)
+        return OverlayPresentationController(presentedViewController: presented, presenting: presenting, preferredHeight: preferredPresentationHeight)
     }
 }
 

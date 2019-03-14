@@ -21,17 +21,8 @@ public extension UIViewController {
             objc_setAssociatedObject(self, &AssociationKey.navigator, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
-}
-
-extension UIViewController {
     
-    enum AssociationKey {
-        static var navigator: UInt8 = 0
-        static var navigatorMode: UInt8 = 0
-        static var navigatorTransition: UInt8 = 0
-    }
-    
-    var p_navigatorMode: Navigator.Mode {
+    @objc var navigatorMode: Navigator.Mode {
         get {
             let rawValue = objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as! Int
             return Navigator.Mode(rawValue: rawValue)!
@@ -39,6 +30,15 @@ extension UIViewController {
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
+    }
+}
+
+extension UIViewController {
+    
+    private enum AssociationKey {
+        static var navigator: UInt8 = 0
+        static var navigatorMode: UInt8 = 0
+        static var navigatorTransition: UInt8 = 0
     }
     
     var p_navigatorTransition: Transition? {

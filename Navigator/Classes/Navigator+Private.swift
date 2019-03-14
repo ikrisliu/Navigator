@@ -214,7 +214,7 @@ extension Navigator {
             rootViewController = toVC
         }
         
-        viewController.p_navigatorMode = dataModel.mode
+        viewController.navigatorMode = dataModel.mode
         pushStack(viewController)
         
         return true
@@ -353,7 +353,7 @@ extension Navigator {
     
     func setupNavigatorForViewController(_ viewController: UIViewController) {
         rootViewController = viewController
-        viewController.p_navigatorMode = .reset
+        viewController.navigatorMode = .reset
         viewController.navigator = self
         viewController.navigationController?.navigator = self
         (viewController as? UINavigationController)?.topViewController?.navigator = self
@@ -367,7 +367,7 @@ extension Navigator {
         let lvl = level >= 0 ? level : stackCount + level - 1
         guard let dismissedVC = popStack(from: lvl) else { return }
         
-        if dismissedVC.p_navigatorMode == .present {
+        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay {
             dismissViewController(dismissedVC)
             return
         }
