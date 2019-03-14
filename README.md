@@ -122,6 +122,18 @@ class DetailViewController: UIViewController {
 }
 ```
 
+### Transition Animation
+```swift
+class DetailViewController: UIViewController {
+    @objc private func onTapShowViewControler() {
+        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionStyle: .flipHorizontal)
+        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionClass: "CircleTransition")
+
+        navigator?.show(data)
+    }
+}
+```
+
 ### Data Passing
 ```swift
 class DetailViewController: UIViewController, DataProtocol {

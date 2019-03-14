@@ -25,16 +25,19 @@ class DetailViewController: UIViewController, DataProtocol {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
     }
     
-    @objc private func onTapOpenMaster() {
+    deinit {
+        debugPrint("FREE MEMORY: \(self)")
+    }
+}
+
+private extension DetailViewController {
+    
+    @objc dynamic func onTapOpenMaster() {
         splitViewController?.updateMasterVisibility()
     }
     
-    @objc private func onTapShowViewControler() {
+    @objc dynamic func onTapShowViewControler() {
         let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(data)
-    }
-    
-    deinit {
-        debugPrint("FREE MEMORY: \(self)")
     }
 }

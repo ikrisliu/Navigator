@@ -46,23 +46,26 @@ class TabItemViewController: UIViewController, DataProtocol {
         view.addSubview(label)
     }
     
-    @objc func onTapShowViewControler() {
+    deinit {
+        debugPrint("FREE MEMORY: \(self)")
+        navigator?.sendDataAfterBack(dataModel)
+    }
+}
+
+private extension TabItemViewController {
+    
+    @objc dynamic func onTapShowViewControler() {
         let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(CircleTransition.self))
         navigator?.show(data)
     }
     
-    @objc dynamic private func onHome() {
+    @objc dynamic func onHome() {
         navigator?.dismiss(level: -1)
     }
     
-    @objc dynamic private func onDeepLink() {
+    @objc dynamic func onDeepLink() {
         let data = DataModel(viewController: NSStringFromClass(MasterViewController.self))
         Navigator.current.show(data)
-    }
-    
-    deinit {
-        debugPrint("FREE MEMORY: \(self)")
-        navigator?.sendDataAfterBack(dataModel)
     }
 }
 

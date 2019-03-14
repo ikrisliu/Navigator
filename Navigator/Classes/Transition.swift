@@ -22,6 +22,8 @@ import UIKit
     /// Whether enable gesture to pop/dismiss current view controller, default is false.
     @objc open var interactiveGestureEnabled = true
     @objc open var orientation: Orientation = .default
+    @objc open var preferredPresentationHeight: CGFloat = 0
+    
     @objc public var isVertical: Bool { return orientation == .vertical }
     @objc public private(set) weak var transitionContext: UIViewControllerContextTransitioning!
     
@@ -107,26 +109,26 @@ import UIKit
         
         addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC)
         
-        return self
+        return type(of: self) == Transition.self ? nil : self
     }
     
     public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return self
+        return type(of: self) == Transition.self ? nil : self
     }
     
     public func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
         isShow = false
-        return isInteractive ? self : nil
+        return (isInteractive && type(of: self) != Transition.self) ? self : nil
     }
     
 //    public func interactionControllerForPresentation(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
 //        isShowing = true
-//        return isInteractive ? self : nil
+//        return (isInteractive && type(of: self) != Transition.self) ? self : nil
 //    }
     
     /// NOTE: If need custom popover presentation controller, can overwrite this method to provide one.
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return nil
+        return OverlayPresentationController(presentedViewController: presented, presenting: presenting, preferedHeight: preferredPresentationHeight)
     }
 }
 

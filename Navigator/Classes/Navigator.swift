@@ -160,16 +160,19 @@ extension Navigator {
     
     @objc(NavigatorMode)
     public enum Mode: Int, CustomStringConvertible {
-        case push
-        case present
         /// Reset view controller stack when initialize a new VC or deep link
         case reset
+        case push
+        case present
+        // The presentationStyle must be forced with `custom` when mode is overlay
+        case overlay
         
         public var description: String {
             switch self {
+            case .reset: return "reset"
             case .push: return "push"
             case .present: return "present"
-            case .reset: return "reset"
+            case .overlay: return "overlay"
             }
         }
     }

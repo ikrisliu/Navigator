@@ -16,6 +16,8 @@ class MasterViewController: UITableViewController {
         
         title = "Master"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Overlay", style: .plain, target: self, action: #selector(onOverlay))
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -38,6 +40,15 @@ class MasterViewController: UITableViewController {
         let mode: Navigator.Mode = UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push
         let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), navigationController: navController, mode: mode, title: title)
         
+        navigator?.show(data)
+    }
+}
+
+private extension MasterViewController {
+    
+    @objc dynamic func onOverlay() {
+//        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .overlay, title: String(arc4random()))
+        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .overlay, title: String(arc4random()), transitionClass: NSStringFromClass(CircleTransition.self))
         navigator?.show(data)
     }
 }

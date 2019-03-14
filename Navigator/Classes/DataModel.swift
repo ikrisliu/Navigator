@@ -8,6 +8,8 @@
 
 import UIKit
 
+public typealias CompletionClosure = (Bool, Any?) -> Void
+
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
 @objcMembers
@@ -22,7 +24,7 @@ public class DataModel: NSObject {
     
     /// See **Navigator.Mode** (push or present)
      /// If is present mode and `navigationController` is nil, will create a navigation controller for `viewController`.
-    public var mode: Navigator.Mode
+    public var mode: Navigator.Mode = .push
     
     /// Navigation or view controller's title
     public var title: String?
@@ -41,11 +43,14 @@ public class DataModel: NSObject {
     public var sourceView: UIView?
     public var sourceRect: NSValue?
     
-    /// Provide a class instance to fetch data from server or mock data
-    public var dataProvider: Any?
+    /// The presentation view controller's height
+    public var preferredPresentationHeight = UIScreen.main.bounds.height / 2
     
-    /// Additional data for passing to previous or next view controller. Pass tuple for mutiple values.
+    /// Additional data for passing to previous or next view controller. Pass tuple or model for mutiple values.
     public var additionalData: Any?
+    
+    /// The optional callback to be executed after dimisss view controller.
+    public var completion: CompletionClosure?
     
     /// Fallback view controller will show if no VC found (like 404 Page)
     public var fallback: String?
@@ -58,9 +63,9 @@ public class DataModel: NSObject {
     public private(set) var next: DataModel?
     
     // swiftlint:disable multiline_parameters
-    public init(viewController: String? = nil, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, dataProvider: Any? = nil,
+    public init(viewController: String? = nil, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil,
                 transitionStyle: UIModalTransitionStyle = .coverVertical, presentationStyle: UIModalPresentationStyle = .fullScreen, transitionClass: String? = nil,
-                sourceView: UIView? = nil, sourceRect: NSValue? = nil, additionalData: Any? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
+                sourceView: UIView? = nil, sourceRect: NSValue? = nil, completion: CompletionClosure? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
         self.viewController = viewController
         self.mode = mode
         self.title = title
@@ -69,8 +74,8 @@ public class DataModel: NSObject {
         self.transitionClass = transitionClass
         self.sourceView = sourceView
         self.sourceRect = sourceRect
-        self.dataProvider = dataProvider
         self.additionalData = additionalData
+        self.completion = completion
         self.fallback = fallback
         self.children = children
         
@@ -84,7 +89,7 @@ public class DataModel: NSObject {
 }
 
 // MARK: Init for ObjC
-extension DataModel {
+public extension DataModel {
     
     convenience init(viewController: String) {
         self.init(viewController: viewController, navigationController: nil)
@@ -99,15 +104,15 @@ extension DataModel {
     }
     
     convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String) {
-        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, dataProvider: nil)
+        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, additionalData: nil)
     }
     
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String, dataProvider: Any) {
-        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, dataProvider: dataProvider, additionalData: nil)
+    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String?, additionalData: Any) {
+        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, additionalData: additionalData, completion: nil)
     }
     
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String, dataProvider: Any, additionalData: Any) {
-        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, dataProvider: dataProvider, additionalData: additionalData, fallback: nil)
+    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String?, additionalData: Any?, completion: @escaping CompletionClosure) {
+        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, additionalData: additionalData, completion: completion, fallback: nil)
     }
 }
 

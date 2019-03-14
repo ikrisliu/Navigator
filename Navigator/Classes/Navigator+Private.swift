@@ -26,7 +26,10 @@ extension Navigator {
         }
         
         for _ in 0..<stackCount {
-            assertionFailure("\(topViewController!) has not been released immediately.")
+            if dismissModel != nil {
+                assertionFailure("\(topViewController!) has not been released immediately.")
+            }
+            
             popStack()
             
             if let navigationController = topViewController?.navigationController {
@@ -183,6 +186,9 @@ extension Navigator {
         p_sendDataBeforeShow(dataModel, fromVC: topViewController, toVC: viewController)
         
         switch dataModel.mode {
+        case .reset:
+            resetViewController(toVC)
+            
         case .push:
             CATransaction.begin()
             CATransaction.setCompletionBlock { self.showCompletion?() }
@@ -191,11 +197,16 @@ extension Navigator {
             CATransaction.commit()
             
         case .present:
-            setupTransition(dataModel, for: toVC.navigationController ?? toVC)
+            setupTransition(dataModel, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: showCompletion)
             
-        case .reset:
-            resetViewController(toVC)
+        case .overlay:
+            if dataModel.transitionClass?.isEmpty ?? true {
+                dataModel.transitionClass = NSStringFromClass(Transition.self)
+            }
+            setupTransition(dataModel, for: toVC)
+            toVC.modalPresentationStyle = .custom
+            topViewController?.present(toVC, animated: animated, completion: showCompletion)
         }
         
         if rootViewController == nil {
@@ -227,10 +238,11 @@ extension Navigator {
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
         if let name = dataModel.transitionClass, !name.isEmpty, let vc = viewController {
             vc.p_navigatorTransition = createTransition(name)
+            vc.p_navigatorTransition?.preferredPresentationHeight = dataModel.preferredPresentationHeight
             
             if let nav = vc as? UINavigationController, dataModel.mode == .push {
                 nav.delegate = vc.p_navigatorTransition
-            } else if dataModel.mode == .present {
+            } else {
                 vc.transitioningDelegate = vc.p_navigatorTransition
             }
         } else {
