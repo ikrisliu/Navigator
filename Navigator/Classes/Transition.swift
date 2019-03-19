@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: - Public -
-@objc open class Transition: UIPercentDrivenInteractiveTransition, UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate, UINavigationControllerDelegate {
+@objc open class Transition: UIPercentDrivenInteractiveTransition {
     
     @objc(TransitionOrientation)
     public enum Orientation: Int {
@@ -44,10 +44,10 @@ import UIKit
     }
     
     /// For modal present or dismiss, need overwrite by subclass if define a custom transition
-    @objc open func animatePresentingTransition(from fromVC: UIViewController, to toVC: UIViewController) { }
+    @objc open func animatePresentingTransition(from fromView: UIView?, to toVC: UIView?) { }
     
     /// For navigation push or pop, need overwrite by subclass if define a custom transition
-    @objc open func animateNavigationTransition(from fromVC: UIViewController, to toVC: UIViewController) { }
+    @objc open func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) { }
     
     
     @objc required public override init() {
@@ -70,7 +70,7 @@ import UIKit
 }
 
 // MARK: - UIViewControllerAnimatedTransitioning
-@objc public extension Transition {
+extension Transition: UIViewControllerAnimatedTransitioning {
     
     public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return CATransaction.animationDuration()
@@ -79,16 +79,16 @@ import UIKit
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         self.transitionContext = transitionContext
         
-        guard let fromVC = transitionContext.viewController(forKey: .from) else { return }
-        guard let toVC = transitionContext.viewController(forKey: .to) else { return }
+        let fromView = transitionContext.view(forKey: .from)
+        let toView = transitionContext.view(forKey: .to)
         
-        fromVC.view.frame = transitionContext.initialFrame(for: fromVC)
-        toVC.view.frame = transitionContext.finalFrame(for: toVC)
+        fromView?.frame = transitionContext.initialFrame(for: transitionContext.viewController(forKey: .from)!)
+        toView?.frame = transitionContext.finalFrame(for: transitionContext.viewController(forKey: .to)!)
         
         if isModal {
-            animatePresentingTransition(from: fromVC, to: toVC)
+            animatePresentingTransition(from: fromView, to: toView)
         } else {
-            animateNavigationTransition(from: fromVC, to: toVC)
+            animateNavigationTransition(from: fromView, to: toView)
         }
     }
     
@@ -99,7 +99,7 @@ import UIKit
 }
 
 // MARK: - UIViewControllerTransitioningDelegate
-@objc public extension Transition {
+extension Transition: UIViewControllerTransitioningDelegate {
     
     public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         isShow = true
@@ -133,7 +133,7 @@ import UIKit
 }
 
 // MARK: - UINavigationControllerDelegate
-@objc public extension Transition {
+extension Transition: UINavigationControllerDelegate {
     
     public func navigationController(_ navigationController: UINavigationController,
                                      interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
@@ -162,7 +162,7 @@ import UIKit
 
 // MARK: - Private -
 // Handle interactive gesture for pop/dismiss current view controller
-private extension Transition {
+extension Transition {
     
     private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController?) {
         guard let vc = viewController, interactiveGestureEnabled else { return }

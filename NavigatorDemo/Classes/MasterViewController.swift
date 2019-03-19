@@ -47,7 +47,6 @@ class MasterViewController: UITableViewController {
 private extension MasterViewController {
     
     @objc dynamic func onOverlay() {
-//        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .overlay, title: String(arc4random()))
         let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .overlay, title: String(arc4random()), transitionClass: NSStringFromClass(CircleTransition.self))
         navigator?.show(data)
     }

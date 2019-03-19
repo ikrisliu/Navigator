@@ -15,37 +15,40 @@ import Foundation
         return 1.0
     }
     
-    public override func animateNavigationTransition(from fromVC: UIViewController, to toVC: UIViewController) {
-        animatePresentingTransition(from: fromVC, to: toVC)
+    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
+        animatePresentingTransition(from: fromView, to: toView)
     }
     
-    public override func animatePresentingTransition(from fromVC: UIViewController, to toVC: UIViewController) {
+    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
-        let fromView = fromVC.view!
-        let toView = toVC.view!
         
         let oldSliceViews = createSliceViewsWithView(fromView)
-        oldSliceViews.forEach({ fromView.addSubview($0) })
+        oldSliceViews.forEach({ fromView?.addSubview($0) })
         
-        toView.frame = transitionContext.finalFrame(for: toVC)
-        containerView.addSubview(toView)
+        if let toView = toView {
+            toView.frame = transitionContext.finalFrame(for: transitionContext.viewController(forKey: .to)!)
+            containerView.addSubview(toView)
+        }
+        
         let newSliceViews = createSliceViewsWithView(toView)
         repositionSliceViews(newSliceViews, fromUp: false)
-        newSliceViews.forEach({ toView.addSubview($0) })
-        toView.isHidden = true
+        newSliceViews.forEach({ toView?.addSubview($0) })
+        toView?.isHidden = true
         
         UIView.animate(withDuration: animationDuration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
             self.repositionSliceViews(oldSliceViews, fromUp: true)
-            self.resetYPosForSliceViews(newSliceViews, yPos: fromView.frame.origin.y)
+            self.resetYPosForSliceViews(newSliceViews, yPos: fromView?.frame.origin.y ?? 0)
         }, completion: { _ in
-            toView.isHidden = false
+            toView?.isHidden = false
             oldSliceViews.forEach({ $0.removeFromSuperview() })
             newSliceViews.forEach({ $0.removeFromSuperview() })
             self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
         })
     }
     
-    private func createSliceViewsWithView(_ view: UIView) -> [UIView] {
+    private func createSliceViewsWithView(_ view: UIView?) -> [UIView] {
+        guard let view = view else { return [] }
+        
         let sliceWith: CGFloat = 5.0
         var sliceViews: [UIView] = []
         

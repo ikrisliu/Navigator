@@ -123,11 +123,18 @@ class DetailViewController: UIViewController {
 ```
 
 ### Transition Animation
+Create custom transition class inherits the `Transition` class and override below two methods. Then pass transition class with custom transition class name in data model.
+
 ```swift
+class CustomTransition: Transition {
+	public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) { }
+	public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) { }
+}
+
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
         let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionStyle: .flipHorizontal)
-        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionClass: "CircleTransition")
+        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionClass: "CustomTransition")
 
         navigator?.show(data)
     }

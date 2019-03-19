@@ -43,8 +43,8 @@ public class DataModel: NSObject {
     public var sourceView: UIView?
     public var sourceRect: NSValue?
     
-    /// The presentation view controller's height
-    public var preferredPresentationHeight = UIScreen.main.bounds.height / 2
+    /// The overlay view controller's height
+    public var preferredOverlayHeight: CGFloat
     
     /// Additional data for passing to previous or next view controller. Pass tuple or model for mutiple values.
     public var additionalData: Any?
@@ -63,9 +63,10 @@ public class DataModel: NSObject {
     public private(set) var next: DataModel?
     
     // swiftlint:disable multiline_parameters
-    public init(viewController: String? = nil, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil,
-                transitionStyle: UIModalTransitionStyle = .coverVertical, presentationStyle: UIModalPresentationStyle = .fullScreen, transitionClass: String? = nil,
-                sourceView: UIView? = nil, sourceRect: NSValue? = nil, completion: CompletionClosure? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
+    public init(viewController: String? = nil, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil,
+                transitionStyle: UIModalTransitionStyle = .coverVertical, presentationStyle: UIModalPresentationStyle = .fullScreen,
+                transitionClass: String? = nil, sourceView: UIView? = nil, sourceRect: NSValue? = nil, preferredOverlayHeight: CGFloat = UIScreen.main.bounds.height / 2,
+                additionalData: Any? = nil, completion: CompletionClosure? = nil, fallback: String? = nil, children: [DataModel]? = nil) {
         self.viewController = viewController
         self.mode = mode
         self.title = title
@@ -74,6 +75,7 @@ public class DataModel: NSObject {
         self.transitionClass = transitionClass
         self.sourceView = sourceView
         self.sourceRect = sourceRect
+        self.preferredOverlayHeight = preferredOverlayHeight
         self.additionalData = additionalData
         self.completion = completion
         self.fallback = fallback
@@ -95,24 +97,16 @@ public extension DataModel {
         self.init(viewController: viewController, navigationController: nil)
     }
     
-    convenience init(viewController: String, navigationController: String) {
-        self.init(viewController: viewController, navigationController: navigationController, mode: .push)
-    }
-    
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode) {
+    convenience init(viewController: String, navigationController: String? = nil, mode: Navigator.Mode = .push) {
         self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: nil)
     }
     
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String) {
+    convenience init(viewController: String, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String) {
         self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, additionalData: nil)
     }
     
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String?, additionalData: Any) {
+    convenience init(viewController: String? = nil, navigationController: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any) {
         self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, additionalData: additionalData, completion: nil)
-    }
-    
-    convenience init(viewController: String, navigationController: String, mode: Navigator.Mode, title: String?, additionalData: Any?, completion: @escaping CompletionClosure) {
-        self.init(viewController: viewController, navigationController: navigationController, mode: mode, title: title, additionalData: additionalData, completion: completion, fallback: nil)
     }
 }
 

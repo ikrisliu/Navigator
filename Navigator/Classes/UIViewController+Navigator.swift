@@ -24,8 +24,8 @@ public extension UIViewController {
     
     @objc var navigatorMode: Navigator.Mode {
         get {
-            let rawValue = objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as! Int
-            return Navigator.Mode(rawValue: rawValue)!
+            let rawValue = (objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Int) ?? 0
+            return Navigator.Mode(rawValue: rawValue) ?? .push
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

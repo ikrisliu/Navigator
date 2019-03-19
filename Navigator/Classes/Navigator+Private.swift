@@ -238,7 +238,7 @@ extension Navigator {
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
         if let name = dataModel.transitionClass, !name.isEmpty, let vc = viewController {
             vc.p_navigatorTransition = createTransition(name)
-            vc.p_navigatorTransition?.preferredPresentationHeight = dataModel.preferredPresentationHeight
+            vc.p_navigatorTransition?.preferredPresentationHeight = dataModel.preferredOverlayHeight
             
             if let nav = vc as? UINavigationController, dataModel.mode == .push {
                 nav.delegate = vc.p_navigatorTransition

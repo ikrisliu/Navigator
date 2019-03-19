@@ -10,14 +10,12 @@ import Foundation
 
 @objc public class CircleTransition: Transition {
     
-    public override func animateNavigationTransition(from fromVC: UIViewController, to toVC: UIViewController) {
-        animatePresentingTransition(from: fromVC, to: toVC)
+    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
+        animatePresentingTransition(from: fromView, to: toView)
     }
     
-    public override func animatePresentingTransition(from fromVC: UIViewController, to toVC: UIViewController) {
+    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
-        let fromView = fromVC.view!
-        let toView = toVC.view!
         
         let point = containerView.center
         let radius = CGFloat(sqrtf(powf(Float(point.x), 2) + powf(Float(point.y), 2)))
@@ -32,21 +30,26 @@ import Foundation
         circleAnimation.fillMode = CAMediaTimingFillMode.both
         
         if isShow {
-            containerView.addSubview(toView)
-            toView.layer.mask = maskLayer
+            if let toView = toView {
+                containerView.addSubview(toView)
+                toView.layer.mask = maskLayer
+            }
             circleAnimation.fromValue = startPath
             circleAnimation.toValue = endPath
         } else {
-            containerView.insertSubview(toView, belowSubview: fromView)
-            fromView.layer.mask = maskLayer
+            // For custom presentation style, toView is nil.
+            if let fromView = fromView, let toView = toView {
+                containerView.insertSubview(toView, belowSubview: fromView)
+            }
+            fromView?.layer.mask = maskLayer
             circleAnimation.fromValue = endPath
             circleAnimation.toValue = startPath
         }
         maskLayer.add(circleAnimation, forKey: "cirleAnimation")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
-            fromView.layer.mask = nil
-            toView.layer.mask = nil
+            fromView?.layer.mask = nil
+            toView?.layer.mask = nil
             self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
         }
     }

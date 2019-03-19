@@ -55,7 +55,7 @@ class TabItemViewController: UIViewController, DataProtocol {
 private extension TabItemViewController {
     
     @objc dynamic func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(CircleTransition.self))
+        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(ScaleTransition.self))
         navigator?.show(data)
     }
     

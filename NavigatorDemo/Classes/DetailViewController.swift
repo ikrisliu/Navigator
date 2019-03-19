@@ -21,8 +21,13 @@ class DetailViewController: UIViewController, DataProtocol {
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapShowViewControler)))
         
-        guard UIDevice.current.userInterfaceIdiom == .pad else { return }
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
+        }
+        
+        if navigatorMode == .present {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onTapClose))
+        }
     }
     
     deinit {
@@ -39,5 +44,9 @@ private extension DetailViewController {
     @objc dynamic func onTapShowViewControler() {
         let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(data)
+    }
+    
+    @objc dynamic func onTapClose() {
+        navigator?.dismiss()
     }
 }
