@@ -130,7 +130,7 @@ extension Navigator {
             let viewControllers = Navigator.childViewControllers(of: topVC)
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == data.viewController })
             
-            if let vc = viewController, let index = viewControllers.index(of: vc) {
+            if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
             }
             
@@ -423,7 +423,7 @@ extension Navigator {
     }
     
     func findPresentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController? {
-        let baseIndex = navController.viewControllers.index(of: viewController) ?? 0
+        let baseIndex = navController.viewControllers.firstIndex(of: viewController) ?? 0
         
         for (index, vc) in (navController.viewControllers as Array).enumerated() where index >= baseIndex && vc.presentedViewController != nil {
             return vc
@@ -444,7 +444,7 @@ extension Navigator {
             // NOTE: Method `String(describing:)` returned string always doesn't match with `vcName`
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == vcName })
             
-            if let vc = viewController, let index = viewControllers.index(of: vc) {
+            if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (rootVC as? UITabBarController)?.selectedIndex = index
                 return true
             } else {
@@ -461,7 +461,7 @@ extension Navigator {
         guard let rootVC = Navigator.root.rootViewController else { return false }
         
         let viewControllers = Navigator.childViewControllers(of: rootVC)
-        if let rootVC = rootViewController, let index = viewControllers.index(of: rootVC) {
+        if let rootVC = rootViewController, let index = viewControllers.firstIndex(of: rootVC) {
             (rootViewController as? UITabBarController)?.selectedIndex = index
         }
         
@@ -482,19 +482,19 @@ extension Navigator {
     
     func p_sendDataBeforeShow(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), data)
-        guard let dataProtocolVC = toVC as? DataProtocol else { return }
+        guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
     func p_sendDataBeforeBack(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data from %@ before before: %@", String(describing: fromVC), data)
-        guard let dataProtocolVC = toVC as? DataProtocol else { return }
+        guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
     func p_sendDataAfterBack(_ data: DataModel, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data to %@ after before: %@", toVC, data)
-        guard let dataProtocolVC = toVC as? DataProtocol else { return }
+        guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
     }
 }

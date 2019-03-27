@@ -1,5 +1,5 @@
 //
-//  DataProtocol.swift
+//  NavigatorDataProtocol.swift
 //  Navigator
 //
 //  Created by Kris Liu on 5/11/18.
@@ -9,7 +9,7 @@
 import UIKit
 
 /// View controller need implement this protocol for receiving data from previous or next view controller
-@objc public protocol DataProtocol where Self: UIViewController {
+@objc public protocol NavigatorDataProtocol where Self: UIViewController {
     
     /// Receive data from previous page before current page show
     @objc optional func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?)

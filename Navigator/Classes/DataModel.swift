@@ -171,6 +171,7 @@ extension UIModalTransitionStyle: CustomStringConvertible {
         case .flipHorizontal: return "flipHorizontal"
         case .crossDissolve: return "crossDissolve"
         case .partialCurl: return "partialCurl"
+        @unknown default: fatalError()
         }
     }
 }
@@ -188,6 +189,7 @@ extension UIModalPresentationStyle: CustomStringConvertible {
         case .overCurrentContext: return "overCurrentContext"
         case .popover: return "popover"
         case .none: return "none"
+        @unknown default: fatalError()
         }
     }
 }

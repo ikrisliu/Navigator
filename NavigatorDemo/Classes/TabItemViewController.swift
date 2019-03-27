@@ -9,7 +9,7 @@
 import UIKit
 import Navigator
 
-class TabItemViewController: UIViewController, DataProtocol {
+class TabItemViewController: UIViewController, NavigatorDataProtocol {
 
     private typealias TupleType = (greeting: String, message: UInt32)
     private var dataModel: DataModel?

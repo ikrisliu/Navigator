@@ -10,7 +10,7 @@
 		01495FC6223A9E7700216DE7 /* OverlayPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01495FC5223A9E7700216DE7 /* OverlayPresentationController.swift */; };
 		016ABB2F22316C0800B1AE6E /* UIViewController+Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */; };
 		01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13121DB2AE9001DB147 /* Fallback.swift */; };
-		01F9F13B21DB2AE9001DB147 /* DataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13221DB2AE9001DB147 /* DataProtocol.swift */; };
+		01F9F13B21DB2AE9001DB147 /* NavigatorDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */; };
 		01F9F13C21DB2AE9001DB147 /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13321DB2AE9001DB147 /* DataModel.swift */; };
 		01F9F14021DB2AE9001DB147 /* Navigator+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */; };
 		01F9F14221DB2AE9001DB147 /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13921DB2AE9001DB147 /* Navigator.swift */; };
@@ -78,7 +78,7 @@
 		01495FC5223A9E7700216DE7 /* OverlayPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPresentationController.swift; sourceTree = "<group>"; };
 		016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Navigator.swift"; sourceTree = "<group>"; };
 		01F9F13121DB2AE9001DB147 /* Fallback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fallback.swift; sourceTree = "<group>"; };
-		01F9F13221DB2AE9001DB147 /* DataProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataProtocol.swift; sourceTree = "<group>"; };
+		01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigatorDataProtocol.swift; sourceTree = "<group>"; };
 		01F9F13321DB2AE9001DB147 /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
 		01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Navigator+Private.swift"; sourceTree = "<group>"; };
 		01F9F13921DB2AE9001DB147 /* Navigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
@@ -156,10 +156,10 @@
 			isa = PBXGroup;
 			children = (
 				01F9F13321DB2AE9001DB147 /* DataModel.swift */,
-				01F9F13221DB2AE9001DB147 /* DataProtocol.swift */,
 				01F9F13121DB2AE9001DB147 /* Fallback.swift */,
 				01F9F13921DB2AE9001DB147 /* Navigator.swift */,
 				01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */,
+				01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */,
 				01495FC5223A9E7700216DE7 /* OverlayPresentationController.swift */,
 				01F9F15021DB2FF9001DB147 /* Transition */,
 				016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */,
@@ -330,16 +330,16 @@
 				TargetAttributes = {
 					01FB8E8020A5C34B00776808 = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 1000;
+						LastSwiftMigration = 1020;
 					};
 					01FB8E8920A5C34B00776808 = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 1000;
+						LastSwiftMigration = 1020;
 						TestTargetID = 01FB8E9E20A5C44800776808;
 					};
 					01FB8E9E20A5C44800776808 = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 1000;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -414,11 +414,11 @@
 			files = (
 				01F9F15721DB3003001DB147 /* CircleTransition.swift in Sources */,
 				01F9F13C21DB2AE9001DB147 /* DataModel.swift in Sources */,
-				01F9F13B21DB2AE9001DB147 /* DataProtocol.swift in Sources */,
 				01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */,
 				01F9F15821DB3003001DB147 /* MatrixTransition.swift in Sources */,
 				01F9F14021DB2AE9001DB147 /* Navigator+Private.swift in Sources */,
 				01F9F14221DB2AE9001DB147 /* Navigator.swift in Sources */,
+				01F9F13B21DB2AE9001DB147 /* NavigatorDataProtocol.swift in Sources */,
 				01495FC6223A9E7700216DE7 /* OverlayPresentationController.swift in Sources */,
 				01F9F15521DB3003001DB147 /* ScaleTransition.swift in Sources */,
 				01F9F15621DB3003001DB147 /* Transition.swift in Sources */,
@@ -544,7 +544,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -601,7 +601,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -630,7 +630,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -656,7 +656,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.Navigator;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -676,7 +676,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.NavigatorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NavigatorDemo.app/NavigatorDemo";
 			};
@@ -697,7 +697,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.NavigatorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NavigatorDemo.app/NavigatorDemo";
 			};
@@ -717,7 +717,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.NavigatorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -736,7 +736,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.NavigatorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

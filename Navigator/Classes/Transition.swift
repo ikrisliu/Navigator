@@ -148,8 +148,8 @@ extension Transition: UINavigationControllerDelegate {
         
         navController = navigationController
         
-        let fromIndex = navController?.viewControllers.index(of: fromVC)
-        let toIndex = navController?.viewControllers.index(of: toVC)
+        let fromIndex = navController?.viewControllers.firstIndex(of: fromVC)
+        let toIndex = navController?.viewControllers.firstIndex(of: toVC)
         
         isShow = (fromIndex != nil && toIndex != nil && toIndex! > fromIndex!)
         isModal = false

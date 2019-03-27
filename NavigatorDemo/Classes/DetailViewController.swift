@@ -9,7 +9,7 @@
 import UIKit
 import Navigator
 
-class DetailViewController: UIViewController, DataProtocol {
+class DetailViewController: UIViewController, NavigatorDataProtocol {
     
     func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
         title = data.title ?? "Detail"

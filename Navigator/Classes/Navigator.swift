@@ -131,7 +131,7 @@ public extension Navigator {
     /// For this edge case, we can call this method in deinit() to solve data passing issue.
     ///
     /// - Parameter data: The data is passed to previous view controller.
-    @objc public func sendDataAfterBack(_ data: DataModel?) {
+    @objc func sendDataAfterBack(_ data: DataModel?) {
         guard let data = data else { return }
         guard let toVC = topViewController else { return }
         

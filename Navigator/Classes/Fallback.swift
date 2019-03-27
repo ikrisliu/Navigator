@@ -9,7 +9,7 @@
 import UIKit
 import os.log
 
-@objc open class Fallback: UIViewController, DataProtocol {
+@objc open class Fallback: UIViewController, NavigatorDataProtocol {
     
     public func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
         title = data.title

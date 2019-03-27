@@ -143,7 +143,7 @@ class DetailViewController: UIViewController {
 
 ### Data Passing
 ```swift
-class DetailViewController: UIViewController, DataProtocol {
+class DetailViewController: UIViewController, NavigatorDataProtocol {
     private var data: Any?
     
     // Receive this callback when open by other view controller
