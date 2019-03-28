@@ -49,16 +49,18 @@ import os.log
         }
     }
     
-    public typealias CompletionType = (() -> Void)?
+    public typealias CompletionBlock = (() -> Void)
     
     // Private Properties
     var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
     var showAnimated: Bool = true
     var dismissAnimated: Bool = true
-    var showCompletion: CompletionType = nil
-    var dismissCompletion: CompletionType = nil
+    var showCompletion: CompletionBlock?
+    var dismissCompletion: CompletionBlock?
+    
     weak var showModel: DataModel?
     weak var dismissModel: DataModel?
+    
     /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
     var level: Int = 0
 }
@@ -74,7 +76,7 @@ public extension Navigator {
     ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionType = nil) {
+    @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
         Navigator._current = self
         
         showModel = data
@@ -97,7 +99,7 @@ public extension Navigator {
     ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismiss(_ data: DataModel? = nil, level: Int = 0, animated: Bool = true, completion: CompletionType = nil) {
+    @objc func dismiss(_ data: DataModel? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         self.level = level
         dismissModel = data
         dismissAnimated = animated
@@ -156,10 +158,10 @@ public extension Navigator {
 }
 
 // MARK: - Navigator Mode
-extension Navigator {
+public extension Navigator {
     
     @objc(NavigatorMode)
-    public enum Mode: Int, CustomStringConvertible {
+    enum Mode: Int, CustomStringConvertible {
         /// Reset view controller stack when initialize a new VC or deep link
         case reset
         case push

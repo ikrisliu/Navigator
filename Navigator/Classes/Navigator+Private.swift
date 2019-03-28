@@ -411,7 +411,7 @@ extension Navigator {
         }
     }
     
-    func popTopViewController(fromNav: UINavigationController, completion: CompletionType) {
+    func popTopViewController(fromNav: UINavigationController, completion: CompletionBlock?) {
         CATransaction.begin()
         CATransaction.setCompletionBlock { completion?() }
         if let topVC = topViewController, fromNav.viewControllers.contains(topVC) {

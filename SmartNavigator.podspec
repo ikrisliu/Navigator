@@ -8,7 +8,8 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/iKrisLiu/Navigator.git', :tag => s.version }
 
   s.ios.deployment_target = '10.0'
-  s.swift_version = '5.0'
+  s.swift_version = '4.2'
+  s.swift_versions = ['4.2', '5.0']
   
   s.module_name = 'Navigator'
   s.source_files = 'Navigator/**/*.{h,m,swift}'
