@@ -15,6 +15,9 @@ import os.log
     /// Also can use it to open any view controller for quick launch and debug, only need provide VC required data.
     @objc public static let root = Navigator()
     
+    /// The default navigation controller which is used for containing content view controller when navigator mode is `present`.
+    @objc public static var defaultNavigationControllerClass = UINavigationController.self
+    
     /// Use current navigator to open a universal link or deep link, append current page directly.
     @objc public static var current: Navigator {
         if let tabVC = _current.topViewController?.tabBarController {
@@ -53,16 +56,18 @@ import os.log
     
     // Private Properties
     var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
+    
     var showAnimated: Bool = true
     var dismissAnimated: Bool = true
     var showCompletion: CompletionBlock?
     var dismissCompletion: CompletionBlock?
     
     weak var showModel: DataModel?
-    weak var dismissModel: DataModel?
+    var dismissData: Any?
     
     /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
     var level: Int = 0
+    var isDismiss = false
 }
 
 public extension Navigator {
@@ -79,6 +84,7 @@ public extension Navigator {
     @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
         Navigator._current = self
         
+        isDismiss = false
         showModel = data
         showAnimated = animated
         showCompletion = completion
@@ -99,9 +105,11 @@ public extension Navigator {
     ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismiss(_ data: DataModel? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         self.level = level
-        dismissModel = data
+        
+        isDismiss = true
+        dismissData = data
         dismissAnimated = animated
         dismissCompletion = completion
         
@@ -115,7 +123,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous any view controller.
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
     ///            If level is equal to -1, it will send data to root view controller of current navigator.
-    @objc func sendDataBeforeBack(_ data: DataModel?, level: Int = 0) {
+    @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
         self.level = level
 
         let lvl = level >= 0 ? level : stackCount + level - 1
@@ -133,7 +141,7 @@ public extension Navigator {
     /// For this edge case, we can call this method in deinit() to solve data passing issue.
     ///
     /// - Parameter data: The data is passed to previous view controller.
-    @objc func sendDataAfterBack(_ data: DataModel?) {
+    @objc func sendDataAfterBack(_ data: Any?) {
         guard let data = data else { return }
         guard let toVC = topViewController else { return }
         

@@ -26,7 +26,7 @@ extension Navigator {
         }
         
         for _ in 0..<stackCount {
-            if dismissModel != nil {
+            if isDismiss {
                 assertionFailure("\(topViewController!) has not been released immediately.")
             }
             
@@ -128,7 +128,7 @@ extension Navigator {
         
         if topVC is UITabBarController || topVC is UISplitViewController {
             let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == data.viewController })
+            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == data.vcName })
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
@@ -201,8 +201,8 @@ extension Navigator {
             topViewController?.present(toVC, animated: animated, completion: showCompletion)
             
         case .overlay:
-            if dataModel.transitionClass?.isEmpty ?? true {
-                dataModel.transitionClass = NSStringFromClass(Transition.self)
+            if dataModel.transitionName?.isEmpty ?? true {
+                dataModel.transitionName = NSStringFromClass(Transition.self)
             }
             setupTransition(dataModel, for: toVC)
             toVC.modalPresentationStyle = .custom
@@ -236,7 +236,7 @@ extension Navigator {
     
     // Set custom tranistion animation when push or present a view controller
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
-        if let name = dataModel.transitionClass, !name.isEmpty, let vc = viewController {
+        if let name = dataModel.transitionName, !name.isEmpty, let vc = viewController {
             vc.p_navigatorTransition = createTransition(name)
             vc.p_navigatorTransition?.preferredPresentationHeight = dataModel.preferredOverlayHeight
             
@@ -263,7 +263,7 @@ extension Navigator {
         let viewController: UIViewController
         
         defer {
-            if let navName = dataModel.navigationController, !navName.isEmpty, !(viewController is UINavigationController) {
+            if let navName = dataModel.navName, !navName.isEmpty, !(viewController is UINavigationController) {
                 if let navType = NSClassFromString(navName) as? UINavigationController.Type {
                     let navigationController = navType.init()
                     navigationController.viewControllers = [viewController]
@@ -274,7 +274,7 @@ extension Navigator {
             }
         }
         
-        guard let vcName = dataModel.viewController, !vcName.isEmpty else {
+        guard let vcName = dataModel.vcName, !vcName.isEmpty else {
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
@@ -380,33 +380,29 @@ extension Navigator {
     }
     
     func dismissViewController(_ viewController: UIViewController) {
-        // Sometimes the dismissModel will be released, use a local variable which can be catched by block to make data hold a moment.
-        let dismissModel = self.dismissModel
         let vc = viewController.presentingViewController ?? viewController
         
-        sendDataBeforeBack(dismissModel, level: level)
+        sendDataBeforeBack(dismissData, level: level)
         
         vc.dismiss(animated: dismissAnimated, completion: {
-            self.sendDataAfterBack(dismissModel)
+            self.sendDataAfterBack(self.dismissData)
             self.dismissCompletion?()
         })
     }
     
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
-        let dismissModel = self.dismissModel
-        
-        sendDataBeforeBack(dismissModel, level: level)
+        sendDataBeforeBack(dismissData, level: level)
         
         if let presentingVC = findPresentingViewController(base: viewController, in: fromNav) {
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
-                    self.sendDataAfterBack(dismissModel)
+                    self.sendDataAfterBack(self.dismissData)
                     self.dismissCompletion?()
                 }
             })
         } else {
             popTopViewController(fromNav: fromNav) {
-                self.sendDataAfterBack(dismissModel)
+                self.sendDataAfterBack(self.dismissData)
             }
         }
     }
@@ -486,15 +482,17 @@ extension Navigator {
         dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
     }
     
-    func p_sendDataBeforeBack(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("⬅️ [Navigator]: Send data from %@ before before: %@", String(describing: fromVC), data)
+    func p_sendDataBeforeBack(_ data: Any, fromVC: UIViewController?, toVC: UIViewController) {
+        os_log("⬅️ [Navigator]: Send data from %@ before before: %@", String(describing: fromVC), "\(data)")
         guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
         dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
     }
     
-    func p_sendDataAfterBack(_ data: DataModel, toVC: UIViewController) {
-        os_log("⬅️ [Navigator]: Send data to %@ after before: %@", toVC, data)
+    func p_sendDataAfterBack(_ data: Any, toVC: UIViewController) {
+        os_log("⬅️ [Navigator]: Send data to %@ after before: %@", toVC, "\(data)")
         guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
         dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
+        
+        self.dismissData = nil  // Release reference
     }
 }

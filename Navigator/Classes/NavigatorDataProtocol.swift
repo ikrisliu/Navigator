@@ -15,8 +15,8 @@ import UIKit
     @objc optional func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?)
     
     /// Receive data from next page before next page dismiss start
-    @objc optional func onDataReceiveBeforeBack(_ data: DataModel, fromViewController: UIViewController?)
+    @objc optional func onDataReceiveBeforeBack(_ data: Any?, fromViewController: UIViewController?)
     
     /// Receive data from next page after next page dismiss animation end
-    @objc optional func onDataReceiveAfterBack(_ data: DataModel, fromViewController: UIViewController?)
+    @objc optional func onDataReceiveAfterBack(_ data: Any?, fromViewController: UIViewController?)
 }

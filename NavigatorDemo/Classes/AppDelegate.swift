@@ -13,23 +13,31 @@ import Navigator
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
+    private var tabData: DataModel!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let firstTab = DataModel(viewController: NSStringFromClass(TabItemViewController.self), navigationController: NSStringFromClass(UINavigationController.self))
+        let firstTab = DataModel(vcClass: TabItemViewController.self, navClass: UINavigationController.self)
         
-        let master = DataModel(viewController: NSStringFromClass(MasterViewController.self), navigationController: NSStringFromClass(UINavigationController.self))
-        let detail = DataModel(viewController: NSStringFromClass(DetailViewController.self), navigationController: NSStringFromClass(UINavigationController.self))
-        let secondTab = DataModel(viewController: NSStringFromClass(SplitViewController.self), children: [master, detail])
+        let master = DataModel(vcClass: MasterViewController.self, navClass: UINavigationController.self)
+        let detail = DataModel(vcClass: DetailViewController.self, navClass: UINavigationController.self)
+        let secondTab = DataModel(vcClass: SplitViewController.self, children: [master, detail])
         
-        let tabData = DataModel(viewController: NSStringFromClass(UITabBarController.self), mode: .reset, children: [firstTab, secondTab])
-//        let splitData = DataModel(viewController: NSStringFromClass(SplitViewController.self))
-//        let navData = DataModel(viewController: NSStringFromClass(UINavigationController.self))
-//        let vcData = DataModel(viewController: NSStringFromClass(DetailViewController.self))
+        tabData = DataModel(vcClass: UITabBarController.self, mode: .reset, children: [firstTab, secondTab])
         
         Navigator.root.window = window
         Navigator.root.show(tabData)
-//        Navigator.root.show(tabData --> splitData --> navData --> vcData)
+        
+//        showDeepLink()
         
         return true
+    }
+    
+    func showDeepLink() {
+        let splitData = DataModel(vcClass: SplitViewController.self)
+        let navData = DataModel(vcClass: UINavigationController.self)
+        let vcData = DataModel(vcClass: DetailViewController.self)
+
+        Navigator.root.show(tabData --> splitData --> navData --> vcData)
     }
 }

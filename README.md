@@ -46,8 +46,15 @@ pod 'SmartNavigator', '~> 1.0'
 ##### NavigatonControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // Decoupling Way
     // View controller class name (The swift class name should be "ModuleName.ClassName")
-    let main = DataModel(viewController: NSStringFromClass(UIViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset)
+    let main = DataModel(vcName: "ModuleName.ViewController", navName: "UINavigationController", mode: .reset)
+    
+    // Coupling Way
+    let main = DataModel(vcClass: ViewController.self, navClass: UINavigationController.self, mode: .reset)
+    
+    // If present view controller without passing any `UINavigationController`, use it as default one.
+    Navigator.defaultNavigationControllerClass = UINavigationController.self
     
     Navigator.root.window = window
     Navigator.root.show(main)
@@ -59,9 +66,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### SplitViewControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let master = DataModel(viewController: "MasterViewController", navigationController: NSStringFromClass(UINavigationController.self))
-    let detail = DataModel(viewController: "DetailViewController", navigationController: NSStringFromClass(UINavigationController.self))
-    let split = DataModel(viewController: "SplitViewController", children: [master, detail])
+    let master = DataModel(vcClass: MasterViewController.self, navClass: UINavigationController.self)
+    let detail = DataModel(vcClass: DetailViewController.self, navClass: UINavigationController.self)
+    let split = DataModel(vcClass: SplitViewController.self, children: [master, detail])
     
     Navigator.root.window = window
     Navigator.root.show(split)
@@ -73,13 +80,13 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### TabBarControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let firstTab = DataModel(viewController: "TabItemViewController", navigationController: NSStringFromClass(UINavigationController.self))
+    let firstTab = DataModel(vcClass: TabItemViewController.self, navClass: UINavigationController.self)
     
-    let master = DataModel(viewController: "MasterViewController", navigationController: NSStringFromClass(UINavigationController.self))
-    let detail = DataModel(viewController: "DetailViewController", navigationController: NSStringFromClass(UINavigationController.self))
-    let secondTab = DataModel(viewController: "SplitViewController", children: [master, detail])
+    let master = DataModel(vcClass: MasterViewController.self, navClass: UINavigationController.self)
+    let detail = DataModel(vcClass: DetailViewController.self, navClass: UINavigationController.self)
+    let secondTab = DataModel(vcClass: SplitViewController.self, children: [master, detail])
     
-    let tabs = DataModel(viewController: NSStringFromClass(UITabBarController.self), mode: .reset, children: [firstTab, secondTab])
+    let tabs = DataModel(vcClass: UITabBarController.self, mode: .reset, children: [firstTab, secondTab])
     
     Navigator.root.window = window
     Navigator.root.show(tabs)
@@ -91,9 +98,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ### DeepLink
 ```swift
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-    let main = DataModel(viewController: NSStringFromClass(UIViewController.self), navigationController: NSStringFromClass(UINavigationController.self), mode: .reset)
-    let middle = DataModel(viewController: NSStringFromClass(UIViewController.self))
-    let top = DataModel(viewController: NSStringFromClass(UIViewController.self))
+    let main = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
+    let middle = DataModel(vcClass: MiddleViewController.self)
+    let top = DataModel(vcClass: TopViewController.self)
     
     Navigator.current.show(top)     // Show top view controller base on current vc stack
     Navigator.root.show(main --> middle --> top)    // Reset root view controller
@@ -106,14 +113,18 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
 ```swift
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .push)
-        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, title: "Hello", additionalData: "You can pass any type object")
+        // Decoupling Way
+        let data = DataModel(vcName: "UIViewController"), mode: .push)
+        
+        // Coupling Way
+        // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
+        let data = DataModel(vcClass: UIViewController.self, mode: .present, title: "Hello", additionalData: "You can pass any type object")
         
         navigator?.show(data)
     }
     
     @objc private func onTapDismissViewControler() {
-        let data = DataModel(additionalData: "You can pass any type object")
+        let data = "You can pass any type object/struct, e.g. string, tuple, dictionary and so on"
         
         navigator?.dismiss()            // 0: dimiss current view controller, 1: dismiss top two view controllers.
         navigator?.dismiss(level: -1)   // Dismiss to root view controller of current navigator
@@ -133,15 +144,18 @@ class CustomTransition: Transition {
 
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionStyle: .flipHorizontal)
-        let data = DataModel(viewController: NSStringFromClass(UIViewController.self), mode: .present, transitionClass: "CustomTransition")
+        let data = DataModel(vcClass: UIViewController.self, mode: .present)
+        data.transitionStyle = .flipHorizontal
+        
+        let data = DataModel(vcClass: UIViewController.self, mode: .present)
+        data.transitionName = "CustomTransition"
 
         navigator?.show(data)
     }
 }
 ```
 
-### Data Passing
+### Data Receiving
 ```swift
 class DetailViewController: UIViewController, NavigatorDataProtocol {
     private var data: Any?
@@ -153,8 +167,8 @@ class DetailViewController: UIViewController, NavigatorDataProtocol {
     }
     
     // Receive this callback when dismiss from next view controller
-    func onDataReceiveAfterBack(_ data: DataModel, fromViewController: UIViewController?) {
-        data = data.additionalData
+    func onDataReceiveAfterBack(_ data: Any?, fromViewController: UIViewController?) {
+        self.data = data
     }
 }
 ```

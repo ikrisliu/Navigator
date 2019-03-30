@@ -13,6 +13,7 @@ class DetailViewController: UIViewController, NavigatorDataProtocol {
     
     func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
         title = data.title ?? "Detail"
+        print("Received additional data: \(data.additionalData ?? "")")
     }
     
     override func viewDidLoad() {
@@ -42,11 +43,11 @@ private extension DetailViewController {
     }
     
     @objc dynamic func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(TabItemViewController.self), title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
+        let data = DataModel(vcClass: TabItemViewController.self, title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(data)
     }
     
     @objc dynamic func onTapClose() {
-        navigator?.dismiss()
+        navigator?.dismiss("\(self) is dismissed")
     }
 }

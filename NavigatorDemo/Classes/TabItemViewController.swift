@@ -27,8 +27,8 @@ class TabItemViewController: UIViewController, NavigatorDataProtocol {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
-    func onDataReceiveAfterBack(_ data: DataModel, fromViewController: UIViewController?) {
-        print("Received data after back: \(data)")
+    func onDataReceiveAfterBack(_ data: Any?, fromViewController: UIViewController?) {
+        print("Received data after back: \(data ?? "nil")")
     }
     
     override func viewDidLoad() {
@@ -55,7 +55,8 @@ class TabItemViewController: UIViewController, NavigatorDataProtocol {
 private extension TabItemViewController {
     
     @objc dynamic func onTapShowViewControler() {
-        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .present, title: String(arc4random()), transitionClass: NSStringFromClass(ScaleTransition.self))
+        let data = DataModel(vcClass: DetailViewController.self, mode: .present, title: String(arc4random()), additionalData: "Passed a string type data")
+        data.transitionName = NSStringFromClass(ScaleTransition.self)
         navigator?.show(data)
     }
     
@@ -64,7 +65,7 @@ private extension TabItemViewController {
     }
     
     @objc dynamic func onDeepLink() {
-        let data = DataModel(viewController: NSStringFromClass(MasterViewController.self))
+        let data = DataModel(vcClass: MasterViewController.self)
         Navigator.current.show(data)
     }
 }

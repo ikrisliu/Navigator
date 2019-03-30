@@ -36,9 +36,10 @@ class MasterViewController: UITableViewController {
         }
         
         let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
-        let navController = UIDevice.current.userInterfaceIdiom == .pad ? NSStringFromClass(UINavigationController.self) : nil
+        let navClass = UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil
         let mode: Navigator.Mode = UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push
-        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), navigationController: navController, mode: mode, title: title)
+        let dict = ["from": "\(self)", "message": "Passed a dictionary type data"]
+        let data = DataModel(vcClass: DetailViewController.self, navClass: navClass, mode: mode, title: title, additionalData: dict)
         
         navigator?.show(data)
     }
@@ -47,7 +48,8 @@ class MasterViewController: UITableViewController {
 private extension MasterViewController {
     
     @objc dynamic func onOverlay() {
-        let data = DataModel(viewController: NSStringFromClass(DetailViewController.self), mode: .overlay, title: String(arc4random()), transitionClass: NSStringFromClass(CircleTransition.self))
+        let data = DataModel(vcClass: DetailViewController.self, mode: .overlay, title: String(arc4random()), additionalData: (self, "Passed a tuple type data"))
+        data.transitionName = NSStringFromClass(CircleTransition.self)
         navigator?.show(data)
     }
 }
