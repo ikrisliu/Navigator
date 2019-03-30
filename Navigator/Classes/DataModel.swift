@@ -60,7 +60,7 @@ public class DataModel: NSObject {
     
     /// The next navigating view controller name with required data
     /// Use this variable to build linked node when you handle universal link or deep link
-    public private(set) var next: DataModel?
+    public internal(set) var next: DataModel?
     
     
     /// Data model's designated initializer

@@ -33,6 +33,7 @@ import Foundation
                 fromView?.alpha = 0.7
                 fromView?.layer.transform = scaleTransform
             }, completion: { _ in
+                fromView?.alpha = 1.0
                 fromView?.layer.transform = CATransform3DIdentity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })

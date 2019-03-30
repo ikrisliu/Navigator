@@ -127,29 +127,24 @@ extension Navigator {
         }
         
         if topVC is UITabBarController || topVC is UISplitViewController {
+            guard let next = data.next else { return }
+            
             let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == data.vcName })
+            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == next.vcName })
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
-            }
-            
-            if let next = data.next {
-                viewController?.navigator?.showDeepLinkViewControllers(next)
+                vc.navigator?.showDeepLinkViewControllers(next)
+            } else {
+                os_log("❌ [Navigator]: Build wrong navigation vc <%@> stack", next.vcName ?? "nil")
             }
             
             return
         }
         
-        popStack(from: -1)  // Pop stack until remain 1 root view controller
+        topViewController?.navigator?.dismiss(level: -1, animated: false)
         
-        if let navControler = topViewController?.navigationController {
-            navControler.popToRootViewController(animated: false)
-        } else {
-            topViewController?.dismiss(animated: false, completion: nil)
-        }
-        
-        var next: DataModel? = data
+        var next: DataModel? = data.next
         
         while let nextData = next {
             let viewController = createViewController(nextData)
@@ -167,7 +162,7 @@ extension Navigator {
             viewControllers = splitVC.viewControllers
         }
         
-        return viewControllers.map({ ($0 as? UINavigationController)?.topViewController ?? $0 })
+        return viewControllers.map({ ($0 as? UINavigationController)?.viewControllers.first ?? $0 })
     }
     
     // Show view controller by push or present way. If mode is root, show the view controller directly.

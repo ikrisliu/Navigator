@@ -28,16 +28,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Navigator.root.window = window
         Navigator.root.show(tabData)
         
-//        showDeepLink()
-        
         return true
     }
     
-    func showDeepLink() {
-        let splitData = DataModel(vcClass: SplitViewController.self)
-        let navData = DataModel(vcClass: UINavigationController.self)
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         let vcData = DataModel(vcClass: DetailViewController.self)
-
-        Navigator.root.show(tabData --> splitData --> navData --> vcData)
+        
+        if url.host == "links" {
+            let splitData = DataModel(vcClass: SplitViewController.self)
+            let navData = DataModel(vcClass: MasterViewController.self)
+            
+            Navigator.root.show(tabData --> splitData --> navData --> vcData)
+        } else {
+            Navigator.current.show(vcData)
+        }
+        
+        return true
     }
 }

@@ -91,6 +91,7 @@ public extension Navigator {
         
         if data.next != nil && data.mode == .reset {
             showDeepLinkViewControllers(data)
+            data.next = nil     // Make sure linked all vc data models free
         } else {
             showViewControllers()
         }

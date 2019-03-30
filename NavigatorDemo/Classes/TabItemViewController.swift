@@ -23,7 +23,6 @@ class TabItemViewController: UIViewController, NavigatorDataProtocol {
         tuple = data.additionalData as? TupleType
         
         tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "DeepLink", style: .plain, target: self, action: #selector(onDeepLink))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
@@ -62,11 +61,6 @@ private extension TabItemViewController {
     
     @objc dynamic func onHome() {
         navigator?.dismiss(level: -1)
-    }
-    
-    @objc dynamic func onDeepLink() {
-        let data = DataModel(vcClass: MasterViewController.self)
-        Navigator.current.show(data)
     }
 }
 

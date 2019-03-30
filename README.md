@@ -19,7 +19,7 @@ Navigator is a generic navigation framework for view controllers. It can decoupl
 
 ## Installation
 ### Swift Package Manager
-The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. To integrate Navigator into your Xcode project, specify it in your `Package.swift`.
+[Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. To integrate Navigator into your Xcode project, specify it in your `Package.swift`.
 
 ```swift
 dependencies: [
@@ -96,14 +96,17 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ```
 
 ### DeepLink
+Use Safari or other approaches to test the deep link
+
 ```swift
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-    let main = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
+    // Parse the deep link url to below data models, then show them.
+    let root = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
     let middle = DataModel(vcClass: MiddleViewController.self)
     let top = DataModel(vcClass: TopViewController.self)
     
     Navigator.current.show(top)     // Show top view controller base on current vc stack
-    Navigator.root.show(main --> middle --> top)    // Reset root view controller
+    Navigator.root.show(root --> middle --> top)    // Show a chain of view controllers
     
     return true
 }
