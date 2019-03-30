@@ -46,11 +46,11 @@ pod 'SmartNavigator', '~> 1.0'
 ##### NavigatonControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    // Decoupling Way
+    // Decoupling Way: Recommend to use this way among modules
     // View controller class name (The swift class name should be "ModuleName.ClassName")
     let main = DataModel(vcName: "ModuleName.ViewController", navName: "UINavigationController", mode: .reset)
     
-    // Coupling Way
+    // Coupling Way: Recommend to use this way inside one module
     let main = DataModel(vcClass: ViewController.self, navClass: UINavigationController.self, mode: .reset)
     
     // If present view controller without passing any `UINavigationController`, use it as default one.
