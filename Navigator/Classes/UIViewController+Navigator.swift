@@ -8,12 +8,12 @@
 
 import Foundation
 
-/// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
-///   - If the VC is instantiated and opened by navigator, it can use navigator to open other VCs.
-///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
-public extension UIViewController {
+extension UIViewController {
     
-    @objc var navigator: Navigator? {
+    /// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
+    ///   - If the VC is instantiated and opened by navigator, it can use navigator to open other VCs.
+    ///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
+    @objc public internal(set) var navigator: Navigator? {
         get {
             return objc_getAssociatedObject(self, &AssociationKey.navigator) as? Navigator
         }
@@ -22,7 +22,7 @@ public extension UIViewController {
         }
     }
     
-    @objc var navigatorMode: Navigator.Mode {
+    @objc public internal(set) var navigatorMode: Navigator.Mode {
         get {
             let rawValue = (objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Int) ?? 0
             return Navigator.Mode(rawValue: rawValue) ?? .push
@@ -31,6 +31,10 @@ public extension UIViewController {
             objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
+    
+    /// Custom view controllers can override this variable to determine if need respond the deep linking.
+    /// If return true, it will do nothing when open App via deep linking.
+    @objc open var ignoreDeepLinking: Bool { return false }
 }
 
 extension UIViewController {

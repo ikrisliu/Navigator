@@ -18,23 +18,25 @@ import os.log
     /// The default navigation controller which is used for containing content view controller when navigator mode is `present`.
     @objc public static var defaultNavigationControllerClass = UINavigationController.self
     
-    /// Use current navigator to open a universal link or deep link, append current page directly.
+    /// - Note: Only if open App via deep linking, use the current navigator. It will append new page to current vc stack.
     @objc public static var current: Navigator {
+        var navigator = _current
         if let tabVC = _current.topViewController?.tabBarController {
             if let splitVC = tabVC.selectedViewController as? UISplitViewController {
-                return splitVC.viewControllers.last?.navigator ?? _current
+                navigator = splitVC.viewControllers.last?.navigator ?? _current
             } else {
-                return tabVC.selectedViewController?.navigator ?? _current
+                navigator = tabVC.selectedViewController?.navigator ?? _current
             }
         } else if let splitVC = _current.topViewController?.splitViewController {
-            return splitVC.viewControllers.last?.navigator ?? _current
-        } else {
-            return _current
+            navigator = splitVC.viewControllers.last?.navigator ?? _current
         }
+        navigator.isDeepLinking = true
+        
+        return navigator
     }
     internal static var _current = root
     
-    /// NOTE: Must set the window variable first, then call navigator's show method.
+    /// - Note: Must set the window variable first, then call navigator's show method.
     @objc public weak var window: UIWindow?
     @objc internal weak var rootViewController: UIViewController? {
         willSet {
@@ -65,9 +67,9 @@ import os.log
     weak var showModel: DataModel?
     var dismissData: Any?
     
-    /// Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
-    var level: Int = 0
+    var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
     var isDismiss = false
+    var isDeepLinking = false
 }
 
 public extension Navigator {
@@ -82,6 +84,8 @@ public extension Navigator {
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard !isDeepLinking || topViewController?.ignoreDeepLinking == false else { return }
+        
         Navigator._current = self
         
         isDismiss = false

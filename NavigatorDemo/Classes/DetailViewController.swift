@@ -34,6 +34,8 @@ class DetailViewController: UIViewController, NavigatorDataProtocol {
     deinit {
         debugPrint("FREE MEMORY: \(self)")
     }
+    
+    override var ignoreDeepLinking: Bool { return true }
 }
 
 private extension DetailViewController {

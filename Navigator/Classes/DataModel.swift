@@ -168,6 +168,8 @@ extension DataModel {
         return String(data: data, encoding: .utf8)
     }
     
+    public override var description: String { return debugDescription }
+    
     public override var debugDescription: String {
         var desc = "", indent = ""
         var index = 0

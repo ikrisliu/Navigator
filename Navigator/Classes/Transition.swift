@@ -126,7 +126,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
 //        return (isInteractive && type(of: self) != Transition.self) ? self : nil
 //    }
     
-    /// NOTE: If need custom popover presentation controller, can overwrite this method to provide one.
+    /// - Note: If need custom popover presentation controller, can overwrite this method to provide one.
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         return OverlayPresentationController(presentedViewController: presented, presenting: presenting, preferredHeight: preferredPresentationHeight)
     }
