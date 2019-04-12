@@ -96,23 +96,6 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 }
 ```
 
-### DeepLink
-Use Safari or other approaches to test the deep link
-
-```swift
-func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-    // Parse the deep link url to below data models, then show them.
-    let root = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
-    let middle = DataModel(vcClass: MiddleViewController.self)
-    let top = DataModel(vcClass: TopViewController.self)
-    
-    Navigator.current.show(top)     // Show top view controller base on current vc stack
-    Navigator.root.show(root --> middle --> top)    // Show a chain of view controllers
-    
-    return true
-}
-```
-
 ### Show / Dismiss
 ```swift
 class DetailViewController: UIViewController {
@@ -134,6 +117,31 @@ class DetailViewController: UIViewController {
         navigator?.dismiss(level: -1)   // Dismiss to root view controller of current navigator
         navigator?.dismiss(data)        // Pass data to previous view controller when dismiss
     }
+}
+```
+
+### DeepLink
+Use Safari or other approaches to test the deep link
+
+```swift
+func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    // Show top view controller base on current vc stack
+    Navigator.current.open(url: url) { (_) -> DataModel in
+        // Parse the deep link url to below data model for showing
+        return DataModel(vcClass: TopViewController.self)
+    }
+
+    // Show a chain of view controllers from root vc
+    Navigator.root.open(url: url) { (_) -> DataModel in
+        // Parse the deep link url to below data models for showing
+        let root = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
+        let middle = DataModel(vcClass: MiddleViewController.self)
+        let top = DataModel(vcClass: TopViewController.self)
+
+        return root --> middle --> top
+    }
+
+    return true
 }
 ```
 

@@ -33,14 +33,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         let vcData = DataModel(vcClass: DetailViewController.self)
+        let navigator = url.host == "links" ? Navigator.root : Navigator.current
         
-        if url.host == "links" {
+        navigator.open(url: url) { (_) -> DataModel in
             let splitData = DataModel(vcClass: SplitViewController.self)
             let navData = DataModel(vcClass: MasterViewController.self)
             
-            Navigator.root.show(tabData --> splitData --> navData --> vcData)
-        } else {
-            Navigator.current.show(vcData)
+            return url.host == "links" ? self.tabData --> splitData --> navData --> vcData : vcData
         }
         
         return true

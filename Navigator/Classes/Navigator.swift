@@ -54,8 +54,6 @@ import os.log
         }
     }
     
-    public typealias CompletionBlock = (() -> Void)
-    
     // Private Properties
     var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
     
@@ -68,11 +66,12 @@ import os.log
     var dismissData: Any?
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
-    var isDismiss = false
     var isDeepLinking = false
 }
 
 public extension Navigator {
+    
+    typealias CompletionBlock = (() -> Void)
     
     /// Show a view controller with required data in dictionary.
     /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
@@ -88,7 +87,6 @@ public extension Navigator {
         
         Navigator._current = self
         
-        isDismiss = false
         showModel = data
         showAnimated = animated
         showCompletion = completion
@@ -105,7 +103,7 @@ public extension Navigator {
     /// (A => B => C => D) -> dismiss(level: 1) -> (A => B)
     ///
     /// - Parameters:
-    ///   - data: The data is passed to previous view controller, default is empty.
+    ///   - data: The data is passed to previous view controller, default is nil.
     ///   - level: Which view controller will be dismissed, default 0 is current VC, 1 is previous one VC.
     ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
@@ -113,13 +111,55 @@ public extension Navigator {
     @objc func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         self.level = level
         
-        isDismiss = true
         dismissData = data
         dismissAnimated = animated
         dismissCompletion = completion
         
         dismissViewControllers()
     }
+    
+    /// Jump to any view controller only if the vc is already in the navigator stack.
+    /// Can jump to another navigator's VC from one navigator. (e.g. jump to any tab in UITabBarController)
+    ///
+    /// - Parameter vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
+    @objc class func goto(viewController vcName: String) {
+        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName) else { return }
+        
+        let viewControllers = childViewControllers(of: rootVC)
+        
+        for vc in viewControllers where vc.navigator != nil {
+            if vc.navigator!.gotoViewControllerIfExisted(vcName) {
+                break
+            }
+        }
+    }
+}
+
+public extension Navigator {
+
+    typealias DeepLinkHandler = ((URL) -> DataModel)
+    
+    /// Use this method to open the specified resource. If the specified URL scheme is handled by another app, iOS launches that app and passes the URL to it.
+    ///
+    /// - Parameters:
+    ///   - url: The resource identified by this URL may be local to the current app or it may be one that must be provided by a different app.
+    ///          UIKit supports many common schemes, including the http, https, tel, facetime, and mailto schemes.
+    ///   - handler: The handler is for parsing the url and return a data model for navigator show. If handler is nil, will open URL by UIApplication.
+    @objc func open(url: URL, handler: DeepLinkHandler? = nil) {
+        if let handler = handler {
+            show(handler(url))
+        } else {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    /// Returns a Boolean value indicating whether an app is available to handle a URL scheme.
+    @objc class func canOpenURL(_ url: URL) -> Bool {
+        return UIApplication.shared.canOpenURL(url)
+    }
+}
+
+public extension Navigator {
     
     /// Send data to previous any page before current page dismissed.
     /// The level parameter is same with dismiss method's level parameter.
@@ -130,7 +170,7 @@ public extension Navigator {
     ///            If level is equal to -1, it will send data to root view controller of current navigator.
     @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
         self.level = level
-
+        
         let lvl = level >= 0 ? level : stackCount + level - 1
         guard let data = data, let poppedVC = popStack(from: lvl) else { return }
         
@@ -153,20 +193,8 @@ public extension Navigator {
         p_sendDataAfterBack(data, toVC: toVC)
     }
     
-    /// Jump to any view controller only if the vc is already in the navigator stack.
-    /// Can jump to another navigator's VC from one navigator. (e.g. jump to any tab in UITabBarController)
-    ///
-    /// - Parameter vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
-    @objc class func goto(viewController vcName: String) {
-        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName) else { return }
-        
-        let viewControllers = childViewControllers(of: rootVC)
-        
-        for vc in viewControllers where vc.navigator != nil {
-            if vc.navigator!.gotoViewControllerIfExisted(vcName) {
-                break
-            }
-        }
+    @objc var topViewController: UIViewController? {
+        return stackCount > 0 ? stack.object(forKey: (stackCount - 1) as NSNumber) : nil
     }
 }
 

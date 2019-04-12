@@ -16,7 +16,7 @@ public typealias CompletionClosure = (Bool, Any?) -> Void
 public class DataModel: NSObject {
     
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    public let vcName: String?
+    public let vcName: String
     
     /// Navigation controller class name (Used for containing the view controller)
     /// If `viewController` is actually UINavigationController or its subclass, ignore this variable.
@@ -118,8 +118,7 @@ public extension DataModel {
                      children: [DataModel]? = nil) {
         self.init(vcName: NSStringFromClass(vcClass),
                   navName: navClass != nil ? NSStringFromClass(navClass!) : nil,
-                  mode: mode, title: title, additionalData: additionalData,
-                  children: children)
+                  mode: mode, title: title, additionalData: additionalData, children: children)
     }
     
     convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any) {
@@ -186,6 +185,7 @@ extension DataModel {
     }
 }
 
+// MARK: - TransitionStyle
 extension UIModalTransitionStyle: CustomStringConvertible {
     
     public var description: String {

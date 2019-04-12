@@ -16,19 +16,13 @@ extension Navigator {
         return stack.dictionaryRepresentation().count
     }
     
-    var topViewController: UIViewController? {
-        return stackCount > 0 ? stack.object(forKey: (stackCount - 1) as NSNumber) : nil
-    }
-    
     var navigationController: UINavigationController? {
         if let navigationController = topViewController?.navigationController {
             return navigationController
         }
         
         for _ in 0..<stackCount {
-            if isDismiss {
-                assertionFailure("\(topViewController!) has not been released immediately.")
-            }
+            assertionFailure("\(topViewController!) has not been released immediately.")
             
             popStack()
             
@@ -136,7 +130,7 @@ extension Navigator {
                 (topVC as? UITabBarController)?.selectedIndex = index
                 vc.navigator?.showDeepLinkViewControllers(next)
             } else {
-                os_log("❌ [Navigator]: Build wrong navigation vc <%@> stack", next.vcName ?? "nil")
+                os_log("❌ [Navigator]: Build wrong navigation vc <%@> stack", next.vcName)
             }
             
             return
@@ -269,7 +263,8 @@ extension Navigator {
             }
         }
         
-        guard let vcName = dataModel.vcName, !vcName.isEmpty else {
+        let vcName = dataModel.vcName
+        guard !vcName.isEmpty else {
             viewController = createFallbackViewController(dataModel)
             return viewController
         }
