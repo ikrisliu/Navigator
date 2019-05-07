@@ -17,7 +17,10 @@ class MasterViewController: UITableViewController {
         title = "Master"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Overlay", style: .plain, target: self, action: #selector(onOverlay))
+        let overlay = UIBarButtonItem(title: "Overlay", style: .plain, target: self, action: #selector(onOverlay))
+        let popover = UIBarButtonItem(title: "Popover", style: .plain, target: self, action: #selector(onPopover))
+        
+        navigationItem.rightBarButtonItems = [overlay, popover]
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -50,6 +53,11 @@ private extension MasterViewController {
     @objc dynamic func onOverlay() {
         let data = DataModel(vcClass: DetailViewController.self, mode: .overlay, title: String(arc4random()), additionalData: (self, "Passed a tuple type data"))
         data.transitionName = NSStringFromClass(CircleTransition.self)
+        navigator?.show(data)
+    }
+    
+    @objc dynamic func onPopover() {
+        let data = DataModel(vcClass: DetailViewController.self, mode: .popover, title: String(arc4random()), additionalData: (self, "Passed a tuple type data"))
         navigator?.show(data)
     }
 }

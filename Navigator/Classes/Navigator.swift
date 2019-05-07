@@ -207,8 +207,9 @@ public extension Navigator {
         case reset
         case push
         case present
-        // The presentationStyle must be forced with `custom` when mode is overlay
+        // The presentationStyle must be forced with `custom` when mode is overlay/popover
         case overlay
+        case popover
         
         public var description: String {
             switch self {
@@ -216,6 +217,7 @@ public extension Navigator {
             case .push: return "push"
             case .present: return "present"
             case .overlay: return "overlay"
+            case .popover: return "popover"
             }
         }
     }

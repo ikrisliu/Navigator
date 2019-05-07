@@ -1,32 +1,32 @@
 //
-//  OverlayPresentationController.swift
+//  PopoverPresentationController.swift
 //  Navigator
 //
 //  Created by Kris Liu on 2019/3/14.
 //  Copyright © 2019 Syzygy. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
-class OverlayPresentationController: UIPresentationController {
+class PopoverPresentationController: UIPresentationController {
     
-    private var preferredHeight: CGFloat
+    private var sourceRect: CGRect
     private let dimmedBackgroundView = UIView()
     
-    init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?, preferredHeight: CGFloat) {
-        self.preferredHeight = preferredHeight
+    init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?, sourceRect: CGRect, dismissWhenTapOutside: Bool = true) {
+        self.sourceRect = sourceRect
         
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
         
-        dimmedBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapDimmedBackgroundView)))
+        if dismissWhenTapOutside {
+            dimmedBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapDimmedBackgroundView)))
+        }
     }
     
     override func containerViewWillLayoutSubviews() {
         super.containerViewWillLayoutSubviews()
         
-        if let bounds = containerView?.bounds {
-            presentedView?.frame = CGRect(x: 0, y: bounds.height - preferredHeight, width: bounds.width, height: preferredHeight)
-        }
+        presentedView?.frame = sourceRect
     }
     
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
@@ -57,7 +57,7 @@ class OverlayPresentationController: UIPresentationController {
     }
 }
 
-private extension OverlayPresentationController {
+private extension PopoverPresentationController {
     
     @objc dynamic func onTapDimmedBackgroundView() {
         presentingViewController.dismiss(animated: true, completion: nil)

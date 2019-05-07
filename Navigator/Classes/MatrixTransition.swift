@@ -6,8 +6,7 @@
 //  Copyright © 2018 Syzygy. All rights reserved.
 //
 
-import Foundation
-
+import UIKit
 
 @objc public class MatrixTransition: Transition {
     

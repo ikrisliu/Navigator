@@ -45,12 +45,9 @@ public class DataModel: NSObject {
     /// Transition class name for custom transition animation
     public var transitionName: String?
     
-    /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass one of below two parameters.
+    /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
     public var sourceView: UIView?
-    public var sourceRect: NSValue?
-    
-    /// The overlay view controller's height
-    public var preferredOverlayHeight: CGFloat = UIScreen.main.bounds.height / 2
+    public var sourceRect: CGRect?
     
     /// Fallback view controller will show if no VC found (like 404 Page)
     public var fallback: String?
@@ -85,8 +82,15 @@ public class DataModel: NSObject {
         } else {
             self.navName = navName
         }
+        
+        let size = UIScreen.main.bounds.size
+        
+        if mode == .overlay {
+            sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: size.height / 2))
+        } else if mode == .popover {
+            sourceRect = CGRect(origin: .zero, size: .init(width: size.width - 20, height: size.height / 3))
+        }
     }
-    
 }
 
 // MARK: - Convenience Initializer

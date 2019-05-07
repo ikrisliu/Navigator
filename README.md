@@ -37,7 +37,7 @@ pod 'SmartNavigator', '~> 1.0'
 
 ```swift
 dependencies: [
-.package(url: "https://github.com/iKrisLiu/Navigator", from: "1.0.0")
+    .package(url: "https://github.com/iKrisLiu/Navigator", from: "1.0.0")
 ]
 ```
 
@@ -97,6 +97,8 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ```
 
 ### Show / Dismiss
+Supported navigation mode: `Push`, `Present`, `Overlay` and `Popover`
+
 ```swift
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
@@ -106,6 +108,18 @@ class DetailViewController: UIViewController {
         // Coupling Way
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
         let data = DataModel(vcClass: UIViewController.self, mode: .present, title: "Hello", additionalData: "You can pass any type object")
+        
+        navigator?.show(data)
+    }
+    
+    @objc private func onTapShowPopoverViewControler() {
+        // Show from bottom
+        let data = DataModel(vcClass: UIViewController.self, mode: .overlay, title: "Hello", additionalData: "You can pass any type object")
+        data.sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: 500))
+        
+        // Show in center
+        let data = DataModel(vcClass: UIViewController.self, mode: .popover, title: "Hello", additionalData: "You can pass any type object")
+        data.sourceRect = CGRect(origin: .zero, size: .init(width: 300, height: 500))
         
         navigator?.show(data)
     }

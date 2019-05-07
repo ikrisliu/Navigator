@@ -189,9 +189,9 @@ extension Navigator {
             setupTransition(dataModel, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: showCompletion)
             
-        case .overlay:
+        case .overlay, .popover:
             if dataModel.transitionName?.isEmpty ?? true {
-                dataModel.transitionName = NSStringFromClass(Transition.self)
+                dataModel.transitionName = NSStringFromClass(dataModel.mode == .popover ? PopoverTransition.self : Transition.self)
             }
             setupTransition(dataModel, for: toVC)
             toVC.modalPresentationStyle = .custom
@@ -227,7 +227,19 @@ extension Navigator {
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
         if let name = dataModel.transitionName, !name.isEmpty, let vc = viewController {
             vc.p_navigatorTransition = createTransition(name)
-            vc.p_navigatorTransition?.preferredPresentationHeight = dataModel.preferredOverlayHeight
+            
+            if var sourceRect = dataModel.sourceRect {
+                let width = vc.view.bounds.width
+                let height = vc.view.bounds.height
+                
+                if dataModel.mode == .overlay { // origin from bottom
+                    sourceRect = CGRect(x: 0, y: height - sourceRect.height, width: width, height: sourceRect.height)
+                } else if dataModel.mode == .popover, sourceRect.origin == .zero {  // origin from center
+                    sourceRect.origin = CGPoint(x: (width - sourceRect.width) / 2, y: (height - sourceRect.height) / 2)
+                }
+                
+                vc.p_navigatorTransition?.sourceRect = sourceRect
+            }
             
             if let nav = vc as? UINavigationController, dataModel.mode == .push {
                 nav.delegate = vc.p_navigatorTransition
@@ -241,9 +253,8 @@ extension Navigator {
         guard dataModel.presentationStyle == .popover else { return }
         
         viewController?.popoverPresentationController?.sourceView = dataModel.sourceView
-        
         if let sourceRect = dataModel.sourceRect {
-            viewController?.popoverPresentationController?.sourceRect = sourceRect.cgRectValue
+            viewController?.popoverPresentationController?.sourceRect = sourceRect
         }
     }
     
@@ -357,7 +368,7 @@ extension Navigator {
         let lvl = level >= 0 ? level : stackCount + level - 1
         guard let dismissedVC = popStack(from: lvl) else { return }
         
-        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay {
+        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover {
             dismissViewController(dismissedVC)
             return
         }

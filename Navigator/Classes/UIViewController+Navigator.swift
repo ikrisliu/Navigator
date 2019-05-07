@@ -6,7 +6,7 @@
 //  Copyright © 2019 Syzygy. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 extension UIViewController {
     
@@ -24,11 +24,10 @@ extension UIViewController {
     
     @objc public internal(set) var navigatorMode: Navigator.Mode {
         get {
-            let rawValue = (objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Int) ?? 0
-            return Navigator.Mode(rawValue: rawValue) ?? .push
+            return objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Navigator.Mode ?? .push
         }
         set {
-            objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue.rawValue as NSNumber, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
     

@@ -24,6 +24,8 @@ import UIKit
     @objc open var orientation: Orientation = .default
     @objc open var preferredPresentationHeight: CGFloat = 0
     
+    @objc public var sourceRect: CGRect = .zero
+    
     @objc public var isVertical: Bool { return orientation == .vertical }
     @objc public private(set) weak var transitionContext: UIViewControllerContextTransitioning!
     
@@ -128,7 +130,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
     
     /// - Note: If need custom popover presentation controller, can overwrite this method to provide one.
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return OverlayPresentationController(presentedViewController: presented, presenting: presenting, preferredHeight: preferredPresentationHeight)
+        return PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
     }
 }
 

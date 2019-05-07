@@ -20,6 +20,7 @@ class DetailViewController: UIViewController, NavigatorDataProtocol {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
+        
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapShowViewControler)))
         
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -45,6 +46,11 @@ private extension DetailViewController {
     }
     
     @objc dynamic func onTapShowViewControler() {
+        guard navigatorMode != .overlay, navigatorMode != .popover else {
+            navigator?.dismiss()
+            return
+        }
+        
         let data = DataModel(vcClass: TabItemViewController.self, title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(data)
     }
