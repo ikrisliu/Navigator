@@ -20,7 +20,7 @@ import UIKit
     }
     
     /// Whether enable gesture to pop/dismiss current view controller, default is false.
-    @objc open var interactiveGestureEnabled = true
+    @objc open var interactiveGestureEnabled = false
     @objc open var orientation: Orientation = .default
     @objc open var preferredPresentationHeight: CGFloat = 0
     
@@ -63,8 +63,8 @@ import UIKit
     // Private
     // Whether start interaction, different usage with variable interactiveGestureEnabled. Must need this flag.
     private var isInteractive: Bool = false
-    private var panGesture: UIPanGestureRecognizer!
-    private var startLocation: CGPoint!
+    private var panGesture: UIPanGestureRecognizer?
+    private var startLocation: CGPoint?
     
     private weak var presentedVC: UIViewController?
     private weak var presentingVC: UIViewController?
@@ -175,13 +175,17 @@ extension Transition {
             panGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
             (panGesture as? UIScreenEdgePanGestureRecognizer)?.edges = .left
         }
-        vc.view.addGestureRecognizer(panGesture)
+        
+        vc.view.addGestureRecognizer(panGesture!)
     }
     
     @objc private func handlePanGesture(recognizer: UIPanGestureRecognizer) {
         guard let recognizerView = recognizer.view else { return }
         let translation = recognizer.translation(in: recognizerView)
         let velocity = recognizer.velocity(in: recognizerView)
+        
+        let xLocation = startLocation != nil ? startLocation!.x : 0
+        let yLocation = startLocation != nil ? startLocation!.y : 0
         
         switch recognizer.state {
         case .began:
@@ -190,12 +194,12 @@ extension Transition {
             handleViewController(velocity)
             
         case .changed:
-            let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((translation.x + startLocation.x) / recognizerView.bounds.width)
+            let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((translation.x + xLocation) / recognizerView.bounds.width)
             update(ratio / 2.0)
             
         case .ended:
             isInteractive = false
-            let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - startLocation.y/2) : CGFloat.maximum(velocity.x, translation.x - startLocation.x/2)
+            let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - yLocation/2) : CGFloat.maximum(velocity.x, translation.x - xLocation/2)
             let isFinish = isVertical ? offset > recognizerView.bounds.height/4 : offset > recognizerView.bounds.width/2
             isFinish ? finish() : cancel()
             
@@ -231,6 +235,8 @@ extension Transition {
     }
     
     private func removeInteractiveGesture() {
+        guard let panGesture = panGesture else { return }
+        
         presentedVC?.view.removeGestureRecognizer(panGesture)
         presentingVC?.view.removeGestureRecognizer(panGesture)
         navController?.view.removeGestureRecognizer(panGesture)

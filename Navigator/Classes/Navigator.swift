@@ -177,7 +177,7 @@ public extension Navigator {
         let toVC = topViewController ?? poppedVC
         p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
         
-        pushStack(poppedVC)
+        pushStack(poppedVC)     // Need push back the VC because it hasn't been dismiss
     }
     
     /// Send data to previous one page after current page dismissed.

@@ -210,10 +210,7 @@ extension Navigator {
     }
     
     func resetViewController(_ viewController: UIViewController) {
-        var splitViewController = topViewController?.splitViewController
-        splitViewController = splitViewController ?? navigationController?.splitViewController
-        
-        if let splitVC = splitViewController, splitVC.viewControllers.count > 1 {   // iPad
+        if let splitVC = topViewController?.splitViewController, splitVC.viewControllers.count > 1 {   // iPad
             splitVC.showDetailViewController(viewController, sender: nil)
         } else {
             window = Navigator.root.window
@@ -310,8 +307,7 @@ extension Navigator {
     func createTransition(_ className: String?) -> Transition? {
         guard let name = className, !name.isEmpty else { return nil }
         guard let type = NSClassFromString(name) as? Transition.Type else {
-            os_log("❌ [Navigator]: Can not find transition class %@ in your modules", name)
-            return nil
+            os_log("❌ [Navigator]: Can not find transition class %@ in your modules", name); return nil
         }
         return type.init()
     }
@@ -383,7 +379,10 @@ extension Navigator {
     func dismissViewController(_ viewController: UIViewController) {
         let vc = viewController.presentingViewController ?? viewController
         
-        sendDataBeforeBack(dismissData, level: level)
+        // Do not call public method `sendDataBeforeBack` which will lead pop stack twice
+        if let data = dismissData, let topVC = topViewController {
+            p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
+        }
         
         vc.dismiss(animated: dismissAnimated, completion: {
             self.sendDataAfterBack(self.dismissData)
@@ -392,7 +391,9 @@ extension Navigator {
     }
     
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
-        sendDataBeforeBack(dismissData, level: level)
+        if let data = dismissData, let topVC = topViewController {
+            p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
+        }
         
         if let presentingVC = findPresentingViewController(base: viewController, in: fromNav) {
             presentingVC.dismiss(animated: false, completion: {
