@@ -67,6 +67,11 @@ import os.log
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
     var isDeepLinking = false
+    
+    // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
+    func stackLevel(_ level: Int) -> Int {
+        return level >= 0 ? stackCount - level - 1 : abs(level - 1) - 1
+    }
 }
 
 public extension Navigator {
@@ -116,6 +121,34 @@ public extension Navigator {
         dismissCompletion = completion
         
         dismissViewControllers()
+    }
+    
+    /// Dismiss view controllers until the specified VC is at the top of the navigation stack.
+    /// If there are many view controllers that are same name in the stack, it will dismiss all VCs until remains the first one.
+    ///
+    /// - Parameters:
+    ///   - vcName: The VC that you want to be at the top of the stack. This VC must currently be on the navigation stack.
+    ///   - data: The data is passed to previous view controller, default is nil.
+    ///   - animated: Whether dismiss view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    @objc func dismissTo(vcName: String, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard let level = stackIndex(of: vcName), level < stackCount - 1 else { return }
+        
+        dismiss(data, level: stackLevel(level + 1), animated: animated, completion: completion)
+    }
+    
+    /// Dismiss view controllers until the specified VC is at the top of the navigation stack.
+    /// If there are many view controllers that are same name in the stack, it will dismiss all VCs until remains the first one.
+    ///
+    /// - Parameters:
+    ///   - vcClass: The VC that you want to be at the top of the stack. This VC must currently be on the navigation stack.
+    ///   - data: The data is passed to previous view controller, default is nil.
+    ///   - animated: Whether dismiss view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    @objc func dismissTo(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard let level = stackIndex(of: NSStringFromClass(vcClass)), level < stackCount - 1 else { return }
+        
+        dismiss(data, level: stackLevel(level + 1), animated: animated, completion: completion)
     }
     
     /// Jump to any view controller only if the vc is already in the navigator stack.
@@ -171,8 +204,7 @@ public extension Navigator {
     @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
         self.level = level
         
-        let lvl = level >= 0 ? level : stackCount + level - 1
-        guard let data = data, let poppedVC = popStack(from: lvl) else { return }
+        guard let data = data, let poppedVC = popStack(from: stackLevel(level)) else { return }
         
         let toVC = topViewController ?? poppedVC
         p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)

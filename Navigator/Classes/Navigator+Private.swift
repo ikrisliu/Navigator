@@ -53,7 +53,7 @@ extension Navigator {
     
     @discardableResult
     func popStack(from level: Int = 0) -> UIViewController? {
-        let index = max(stackCount - 1 - level, 0)
+        let index = max(level, 0)
         guard index < stackCount else { return nil }
         
         let poppedVC = stack.object(forKey: index as NSNumber)
@@ -361,8 +361,7 @@ extension Navigator {
 extension Navigator {
     
     func dismissViewControllers() {
-        let lvl = level >= 0 ? level : stackCount + level - 1
-        guard let dismissedVC = popStack(from: lvl) else { return }
+        guard let dismissedVC = popStack(from: stackLevel(level)) else { return }
         
         if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover {
             dismissViewController(dismissedVC)

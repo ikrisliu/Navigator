@@ -55,7 +55,8 @@ private extension TabItemViewController {
     
     @objc dynamic func onTapShowViewControler() {
         let data = DataModel(vcClass: DetailViewController.self, mode: .present, title: String(arc4random()), additionalData: "Passed a string type data")
-        data.transitionName = NSStringFromClass(ScaleTransition.self)
+//        data.transitionName = NSStringFromClass(ScaleTransition.self)
+        data.transitionName = NSStringFromClass(MatrixTransition.self)
         navigator?.show(data)
     }
     
