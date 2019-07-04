@@ -35,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let vcData = DataModel(vcClass: DetailViewController.self)
         let navigator = url.host == "links" ? Navigator.root : Navigator.current
         
-        navigator.open(url: url) { (_) -> DataModel in
+        navigator.open(url: url) { (_) -> DataModel? in
             let splitData = DataModel(vcClass: SplitViewController.self)
             let navData = DataModel(vcClass: MasterViewController.self)
             

@@ -97,7 +97,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ```
 
 ### Show / Dismiss
-Supported navigation mode: `Push`, `Present`, `Overlay` and `Popover`
+Supported navigation mode: `Push`, `Present`, `Overlay`, `Popover` and `Goto`
 
 ```swift
 class DetailViewController: UIViewController {
@@ -140,13 +140,17 @@ Use Safari or other approaches to test the deep link
 ```swift
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
     // Show top view controller base on current vc stack
-    Navigator.current.open(url: url) { (_) -> DataModel in
+    let data = DataModel(vcClass: TopViewController.self)
+    Navigator.current.deepLink(data)
+
+    // Show top view controller base on current vc stack
+    Navigator.current.open(url: url) { (_) -> DataModel? in
         // Parse the deep link url to below data model for showing
         return DataModel(vcClass: TopViewController.self)
     }
 
     // Show a chain of view controllers from root vc
-    Navigator.root.open(url: url) { (_) -> DataModel in
+    Navigator.root.open(url: url) { (_) -> DataModel? in
         // Parse the deep link url to below data models for showing
         let root = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
         let middle = DataModel(vcClass: MiddleViewController.self)

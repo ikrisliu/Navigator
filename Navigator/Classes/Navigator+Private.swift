@@ -175,6 +175,7 @@ extension Navigator {
         p_sendDataBeforeShow(dataModel, fromVC: topViewController, toVC: viewController)
         
         switch dataModel.mode {
+        case .goto: return false
         case .reset:
             resetViewController(toVC)
             

@@ -30,7 +30,6 @@ import os.log
         } else if let splitVC = _current.topViewController?.splitViewController {
             navigator = splitVC.viewControllers.last?.navigator ?? _current
         }
-        navigator.isDeepLinking = true
         
         return navigator
     }
@@ -66,7 +65,6 @@ import os.log
     var dismissData: Any?
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
-    var isDeepLinking = false
     
     // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
     func stackLevel(_ level: Int) -> Int {
@@ -74,6 +72,7 @@ import os.log
     }
 }
 
+// MARK: - Show or Dismiss
 public extension Navigator {
     
     typealias CompletionBlock = (() -> Void)
@@ -88,8 +87,6 @@ public extension Navigator {
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard !isDeepLinking || topViewController?.ignoreDeepLinking == false else { return }
-        
         Navigator._current = self
         
         showModel = data
@@ -155,7 +152,7 @@ public extension Navigator {
     /// Can jump to another navigator's VC from one navigator. (e.g. jump to any tab in UITabBarController)
     ///
     /// - Parameter vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
-    @objc class func goto(viewController vcName: String) {
+    @objc class func goto(vcName: String) {
         guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName) else { return }
         
         let viewControllers = childViewControllers(of: rootVC)
@@ -166,11 +163,33 @@ public extension Navigator {
             }
         }
     }
+    
+    @objc class func goto(vcClass: UIViewController.Type) {
+        goto(vcName: NSStringFromClass(vcClass))
+    }
 }
 
+// MARK: - Deep Link
 public extension Navigator {
+    
+    /// Deep link to a view controller with required data in DataModel.
+    /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
+    ///
+    /// - Parameters:
+    ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
+    ///   - animated: Whether show view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    @objc func deepLink(_ data: DataModel, animated: Bool = true, completion: CompletionClosure? = nil) {
+        guard topViewController?.ignoreDeepLinking == false else { return }
+        
+        if data.mode == .goto {
+            Navigator.goto(vcName: data.vcName)
+        } else {
+            show(data)
+        }
+    }
 
-    typealias DeepLinkHandler = ((URL) -> DataModel)
+    typealias DeepLinkHandler = ((URL) -> DataModel?)
     
     /// Use this method to open the specified resource. If the specified URL scheme is handled by another app, iOS launches that app and passes the URL to it.
     ///
@@ -180,7 +199,9 @@ public extension Navigator {
     ///   - handler: The handler is for parsing the url and return a data model for navigator show. If handler is nil, will open URL by UIApplication.
     @objc func open(url: URL, handler: DeepLinkHandler? = nil) {
         if let handler = handler {
-            show(handler(url))
+            if let dataModel = handler(url) {
+                self.deepLink(dataModel)
+            }
         } else {
             UIApplication.shared.open(url)
         }
@@ -192,6 +213,7 @@ public extension Navigator {
     }
 }
 
+// MARK: - Send Data
 public extension Navigator {
     
     /// Send data to previous any page before current page dismissed.
@@ -237,6 +259,8 @@ public extension Navigator {
     enum Mode: Int, CustomStringConvertible {
         /// Reset view controller stack when initialize a new VC or deep link
         case reset
+        /// Change tab in tab controller
+        case goto
         case push
         case present
         // The presentationStyle must be forced with `custom` when mode is overlay/popover
@@ -246,6 +270,7 @@ public extension Navigator {
         public var description: String {
             switch self {
             case .reset: return "reset"
+            case .goto: return "goto"
             case .push: return "push"
             case .present: return "present"
             case .overlay: return "overlay"
