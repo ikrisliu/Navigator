@@ -132,7 +132,6 @@ extension Navigator {
             } else {
                 os_log("❌ [Navigator]: Build wrong navigation vc <%@> stack", next.vcName)
             }
-            
             return
         }
         
@@ -444,6 +443,7 @@ extension Navigator {
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (rootVC as? UITabBarController)?.selectedIndex = index
+                Navigator.current.dismiss(level: -1)
                 return true
             } else {
                 os_log("❌ [Navigator]: Can not find view controller class %@ in navigation stack", vcName)
