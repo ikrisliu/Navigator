@@ -16,11 +16,11 @@ public typealias CompletionClosure = (Bool, Any?) -> Void
 public class DataModel: NSObject {
     
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    public let vcName: String
+    public let vcName: UIViewController.Name
     
     /// Navigation controller class name (Used for containing the view controller)
     /// If `viewController` is actually UINavigationController or its subclass, ignore this variable.
-    public let navName: String?
+    public let navName: UIViewController.Name?
     
     /// See **Navigator.Mode** (push, present and so on)
      /// If is present mode and `navigationController` is nil, will create a navigation controller for `viewController`.
@@ -42,15 +42,15 @@ public class DataModel: NSObject {
     /// need pass a transition class which creates a custom presentation view controller.
     public var presentationStyle: UIModalPresentationStyle = .fullScreen
     
-    /// Transition class name for custom transition animation
-    public var transitionName: String?
+    /// Transition class type for custom transition animation
+    public var transitionClass: Transition.Type?
     
     /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
     public var sourceView: UIView?
     public var sourceRect: CGRect?
     
     /// Fallback view controller will show if no VC found (like 404 Page)
-    public var fallback: String?
+    public var fallback: UIViewController.Type?
     
     /// Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
     public var children: [DataModel]?
@@ -70,7 +70,7 @@ public class DataModel: NSObject {
     ///   - title: Navigation or view controller's title
     ///   - additionalData: Additional data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
     ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    public init(vcName: String, navName: String? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil, children: [DataModel]? = nil) {
+    public init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil, children: [DataModel]? = nil) {
         self.vcName = vcName
         self.mode = mode
         self.title = title
@@ -78,7 +78,7 @@ public class DataModel: NSObject {
         self.children = children
         
         if mode == .present && navName == nil {
-            self.navName = NSStringFromClass(Navigator.defaultNavigationControllerClass)
+            self.navName = .init(NSStringFromClass(Navigator.defaultNavigationControllerClass))
         } else {
             self.navName = navName
         }
@@ -96,11 +96,11 @@ public class DataModel: NSObject {
 // MARK: - Convenience Initializer
 public extension DataModel {
     
-    convenience init(vcName: String, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any) {
+    convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any) {
         self.init(vcName: vcName, navName: nil, mode: mode, title: title, additionalData: additionalData)
     }
     
-    convenience init(vcName: String, navName: String? = nil, title: String? = nil, children: [DataModel]) {
+    convenience init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, title: String? = nil, children: [DataModel]) {
         self.init(vcName: vcName, navName: navName, mode: .reset, title: title, children: children)
     }
     
@@ -120,8 +120,8 @@ public extension DataModel {
                      title: String? = nil,
                      additionalData: Any? = nil,
                      children: [DataModel]? = nil) {
-        self.init(vcName: NSStringFromClass(vcClass),
-                  navName: navClass != nil ? NSStringFromClass(navClass!) : nil,
+        self.init(vcName: .init(NSStringFromClass(vcClass)),
+                  navName: navClass != nil ? .init(NSStringFromClass(navClass!)) : nil,
                   mode: mode, title: title, additionalData: additionalData, children: children)
     }
     

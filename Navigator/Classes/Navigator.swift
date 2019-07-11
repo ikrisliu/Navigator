@@ -93,12 +93,7 @@ public extension Navigator {
         showAnimated = animated
         showCompletion = completion
         
-        if data.next != nil && data.mode == .reset {
-            showDeepLinkViewControllers(data)
-            data.next = nil     // Make sure linked all vc data models free
-        } else {
-            showViewControllers()
-        }
+        showViewControllers()
     }
     
     /// Dismiss any view controller with optional data in dictionary.
@@ -128,8 +123,8 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismissTo(vcName: String, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard let level = stackIndex(of: vcName), level < stackCount - 1 else { return }
+    @objc func dismissTo(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard let level = stackIndex(of: vcName.rawValue), level < stackCount - 1 else { return }
         
         dismiss(data, level: stackLevel(level + 1), animated: animated, completion: completion)
     }
@@ -143,29 +138,29 @@ public extension Navigator {
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func dismissTo(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard let level = stackIndex(of: NSStringFromClass(vcClass)), level < stackCount - 1 else { return }
-        
-        dismiss(data, level: stackLevel(level + 1), animated: animated, completion: completion)
+        dismissTo(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated, completion: completion)
     }
     
     /// Jump to any view controller only if the vc is already in the navigator stack.
     /// Can jump to another navigator's VC from one navigator. (e.g. jump to any tab in UITabBarController)
     ///
-    /// - Parameter vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
-    @objc class func goto(vcName: String) {
-        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName) else { return }
+    /// - Parameters:
+    ///   - vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
+    ///   - animated: Whether show view controller with animation, default is true.
+    @objc class func goto(vcName: UIViewController.Name, animated: Bool = true) {
+        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName.rawValue) else { return }
         
         let viewControllers = childViewControllers(of: rootVC)
         
         for vc in viewControllers where vc.navigator != nil {
-            if vc.navigator!.gotoViewControllerIfExisted(vcName) {
+            if vc.navigator!.gotoViewControllerIfExisted(vcName.rawValue) {
                 break
             }
         }
     }
     
-    @objc class func goto(vcClass: UIViewController.Type) {
-        goto(vcName: NSStringFromClass(vcClass))
+    @objc class func goto(vcClass: UIViewController.Type, animated: Bool = true) {
+        goto(vcName: .init(NSStringFromClass(vcClass)), animated: animated)
     }
 }
 
@@ -175,17 +170,24 @@ public extension Navigator {
     /// Deep link to a view controller with required data in DataModel.
     /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
     ///
-    /// - Parameters:
-    ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
-    ///   - animated: Whether show view controller with animation, default is true.
-    ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func deepLink(_ data: DataModel, animated: Bool = true, completion: CompletionClosure? = nil) {
+    /// - Parameter data: The data is required for view controller, can be any type. At least VC class name is required.
+    @objc func deepLink(_ data: DataModel) {
         guard topViewController?.ignoreDeepLinking == false else { return }
         
         if data.mode == .goto {
-            Navigator.goto(vcName: data.vcName)
+            Navigator.goto(vcName: data.vcName, animated: false)
+            
+            if let nextData = data.next {
+                showDeepLinkViewControllers(nextData)
+                nextData.next = nil // Make sure linked all vc data models free
+            }
         } else {
-            show(data)
+            if data.next != nil {
+                showDeepLinkViewControllers(data)
+                data.next = nil
+            } else {
+                show(data)
+            }
         }
     }
 

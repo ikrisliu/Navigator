@@ -52,7 +52,7 @@ private extension MasterViewController {
     
     @objc dynamic func onOverlay() {
         let data = DataModel(vcClass: DetailViewController.self, mode: .overlay, title: String(arc4random()), additionalData: (self, "Passed a tuple type data"))
-        data.transitionName = NSStringFromClass(CircleTransition.self)
+        data.transitionClass = CircleTransition.self
         navigator?.show(data)
     }
     

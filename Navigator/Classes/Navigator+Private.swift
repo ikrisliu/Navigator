@@ -124,7 +124,7 @@ extension Navigator {
             guard let next = data.next else { return }
             
             let viewControllers = Navigator.childViewControllers(of: topVC)
-            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == next.vcName })
+            let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == next.vcName.rawValue })
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (topVC as? UITabBarController)?.selectedIndex = index
@@ -174,7 +174,6 @@ extension Navigator {
         p_sendDataBeforeShow(dataModel, fromVC: topViewController, toVC: viewController)
         
         switch dataModel.mode {
-        case .goto: return false
         case .reset:
             resetViewController(toVC)
             
@@ -190,12 +189,16 @@ extension Navigator {
             topViewController?.present(toVC, animated: animated, completion: showCompletion)
             
         case .overlay, .popover:
-            if dataModel.transitionName?.isEmpty ?? true {
-                dataModel.transitionName = NSStringFromClass(dataModel.mode == .popover ? PopoverTransition.self : Transition.self)
+            if dataModel.transitionClass == nil {
+                dataModel.transitionClass = dataModel.mode == .popover ? PopoverTransition.self : Transition.self
             }
             setupTransition(dataModel, for: toVC)
             toVC.modalPresentationStyle = .custom
             topViewController?.present(toVC, animated: animated, completion: showCompletion)
+            
+        case .goto:
+            assertionFailure("Please call navigator `goto` method for showing <\(dataModel.vcName)>")
+            return false
         }
         
         if rootViewController == nil {
@@ -222,8 +225,8 @@ extension Navigator {
     
     // Set custom tranistion animation when push or present a view controller
     func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
-        if let name = dataModel.transitionName, !name.isEmpty, let vc = viewController {
-            vc.p_navigatorTransition = createTransition(name)
+        if let transitionClass = dataModel.transitionClass, let vc = viewController {
+            vc.p_navigatorTransition = transitionClass.init()
             
             if var sourceRect = dataModel.sourceRect {
                 let width = vc.view.bounds.width
@@ -260,7 +263,7 @@ extension Navigator {
         let viewController: UIViewController
         
         defer {
-            if let navName = dataModel.navName, !navName.isEmpty, !(viewController is UINavigationController) {
+            if let navName = dataModel.navName?.rawValue, !navName.isEmpty, !(viewController is UINavigationController) {
                 if let navType = NSClassFromString(navName) as? UINavigationController.Type {
                     let navigationController = navType.init()
                     navigationController.viewControllers = [viewController]
@@ -271,7 +274,7 @@ extension Navigator {
             }
         }
         
-        let vcName = dataModel.vcName
+        let vcName = dataModel.vcName.rawValue
         guard !vcName.isEmpty else {
             viewController = createFallbackViewController(dataModel)
             return viewController
@@ -291,7 +294,7 @@ extension Navigator {
     
     // Create fallback view controller instance with class name.
     func createFallbackViewController(_ dataModel: DataModel) -> UIViewController {
-        guard let vcName = dataModel.fallback, let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
+        guard let vcType = dataModel.fallback else {
             let viewController = Fallback()
             viewController.navigator = self
             return viewController
@@ -301,15 +304,6 @@ extension Navigator {
         viewController.navigator = self
         
         return viewController
-    }
-    
-    // Create custom transition instance with class name.
-    func createTransition(_ className: String?) -> Transition? {
-        guard let name = className, !name.isEmpty else { return nil }
-        guard let type = NSClassFromString(name) as? Transition.Type else {
-            os_log("❌ [Navigator]: Can not find transition class %@ in your modules", name); return nil
-        }
-        return type.init()
     }
     
     // Add child view controllers for container view controllers like Navigation/Split/Tab view controller
@@ -404,6 +398,7 @@ extension Navigator {
         } else {
             popTopViewController(fromNav: fromNav) {
                 self.sendDataAfterBack(self.dismissData)
+                self.dismissCompletion?()
             }
         }
     }
@@ -433,7 +428,7 @@ extension Navigator {
 // MARK: - Goto View Controller
 extension Navigator {
     
-    func gotoViewControllerIfExisted(_ vcName: String) -> Bool {
+    func gotoViewControllerIfExisted(_ vcName: String, animated: Bool = true) -> Bool {
         guard self !== Navigator.root else {
             guard let rootVC = rootViewController else { return false }
             
@@ -443,7 +438,7 @@ extension Navigator {
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (rootVC as? UITabBarController)?.selectedIndex = index
-                Navigator.current.dismiss(level: -1)
+                Navigator.current.dismiss(level: -1, animated: animated)
                 return true
             } else {
                 os_log("❌ [Navigator]: Can not find view controller class %@ in navigation stack", vcName)
@@ -466,9 +461,9 @@ extension Navigator {
         guard let topVC = topViewController else { return false }
         
         if let navControler = topVC.navigationController {
-            navControler.popToViewController(topVC, animated: false)
+            navControler.popToViewController(topVC, animated: animated)
         } else {
-            topVC.dismiss(animated: false, completion: nil)
+            topVC.dismiss(animated: animated, completion: nil)
         }
         
         return true

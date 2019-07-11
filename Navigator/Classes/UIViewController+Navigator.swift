@@ -10,6 +10,37 @@ import UIKit
 
 extension UIViewController {
     
+    @objc public class Name: NSObject, RawRepresentable {
+        public private(set) var rawValue: String
+        
+        public init(_ rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        required public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        public override var description: String {
+            return rawValue
+        }
+        
+        public override var hash: Int {
+            return rawValue.hash
+        }
+        
+        public override func isEqual(_ object: Any?) -> Bool {
+            if let other = object as? Name {
+                return self.rawValue == other.rawValue
+            } else {
+                return false
+            }
+        }
+    }
+}
+
+extension UIViewController {
+    
     /// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
     ///   - If the VC is instantiated and opened by navigator, it can use navigator to open other VCs.
     ///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
