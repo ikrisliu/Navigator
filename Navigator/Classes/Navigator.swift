@@ -39,6 +39,9 @@ import os.log
     @objc public weak var window: UIWindow?
     @objc internal weak var rootViewController: UIViewController? {
         willSet {
+            // Avoid memory leak, if exists presented view controler, reset root view controller will lead memory lead.
+            Navigator.current.dismiss(level: -1, animated: false)
+            
             window?.rootViewController = newValue
             window?.makeKeyAndVisible()
         }
@@ -54,7 +57,11 @@ import os.log
     }
     
     // Private Properties
-    var stack: NSMapTable<NSNumber, UIViewController> = NSMapTable.weakToWeakObjects()
+    private var _stack = [WeakWrapper]()
+    var stack: [WeakWrapper] {
+        get { return _stack.filter({ $0.viewController != nil }) }
+        set { _stack = newValue }
+    }
     
     var showAnimated: Bool = true
     var dismissAnimated: Bool = true
@@ -65,11 +72,6 @@ import os.log
     var dismissData: Any?
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
-    
-    // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
-    func stackLevel(_ level: Int) -> Int {
-        return level >= 0 ? stackCount - level - 1 : abs(level - 1) - 1
-    }
 }
 
 // MARK: - Show or Dismiss
@@ -124,9 +126,9 @@ public extension Navigator {
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func dismissTo(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard let level = stackIndex(of: vcName.rawValue), level < stackCount - 1 else { return }
+        guard let level = stackIndex(of: vcName.rawValue), level <= stackCount - 1 else { return }
         
-        dismiss(data, level: stackLevel(level + 1), animated: animated, completion: completion)
+        dismiss(data, level: level, animated: animated, completion: completion)
     }
     
     /// Dismiss view controllers until the specified VC is at the top of the navigation stack.
@@ -169,19 +171,30 @@ public extension Navigator {
     
     /// Deep link to a view controller with required data in DataModel.
     /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
+    ///   - If use `Navigator.root.deepLink()`, it will build view controllers from root view controller, the mode should be `reset`.
+    ///   - If use `Navigator.current.deepLink()`, it will show deep linking VCs base on current visible view controller.
+    ///     If the mode is `goto`, should use `Navigator.current.deepLink()`.
     ///
     /// - Parameter data: The data is required for view controller, can be any type. At least VC class name is required.
     @objc func deepLink(_ data: DataModel) {
         guard topViewController?.ignoreDeepLinking == false else { return }
         
         if data.mode == .goto {
+            if self != Navigator.current {
+                assertionFailure("Should use `Navigator.current` to call this deep link method")
+            }
+            
             Navigator.goto(vcName: data.vcName, animated: false)
             
             if let nextData = data.next {
-                showDeepLinkViewControllers(nextData)
+                Navigator.current.showDeepLinkViewControllers(nextData)
                 nextData.next = nil // Make sure linked all vc data models free
             }
         } else {
+            if (self == Navigator.root && data.mode != .reset) || (self != Navigator.root && data.mode == .reset) {
+                assertionFailure("Should use `reset` mode when use `Navigator.root` call deep link method")
+            }
+            
             if data.next != nil {
                 showDeepLinkViewControllers(data)
                 data.next = nil
@@ -228,7 +241,7 @@ public extension Navigator {
     @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
         self.level = level
         
-        guard let data = data, let poppedVC = popStack(from: stackLevel(level)) else { return }
+        guard let data = data, let poppedVC = popStack(from: level) else { return }
         
         let toVC = topViewController ?? poppedVC
         p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
@@ -250,7 +263,7 @@ public extension Navigator {
     }
     
     @objc var topViewController: UIViewController? {
-        return stackCount > 0 ? stack.object(forKey: (stackCount - 1) as NSNumber) : nil
+        return stackCount > 0 ? stack[stackCount - 1].viewController : nil
     }
 }
 
@@ -279,5 +292,15 @@ public extension Navigator {
             case .popover: return "popover"
             }
         }
+    }
+}
+
+// MARK: - Weak Wrapper
+class WeakWrapper {
+    
+    weak var viewController: UIViewController?
+    
+    init(_ viewController: UIViewController) {
+        self.viewController = viewController
     }
 }

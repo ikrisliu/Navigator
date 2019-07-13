@@ -39,6 +39,12 @@ extension UIViewController {
     }
 }
 
+public extension UIViewController.Name {
+    
+    static let invalid = UIViewController.Name("")
+    static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
+}
+
 extension UIViewController {
     
     /// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.

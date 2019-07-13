@@ -72,16 +72,11 @@ public class DataModel: NSObject {
     ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
     public init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil, children: [DataModel]? = nil) {
         self.vcName = vcName
+        self.navName = navName
         self.mode = mode
         self.title = title
         self.additionalData = additionalData
         self.children = children
-        
-        if mode == .present && navName == nil {
-            self.navName = .init(NSStringFromClass(Navigator.defaultNavigationControllerClass))
-        } else {
-            self.navName = navName
-        }
         
         let size = UIScreen.main.bounds.size
         
@@ -96,8 +91,9 @@ public class DataModel: NSObject {
 // MARK: - Convenience Initializer
 public extension DataModel {
     
-    convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any) {
-        self.init(vcName: vcName, navName: nil, mode: mode, title: title, additionalData: additionalData)
+    convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil) {
+        let navName = (mode == .present) ? UIViewController.Name.defaultNavigation : nil
+        self.init(vcName: vcName, navName: navName, mode: mode, title: title, additionalData: additionalData)
     }
     
     convenience init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, title: String? = nil, children: [DataModel]) {
@@ -125,8 +121,9 @@ public extension DataModel {
                   mode: mode, title: title, additionalData: additionalData, children: children)
     }
     
-    convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any) {
-        self.init(vcClass: vcClass, navClass: nil, mode: mode, title: title, additionalData: additionalData)
+    convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil) {
+        let navClass = (mode == .present) ? Navigator.defaultNavigationControllerClass : nil
+        self.init(vcClass: vcClass, navClass: navClass, mode: mode, title: title, additionalData: additionalData)
     }
     
     convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type? = nil, title: String? = nil, children: [DataModel]) {

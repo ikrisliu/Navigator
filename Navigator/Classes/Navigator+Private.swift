@@ -12,9 +12,7 @@ import os.log
 // MARK: - Data Stack
 extension Navigator {
     
-    var stackCount: Int {
-        return stack.dictionaryRepresentation().count
-    }
+    var stackCount: Int { return stack.count }
     
     var navigationController: UINavigationController? {
         if let navigationController = topViewController?.navigationController {
@@ -22,8 +20,6 @@ extension Navigator {
         }
         
         for _ in 0..<stackCount {
-            assertionFailure("\(topViewController!) has not been released immediately.")
-            
             popStack()
             
             if let navigationController = topViewController?.navigationController {
@@ -34,32 +30,25 @@ extension Navigator {
         return nil
     }
     
+    // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
     func stackIndex(of vcName: String) -> Int? {
-        guard let objEnumerator = stack.objectEnumerator() else { return nil }
-        let keyEnumerator = stack.keyEnumerator()
-        
-        for (key, value) in zip(keyEnumerator, objEnumerator) {
-            if NSStringFromClass(type(of: value as AnyObject)) == vcName {
-                return (key as? NSNumber)?.intValue
-            }
-        }
-        
-        return nil
+        guard let index = stack.firstIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName }) else { return nil }
+        return index < stackCount - 1 ? stackCount - 1 - index : nil
     }
     
     func pushStack(_ viewController: UIViewController) {
-        stack.setObject(viewController, forKey: stackCount as NSNumber)
+        stack = stack.filter({ $0.viewController != nil })
+        stack.append(WeakWrapper(viewController))
     }
     
+    // Pop stack level (0 from top)
     @discardableResult
     func popStack(from level: Int = 0) -> UIViewController? {
-        let index = max(level, 0)
+        let index = level >= 0 ? level : max(stackCount + level, 0)
         guard index < stackCount else { return nil }
         
-        let poppedVC = stack.object(forKey: index as NSNumber)
-        (index..<stackCount).forEach({ stack.removeObject(forKey: $0 as NSNumber) })
-        
-        return poppedVC
+        stack.removeLast(max(index - 1, 0))
+        return stack.popLast()?.viewController
     }
     
     @discardableResult
@@ -112,6 +101,8 @@ extension Navigator {
     
     // Deep Link
     func showDeepLinkViewControllers(_ data: DataModel) {
+        self.showModel = data
+        
         guard let topVC = topViewController else {
             showViewControllers()
             if let next = data.next {
@@ -121,13 +112,17 @@ extension Navigator {
         }
         
         if topVC is UITabBarController || topVC is UISplitViewController {
-            guard let next = data.next else { return }
+            guard var next = data.next else { return }
             
             let viewControllers = Navigator.childViewControllers(of: topVC)
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == next.vcName.rawValue })
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
-                (topVC as? UITabBarController)?.selectedIndex = index
+                if let tabVC = topVC as? UITabBarController {
+                    tabVC.selectedIndex = index
+                } else if let nextData = next.next {    // For handling split view controller logic
+                    next = nextData
+                }
                 vc.navigator?.showDeepLinkViewControllers(next)
             } else {
                 os_log("❌ [Navigator]: Build wrong navigation vc <%@> stack", next.vcName)
@@ -135,9 +130,11 @@ extension Navigator {
             return
         }
         
-        topViewController?.navigator?.dismiss(level: -1, animated: false)
+        if self == Navigator.root {
+            Navigator.current.dismiss(level: -1, animated: false)
+        }
         
-        var next: DataModel? = data.next
+        var next: DataModel? = data
         
         while let nextData = next {
             let viewController = createViewController(nextData)
@@ -354,8 +351,11 @@ extension Navigator {
 // MARK: - Dismiss View Controllers
 extension Navigator {
     
+    // Disallow dismiss the root view controller
     func dismissViewControllers() {
-        guard let dismissedVC = popStack(from: stackLevel(level)) else { return }
+        if level < 0 && (stackCount + level) <= 0 { return }
+        
+        guard let dismissedVC = popStack(from: level) else { return }
         
         if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover {
             dismissViewController(dismissedVC)
