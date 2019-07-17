@@ -31,8 +31,13 @@ extension Navigator {
     }
     
     // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
+    func stackIndex(of viewController: UIViewController) -> Int? {
+        guard let index = stack.map({ $0.viewController }).firstIndex(of: viewController) else { return nil }
+        return index < stackCount - 1 ? stackCount - 1 - index : nil
+    }
+    
     func stackIndex(of vcName: String) -> Int? {
-        guard let index = stack.firstIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName }) else { return nil }
+        guard let index = stack.lastIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName }) else { return nil }
         return index < stackCount - 1 ? stackCount - 1 - index : nil
     }
     

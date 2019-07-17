@@ -117,8 +117,21 @@ public extension Navigator {
         dismissViewControllers()
     }
     
+    /// Dismiss view controllers with the specified view controller instance.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller must exist in navigation stack.
+    ///   - data: The data is passed to previous view controller, default is nil.
+    ///   - animated: Whether dismiss view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    @objc func dismissTo(viewController: UIViewController, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard let level = stackIndex(of: viewController), level <= stackCount - 1 else { return }
+        
+        dismiss(data, level: level, animated: animated, completion: completion)
+    }
+    
     /// Dismiss view controllers until the specified VC is at the top of the navigation stack.
-    /// If there are many view controllers that are same name in the stack, it will dismiss all VCs until remains the first one.
+    /// If there are many view controllers that are same name in the stack, it will only dismiss the first one.
     ///
     /// - Parameters:
     ///   - vcName: The VC that you want to be at the top of the stack. This VC must currently be on the navigation stack.
@@ -131,14 +144,6 @@ public extension Navigator {
         dismiss(data, level: level, animated: animated, completion: completion)
     }
     
-    /// Dismiss view controllers until the specified VC is at the top of the navigation stack.
-    /// If there are many view controllers that are same name in the stack, it will dismiss all VCs until remains the first one.
-    ///
-    /// - Parameters:
-    ///   - vcClass: The VC that you want to be at the top of the stack. This VC must currently be on the navigation stack.
-    ///   - data: The data is passed to previous view controller, default is nil.
-    ///   - animated: Whether dismiss view controller with animation, default is true.
-    ///   - completion: The optional callback to be executed after animation is completed.
     @objc func dismissTo(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         dismissTo(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated, completion: completion)
     }
