@@ -26,7 +26,6 @@ extension Navigator {
                 return navigationController
             }
         }
-        
         return nil
     }
     
@@ -49,11 +48,17 @@ extension Navigator {
     // Pop stack level (0 from top)
     @discardableResult
     func popStack(from level: Int = 0) -> UIViewController? {
+        let viewControllers = getStack(from: level)
+        stack.removeLast(viewControllers.count)
+        return viewControllers.first
+    }
+    
+    func getStack(from level: Int = 0) -> [UIViewController] {
         let index = level >= 0 ? level : max(stackCount + level, 0)
-        guard index < stackCount else { return nil }
+        guard index < stackCount else { return [] }
         
-        stack.removeLast(max(index - 1, 0))
-        return stack.popLast()?.viewController
+        let lasts = max(index - 1, 0)
+        return stack.suffix(min(stackCount, lasts + 1)).compactMap({ $0.viewController })
     }
     
     @discardableResult
@@ -140,7 +145,6 @@ extension Navigator {
         }
         
         var next: DataModel? = data
-        
         while let nextData = next {
             let viewController = createViewController(nextData)
             p_showViewControler(viewController, dataModel: nextData, animated: nextData.next == nil)
@@ -163,7 +167,6 @@ extension Navigator {
     // Show view controller by push or present way. If mode is root, show the view controller directly.
     func showViewControler(_ viewController: UIViewController) -> Bool {
         guard let showModel = showModel else { return false }
-        
         return p_showViewControler(viewController, dataModel: showModel, animated: showAnimated)
     }
     
@@ -178,10 +181,10 @@ extension Navigator {
         switch dataModel.mode {
         case .reset:
             resetViewController(toVC)
-            
+
         case .push:
             CATransaction.begin()
-            CATransaction.setCompletionBlock { self.showCompletion?() }
+            CATransaction.setCompletionBlock(showCompletion)
             setupTransition(dataModel, for: topViewController?.navigationController)
             navigationController?.pushViewController(toVC, animated: animated)
             CATransaction.commit()
@@ -223,6 +226,7 @@ extension Navigator {
         
         popStackAll()
         setupNavigatorForViewController(viewController)
+        showCompletion?()
     }
     
     // Set custom tranistion animation when push or present a view controller
@@ -316,7 +320,6 @@ extension Navigator {
         
         for itemModel in data {
             let toVC = createViewController(itemModel)
-            
             p_sendDataBeforeShow(itemModel, fromVC: toViewController, toVC: toVC)
             viewControllers.append(toVC.navigationController ?? toVC)
             
@@ -358,11 +361,10 @@ extension Navigator {
     
     // Disallow dismiss the root view controller
     func dismissViewControllers() {
-        if level < 0 && (stackCount + level) <= 0 { return }
+        if level < 0 && (stackCount + level) <= 0 { dismissCompletion?(); return }
+        guard let dismissedVC = popStack(from: level) else { dismissCompletion?(); return }
         
-        guard let dismissedVC = popStack(from: level) else { return }
-        
-        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover {
+        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover || dismissedVC.navigatorMode == .popover {
             dismissViewController(dismissedVC)
             return
         }
@@ -410,7 +412,7 @@ extension Navigator {
     
     func popTopViewController(fromNav: UINavigationController, completion: CompletionBlock?) {
         CATransaction.begin()
-        CATransaction.setCompletionBlock { completion?() }
+        CATransaction.setCompletionBlock(completion)
         if let topVC = topViewController, fromNav.viewControllers.contains(topVC) {
             fromNav.popToViewController(topVC, animated: dismissAnimated)
         } else {
@@ -421,11 +423,9 @@ extension Navigator {
     
     func findPresentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController? {
         let baseIndex = navController.viewControllers.firstIndex(of: viewController) ?? 0
-        
         for (index, vc) in (navController.viewControllers as Array).enumerated() where index >= baseIndex && vc.presentedViewController != nil {
             return vc
         }
-        
         return nil
     }
 }

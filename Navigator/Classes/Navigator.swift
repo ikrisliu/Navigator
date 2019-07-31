@@ -37,7 +37,7 @@ import os.log
     
     /// - Note: Must set the window variable first, then call navigator's show method.
     @objc public weak var window: UIWindow?
-    @objc internal weak var rootViewController: UIViewController? {
+    @objc public internal(set) weak var rootViewController: UIViewController? {
         willSet {
             // Avoid memory leak, if exists presented view controler, reset root view controller will lead memory lead.
             Navigator.current.dismiss(level: -1, animated: false)
@@ -72,6 +72,8 @@ import os.log
     var dismissData: Any?
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
+    
+    var isAnimating = false
 }
 
 // MARK: - Show or Dismiss
@@ -89,11 +91,17 @@ public extension Navigator {
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard !isAnimating else { return }
+        
+        isAnimating = true
         Navigator._current = self
         
         showModel = data
         showAnimated = animated
-        showCompletion = completion
+        showCompletion = {
+            self.isAnimating = false
+            completion?()
+        }
         
         showViewControllers()
     }
@@ -108,11 +116,17 @@ public extension Navigator {
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard !isAnimating else { return }
+        
+        isAnimating = true
         self.level = level
         
         dismissData = data
         dismissAnimated = animated
-        dismissCompletion = completion
+        dismissCompletion = {
+            self.isAnimating = false
+            completion?()
+        }
         
         dismissViewControllers()
     }
@@ -246,12 +260,10 @@ public extension Navigator {
     @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
         self.level = level
         
-        guard let data = data, let poppedVC = popStack(from: level) else { return }
+        guard let data = data, let fromVC = getStack(from: level).first else { return }
         
-        let toVC = topViewController ?? poppedVC
-        p_sendDataBeforeBack(data, fromVC: poppedVC, toVC: toVC)
-        
-        pushStack(poppedVC)     // Need push back the VC because it hasn't been dismiss
+        let toVC = topViewController ?? fromVC
+        p_sendDataBeforeBack(data, fromVC: fromVC, toVC: toVC)
     }
     
     /// Send data to previous one page after current page dismissed.
@@ -268,7 +280,7 @@ public extension Navigator {
     }
     
     @objc var topViewController: UIViewController? {
-        return stackCount > 0 ? stack[stackCount - 1].viewController : nil
+        return stack.last?.viewController
     }
 }
 
