@@ -183,11 +183,8 @@ extension Navigator {
             resetViewController(toVC)
 
         case .push:
-            CATransaction.begin()
-            CATransaction.setCompletionBlock(showCompletion)
             setupTransition(dataModel, for: topViewController?.navigationController)
-            navigationController?.pushViewController(toVC, animated: animated)
-            CATransaction.commit()
+            navigationController?.pushViewController(toVC, animated: animated, completion: showCompletion)
             
         case .present:
             setupTransition(dataModel, for: toVC)
@@ -411,14 +408,11 @@ extension Navigator {
     }
     
     func popTopViewController(fromNav: UINavigationController, completion: CompletionBlock?) {
-        CATransaction.begin()
-        CATransaction.setCompletionBlock(completion)
         if let topVC = topViewController, fromNav.viewControllers.contains(topVC) {
-            fromNav.popToViewController(topVC, animated: dismissAnimated)
+            fromNav.popToViewController(topVC, animated: dismissAnimated, completion: completion)
         } else {
-            fromNav.popToRootViewController(animated: dismissAnimated)
+            fromNav.popToRootViewController(animated: dismissAnimated, completion: completion)
         }
-        CATransaction.commit()
     }
     
     func findPresentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController? {

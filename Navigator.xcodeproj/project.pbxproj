@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0119676122F33D42006676DE /* UINavigationController+Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0119676022F33D42006676DE /* UINavigationController+Transition.swift */; };
 		01495FC6223A9E7700216DE7 /* PopoverPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01495FC5223A9E7700216DE7 /* PopoverPresentationController.swift */; };
 		016ABB2F22316C0800B1AE6E /* UIViewController+Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */; };
 		01DF8AD82281E8F6009409EB /* PopoverTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DF8AD72281E8F5009409EB /* PopoverTransition.swift */; };
@@ -73,6 +74,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0119676022F33D42006676DE /* UINavigationController+Transition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UINavigationController+Transition.swift"; path = "../../../../../../../System/Volumes/Data/Users/Kris/Workspace/OpenSource/Navigator/Navigator/Classes/UINavigationController+Transition.swift"; sourceTree = "<group>"; };
 		0131718222353EE400E87E5E /* SmartNavigator.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SmartNavigator.podspec; sourceTree = "<group>"; };
 		0131718322353EE400E87E5E /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		0131718422353EE400E87E5E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */,
 				01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */,
 				01F9F15021DB2FF9001DB147 /* Transition */,
+				0119676022F33D42006676DE /* UINavigationController+Transition.swift */,
 				016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */,
 			);
 			path = Classes;
@@ -420,6 +423,7 @@
 				01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */,
 				01F9F15821DB3003001DB147 /* MatrixTransition.swift in Sources */,
 				01F9F14021DB2AE9001DB147 /* Navigator+Private.swift in Sources */,
+				0119676122F33D42006676DE /* UINavigationController+Transition.swift in Sources */,
 				01F9F14221DB2AE9001DB147 /* Navigator.swift in Sources */,
 				01F9F13B21DB2AE9001DB147 /* NavigatorDataProtocol.swift in Sources */,
 				01495FC6223A9E7700216DE7 /* PopoverPresentationController.swift in Sources */,
