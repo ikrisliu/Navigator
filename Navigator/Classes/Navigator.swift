@@ -72,8 +72,6 @@ import os.log
     var dismissData: Any?
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
-    
-    var isAnimating = false
 }
 
 // MARK: - Show or Dismiss
@@ -91,17 +89,11 @@ public extension Navigator {
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard !isAnimating else { return }
-        
-        isAnimating = true
         Navigator._current = self
         
         showModel = data
         showAnimated = animated
-        showCompletion = {
-            self.isAnimating = false
-            completion?()
-        }
+        showCompletion = completion
         
         showViewControllers()
     }
@@ -116,17 +108,11 @@ public extension Navigator {
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard !isAnimating else { return }
-        
-        isAnimating = true
         self.level = level
         
         dismissData = data
         dismissAnimated = animated
-        dismissCompletion = {
-            self.isAnimating = false
-            completion?()
-        }
+        dismissCompletion = completion
         
         dismissViewControllers()
     }
@@ -139,7 +125,7 @@ public extension Navigator {
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func dismissTo(viewController: UIViewController, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard let level = stackIndex(of: viewController), level <= stackCount - 1 else { return }
+        guard let index = stackIndex(of: viewController), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
     }

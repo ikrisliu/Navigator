@@ -54,21 +54,22 @@ extension Navigator {
     }
     
     func getStack(from level: Int = 0) -> [UIViewController] {
-        let index = level >= 0 ? level : max(stackCount + level, 0)
+        let index = level >= 0 ? level : max(stackCount + level - 1, 0)
         guard index < stackCount else { return [] }
         
-        let lasts = max(index - 1, 0)
+        let lasts = max(index, 0)
         return stack.suffix(min(stackCount, lasts + 1)).compactMap({ $0.viewController })
-    }
-    
-    @discardableResult
-    func popStackToRoot() -> UIViewController? {    // Excluding root vc
-        return popStack(from: stackCount - 2)
     }
     
     @discardableResult
     func popStackAll() -> UIViewController? {       // Including root vc
         return popStack(from: stackCount - 1)
+    }
+    
+    // Calculate dismiss level according to stack index for `dismissTo` method
+    func stackLevel(_ index: Int) -> Int? {
+        let level = index - 1   // Exclude the dismissTo target VC
+        return (level >= 0 && index <= stackCount - 1) ? level : nil
     }
 }
 
@@ -358,8 +359,8 @@ extension Navigator {
     
     // Disallow dismiss the root view controller
     func dismissViewControllers() {
-        if level < 0 && (stackCount + level) <= 0 { dismissCompletion?(); return }
-        guard let dismissedVC = popStack(from: level) else { dismissCompletion?(); return }
+        if level < 0 && (stackCount + level) <= 0 { return }
+        guard let dismissedVC = popStack(from: level) else { return }
         
         if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover || dismissedVC.navigatorMode == .popover {
             dismissViewController(dismissedVC)
