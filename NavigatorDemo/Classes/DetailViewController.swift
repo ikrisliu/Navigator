@@ -3,17 +3,17 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 2018/9/13.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
 import Navigator
 
-class DetailViewController: UIViewController, NavigatorDataProtocol {
+class DetailViewController: UIViewController, Navigatable {
     
-    func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
-        title = data.title ?? "Detail"
-        print("Received additional data: \(data.additionalData ?? "")")
+    func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+        title = page.title ?? "Detail"
+        print("Received additional data: \(page.extraData ?? "")")
     }
     
     override func viewDidLoad() {
@@ -51,8 +51,8 @@ private extension DetailViewController {
             return
         }
         
-        let data = DataModel(vcClass: TabItemViewController.self, title: String(arc4random()), additionalData: (greeting: "Hello: ", message: arc4random()))
-        navigator?.show(data)
+        let page = PageObject(vcClass: TabItemViewController.self, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
+        navigator?.show(page)
     }
     
     @objc dynamic func onTapClose() {

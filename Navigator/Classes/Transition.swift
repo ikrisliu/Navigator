@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 5/28/18.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -173,7 +173,7 @@ extension Transition {
             panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
         } else {
             panGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
-            (panGesture as? UIScreenEdgePanGestureRecognizer)?.edges = .left
+            (panGesture as? UIScreenEdgePanGestureRecognizer)?.edges = [.left]
         }
         
         vc.view.addGestureRecognizer(panGesture!)
@@ -200,8 +200,15 @@ extension Transition {
         case .ended:
             isInteractive = false
             let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - yLocation/2) : CGFloat.maximum(velocity.x, translation.x - xLocation/2)
-            let isFinish = isVertical ? offset > recognizerView.bounds.height/4 : offset > recognizerView.bounds.width/2
-            isFinish ? finish() : cancel()
+            let isFinish = isVertical ? offset > recognizerView.bounds.height/2 : offset > recognizerView.bounds.width/2
+            
+            if isFinish {
+                completionSpeed = (1.0 - percentComplete) / 2
+                finish()
+            } else {
+                completionSpeed = 0.1
+                cancel()
+            }
             
         case .failed, .cancelled:
             isInteractive = false
@@ -215,13 +222,11 @@ extension Transition {
     private func handleViewController(_ velocity: CGPoint) {
         if isModal {
             if isShow {
-                if let vc = presentedVC, velocity.y < 0 {
+                if let vc = presentedVC {
                     presentingVC?.present(vc, animated: true, completion: nil)
                 }
             } else {
-                if velocity.y > 0 {
-                    presentedVC?.dismiss(animated: true, completion: nil)
-                }
+                presentedVC?.dismiss(animated: true, completion: nil)
             }
         } else {
             if isShow {

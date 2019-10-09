@@ -3,13 +3,13 @@
 //  Navigator
 //
 //  Created by Kris Liu on 2018/9/14.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
 import os.log
 
-// MARK: - Data Stack
+// MARK: - Page Stack
 extension Navigator {
     
     var stackCount: Int { return stack.count }
@@ -77,9 +77,9 @@ extension Navigator {
 extension Navigator {
     
     func showViewControllers() {
-        guard let showModel = showModel else { return }
+        guard let page = showingPage else { return }
         
-        let viewController = createViewController(showModel)
+        let viewController = createViewController(page)
         guard !showTabBarControlerIfExisted(viewController) else { return }
         guard !showSplitViewControllerIfExisted(viewController) else { return }
         guard !showNavigationControlerIfExisted(viewController) else { return }
@@ -87,43 +87,43 @@ extension Navigator {
     }
     
     func showTabBarControlerIfExisted(_ viewController: UIViewController) -> Bool {
-        guard let showModel = showModel else { return false }
+        guard let page = showingPage else { return false }
         guard let tabVC = viewController as? UITabBarController else { return false }
         
-        addChildViewControllersIfExisted(showModel.children, toViewController: tabVC)
+        addChildViewControllersIfExisted(page.children, toViewController: tabVC)
         return showViewControler(viewController)
     }
     
     func showSplitViewControllerIfExisted(_ viewController: UIViewController) -> Bool {
-        guard let showModel = showModel else { return false }
+        guard let page = showingPage else { return false }
         guard let splitVC = viewController as? UISplitViewController else { return false }
         
-        addChildViewControllersIfExisted(showModel.children, toViewController: splitVC)
+        addChildViewControllersIfExisted(page.children, toViewController: splitVC)
         return showViewControler(viewController)
     }
     
     func showNavigationControlerIfExisted(_ viewController: UIViewController) -> Bool {
-        guard let showModel = showModel else { return false }
+        guard let page = showingPage else { return false }
         guard let navVC = viewController as? UINavigationController else { return false }
         
-        addChildViewControllersIfExisted(showModel.children, toViewController: navVC)
+        addChildViewControllersIfExisted(page.children, toViewController: navVC)
         return showViewControler(viewController)
     }
     
     // Deep Link
-    func showDeepLinkViewControllers(_ data: DataModel) {
-        self.showModel = data
+    func showDeepLinkViewControllers(_ page: PageObject) {
+        self.showingPage = page
         
         guard let topVC = topViewController else {
             showViewControllers()
-            if let next = data.next {
+            if let next = page.next {
                 Navigator.root.showDeepLinkViewControllers(next)
             }
             return
         }
         
         if topVC is UITabBarController || topVC is UISplitViewController {
-            guard var next = data.next else { return }
+            guard var next = page.next else { return }
             
             let viewControllers = Navigator.childViewControllers(of: topVC)
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == next.vcName.rawValue })
@@ -145,11 +145,11 @@ extension Navigator {
             Navigator.current.dismiss(level: -1, animated: false)
         }
         
-        var next: DataModel? = data
-        while let nextData = next {
-            let viewController = createViewController(nextData)
-            p_showViewControler(viewController, dataModel: nextData, animated: nextData.next == nil)
-            next = nextData.next
+        var next: PageObject? = page
+        while let nextPage = next {
+            let viewController = createViewController(nextPage)
+            p_showViewControler(viewController, page: nextPage, animated: nextPage.next == nil)
+            next = nextPage.next
         }
     }
     
@@ -167,49 +167,49 @@ extension Navigator {
     
     // Show view controller by push or present way. If mode is root, show the view controller directly.
     func showViewControler(_ viewController: UIViewController) -> Bool {
-        guard let showModel = showModel else { return false }
-        return p_showViewControler(viewController, dataModel: showModel, animated: showAnimated)
+        guard let page = showingPage else { return false }
+        return p_showViewControler(viewController, page: page, animated: showAnimated)
     }
     
     @discardableResult
-    func p_showViewControler(_ viewController: UIViewController, dataModel: DataModel, animated: Bool) -> Bool {
+    func p_showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool) -> Bool {
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
-        toVC.modalPresentationStyle = dataModel.presentationStyle
-        p_sendDataBeforeShow(dataModel, fromVC: topViewController, toVC: viewController)
+        toVC.modalPresentationStyle = page.presentationStyle
+        p_sendDataBeforeShow(page, fromVC: topViewController, toVC: viewController)
         
-        switch dataModel.mode {
+        switch page.mode {
         case .reset:
             resetViewController(toVC)
 
         case .push:
-            setupTransition(dataModel, for: topViewController?.navigationController)
-            navigationController?.pushViewController(toVC, animated: animated, completion: showCompletion)
+            setupTransition(page, for: topViewController?.navigationController)
+            navigationController?.pushViewController(toVC, animated: animated, completion: showingCompletion)
             
         case .present:
-            setupTransition(dataModel, for: toVC)
-            topViewController?.present(toVC, animated: animated, completion: showCompletion)
+            setupTransition(page, for: toVC)
+            topViewController?.present(toVC, animated: animated, completion: showingCompletion)
             
         case .overlay, .popover:
-            if dataModel.transitionClass == nil {
-                dataModel.transitionClass = dataModel.mode == .popover ? PopoverTransition.self : Transition.self
+            if page.transitionClass == nil {
+                page.transitionClass = page.mode == .popover ? FadeTransition.self : Transition.self
             }
-            setupTransition(dataModel, for: toVC)
+            setupTransition(page, for: toVC)
             toVC.modalPresentationStyle = .custom
-            topViewController?.present(toVC, animated: animated, completion: showCompletion)
+            topViewController?.present(toVC, animated: animated, completion: showingCompletion)
             
         case .goto:
-            assertionFailure("Please call navigator `goto` method for showing <\(dataModel.vcName)>")
+            assertionFailure("Please call navigator `goto` method for showing <\(page.vcName)>")
             return false
         }
         
         if rootViewController == nil {
-            showModel?.mode = .reset
+            showingPage?.mode = .reset
             rootViewController = toVC
         }
         
-        viewController.navigatorMode = dataModel.mode
+        viewController.navigatorMode = page.mode
         pushStack(viewController)
         
         return true
@@ -224,50 +224,50 @@ extension Navigator {
         
         popStackAll()
         setupNavigatorForViewController(viewController)
-        showCompletion?()
+        showingCompletion?()
     }
     
     // Set custom tranistion animation when push or present a view controller
-    func setupTransition(_ dataModel: DataModel, for viewController: UIViewController?) {
-        if let transitionClass = dataModel.transitionClass, let vc = viewController {
+    func setupTransition(_ page: PageObject, for viewController: UIViewController?) {
+        if let transitionClass = page.transitionClass, let vc = viewController {
             vc.p_navigatorTransition = transitionClass.init()
             
-            if var sourceRect = dataModel.sourceRect {
+            if var sourceRect = page.sourceRect {
                 let width = vc.view.bounds.width
                 let height = vc.view.bounds.height
                 
-                if dataModel.mode == .overlay { // origin from bottom
+                if page.mode == .overlay { // origin from bottom
                     sourceRect = CGRect(x: 0, y: height - sourceRect.height, width: width, height: sourceRect.height)
-                } else if dataModel.mode == .popover, sourceRect.origin == .zero {  // origin from center
+                } else if page.mode == .popover, sourceRect.origin == .zero {  // origin from center
                     sourceRect.origin = CGPoint(x: (width - sourceRect.width) / 2, y: (height - sourceRect.height) / 2)
                 }
                 
                 vc.p_navigatorTransition?.sourceRect = sourceRect
             }
             
-            if let nav = vc as? UINavigationController, dataModel.mode == .push {
+            if let nav = vc as? UINavigationController, page.mode == .push {
                 nav.delegate = vc.p_navigatorTransition
             } else {
                 vc.transitioningDelegate = vc.p_navigatorTransition
             }
         } else {
-            viewController?.modalTransitionStyle = dataModel.transitionStyle
+            viewController?.modalTransitionStyle = page.transitionStyle
         }
         
-        guard dataModel.presentationStyle == .popover else { return }
+        guard page.presentationStyle == .popover else { return }
         
-        viewController?.popoverPresentationController?.sourceView = dataModel.sourceView
-        if let sourceRect = dataModel.sourceRect {
+        viewController?.popoverPresentationController?.sourceView = page.sourceView
+        if let sourceRect = page.sourceRect {
             viewController?.popoverPresentationController?.sourceRect = sourceRect
         }
     }
     
     // Create view controller with class name. If need embed it into navigation controller, create one with view controller.
-    func createViewController(_ dataModel: DataModel) -> UIViewController {
+    func createViewController(_ page: PageObject) -> UIViewController {
         let viewController: UIViewController
         
         defer {
-            if let navName = dataModel.navName?.rawValue, !navName.isEmpty, !(viewController is UINavigationController) {
+            if let navName = page.navName?.rawValue, !navName.isEmpty, !(viewController is UINavigationController) {
                 if let navType = NSClassFromString(navName) as? UINavigationController.Type {
                     let navigationController = navType.init()
                     navigationController.viewControllers = [viewController]
@@ -278,15 +278,15 @@ extension Navigator {
             }
         }
         
-        let vcName = dataModel.vcName.rawValue
+        let vcName = page.vcName.rawValue
         guard !vcName.isEmpty else {
-            viewController = createFallbackViewController(dataModel)
+            viewController = createFallbackViewController(page)
             return viewController
         }
         
         guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
             os_log("❌ [Navigator]: Can not find view controller class %@ in your modules", vcName)
-            viewController = createFallbackViewController(dataModel)
+            viewController = createFallbackViewController(page)
             return viewController
         }
         
@@ -297,8 +297,8 @@ extension Navigator {
     }
     
     // Create fallback view controller instance with class name.
-    func createFallbackViewController(_ dataModel: DataModel) -> UIViewController {
-        guard let vcType = dataModel.fallback else {
+    func createFallbackViewController(_ page: PageObject) -> UIViewController {
+        guard let vcType = page.fallback else {
             let viewController = Fallback()
             viewController.navigator = self
             return viewController
@@ -311,18 +311,18 @@ extension Navigator {
     }
     
     // Add child view controllers for container view controllers like Navigation/Split/Tab view controller
-    func addChildViewControllersIfExisted(_ data: [DataModel]?, toViewController: UIViewController) {
-        guard let data = data else { return }
+    func addChildViewControllersIfExisted(_ pages: [PageObject]?, toViewController: UIViewController) {
+        guard let pages = pages else { return }
         
         var viewControllers: [UIViewController] = []
         
-        for itemModel in data {
-            let toVC = createViewController(itemModel)
-            p_sendDataBeforeShow(itemModel, fromVC: toViewController, toVC: toVC)
+        for page in pages {
+            let toVC = createViewController(page)
+            p_sendDataBeforeShow(page, fromVC: toViewController, toVC: toVC)
             viewControllers.append(toVC.navigationController ?? toVC)
             
-            if let children = itemModel.children, !children.isEmpty {
-                addChildViewControllersIfExisted(itemModel.children, toViewController: toVC)
+            if let children = page.children, !children.isEmpty {
+                addChildViewControllersIfExisted(page.children, toViewController: toVC)
             }
         }
         
@@ -378,32 +378,32 @@ extension Navigator {
         let vc = viewController.presentingViewController ?? viewController
         
         // Do not call public method `sendDataBeforeBack` which will lead pop stack twice
-        if let data = dismissData, let topVC = topViewController {
+        if let data = dismissingData, let topVC = topViewController {
             p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
         }
         
         vc.dismiss(animated: dismissAnimated, completion: {
-            self.sendDataAfterBack(self.dismissData)
-            self.dismissCompletion?()
+            self.sendDataAfterBack(self.dismissingData)
+            self.dismissingCompletion?()
         })
     }
     
     func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
-        if let data = dismissData, let topVC = topViewController {
+        if let data = dismissingData, let topVC = topViewController {
             p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
         }
         
         if let presentingVC = findPresentingViewController(base: viewController, in: fromNav) {
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
-                    self.sendDataAfterBack(self.dismissData)
-                    self.dismissCompletion?()
+                    self.sendDataAfterBack(self.dismissingData)
+                    self.dismissingCompletion?()
                 }
             })
         } else {
             popTopViewController(fromNav: fromNav) {
-                self.sendDataAfterBack(self.dismissData)
-                self.dismissCompletion?()
+                self.sendDataAfterBack(self.dismissingData)
+                self.dismissingCompletion?()
             }
         }
     }
@@ -473,23 +473,23 @@ extension Navigator {
 // MARK: - Send and Receive Data
 extension Navigator {
     
-    func p_sendDataBeforeShow(_ data: DataModel, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), data)
-        guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
-        dataProtocolVC.onDataReceiveBeforeShow?(data, fromViewController: fromVC)
+    func p_sendDataBeforeShow(_ page: PageObject, fromVC: UIViewController?, toVC: UIViewController) {
+        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), page)
+        guard let navigatableVC = toVC as? Navigatable else { return }
+        navigatableVC.onPageObjectReceiveBeforeShow?(page, fromVC: fromVC)
     }
     
     func p_sendDataBeforeBack(_ data: Any, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data from %@ before before: %@", String(describing: fromVC), "\(data)")
-        guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
-        dataProtocolVC.onDataReceiveBeforeBack?(data, fromViewController: fromVC)
+        guard let navigatableVC = toVC as? Navigatable else { return }
+        navigatableVC.onDataReceiveBeforeBack?(data, fromVC: fromVC)
     }
     
     func p_sendDataAfterBack(_ data: Any, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data to %@ after before: %@", toVC, "\(data)")
-        guard let dataProtocolVC = toVC as? NavigatorDataProtocol else { return }
-        dataProtocolVC.onDataReceiveAfterBack?(data, fromViewController: nil)
+        guard let navigatableVC = toVC as? Navigatable else { return }
+        navigatableVC.onDataReceiveAfterBack?(data, fromVC: nil)
         
-        self.dismissData = nil  // Release reference
+        self.dismissingData = nil  // Release reference
     }
 }

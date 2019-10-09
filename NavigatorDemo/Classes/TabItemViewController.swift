@@ -3,30 +3,30 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 5/11/18.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
 import Navigator
 
-class TabItemViewController: UIViewController, NavigatorDataProtocol {
+class TabItemViewController: UIViewController, Navigatable {
 
     private typealias TupleType = (greeting: String, message: UInt32)
-    private var dataModel: DataModel?
+    private var page: PageObject?
     private var tuple: TupleType?
     
-    func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
-        print("Received data before show from \(String(describing: fromViewController)): \(data)")
+    func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+        print("Received data before show from \(String(describing: fromVC)): \(page)")
         
-        dataModel = data
-        title = data.title ?? "Favorites"
-        tuple = data.additionalData as? TupleType
+        self.page = page
+        title = page.title ?? "Favorites"
+        tuple = page.extraData as? TupleType
         
         tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
-    func onDataReceiveAfterBack(_ data: Any?, fromViewController: UIViewController?) {
+    func onDataReceiveAfterBack(_ data: Any?, fromVC: UIViewController?) {
         print("Received data after back: \(data ?? "nil")")
     }
     
@@ -47,17 +47,17 @@ class TabItemViewController: UIViewController, NavigatorDataProtocol {
     
     deinit {
         debugPrint("FREE MEMORY: \(self)")
-        navigator?.sendDataAfterBack(dataModel)
+        navigator?.sendDataAfterBack(page?.extraData)
     }
 }
 
 private extension TabItemViewController {
     
     @objc dynamic func onTapShowViewControler() {
-        let data = DataModel(vcClass: DetailViewController.self, mode: .present, title: String(arc4random()), additionalData: "Passed a string type data")
-        data.transitionClass = ScaleTransition.self
-//        data.transitionClass = MatrixTransition.self
-        navigator?.show(data)
+        let page = PageObject(vcClass: DetailViewController.self, mode: .present, title: String(arc4random()), extraData: "Passed a string type data")
+//        page.transitionClass = ScaleTransition.self
+        page.transitionClass = MatrixTransition.self
+        navigator?.show(page)
     }
     
     @objc dynamic func onHome() {

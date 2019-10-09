@@ -1,14 +1,14 @@
 //
-//  PopoverTransition.swift
+//  FadeTransition.swift
 //  Navigator
 //
 //  Created by Kris Liu on 2019/5/8.
-//  Copyright © 2019 Syzygy. All rights reserved.
+//  Copyright © 2019 Crescent. All rights reserved.
 //
 
 import UIKit
 
-class PopoverTransition: Transition {
+class FadeTransition: Transition {
     
     override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
@@ -43,7 +43,7 @@ class PopoverTransition: Transition {
     }
 }
 
-extension PopoverTransition {
+extension FadeTransition {
     
     override func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         return PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: false)

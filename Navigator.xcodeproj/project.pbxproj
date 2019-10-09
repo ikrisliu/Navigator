@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		0119676122F33D42006676DE /* UINavigationController+Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0119676022F33D42006676DE /* UINavigationController+Transition.swift */; };
+		0144E939233D1FB6003A2F24 /* PageObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E938233D1FB6003A2F24 /* PageObject.swift */; };
 		01495FC6223A9E7700216DE7 /* PopoverPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01495FC5223A9E7700216DE7 /* PopoverPresentationController.swift */; };
 		016ABB2F22316C0800B1AE6E /* UIViewController+Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */; };
-		01DF8AD82281E8F6009409EB /* PopoverTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DF8AD72281E8F5009409EB /* PopoverTransition.swift */; };
+		01DF8AD82281E8F6009409EB /* FadeTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DF8AD72281E8F5009409EB /* FadeTransition.swift */; };
 		01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13121DB2AE9001DB147 /* Fallback.swift */; };
-		01F9F13B21DB2AE9001DB147 /* NavigatorDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */; };
-		01F9F13C21DB2AE9001DB147 /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13321DB2AE9001DB147 /* DataModel.swift */; };
+		01F9F13B21DB2AE9001DB147 /* Navigatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13221DB2AE9001DB147 /* Navigatable.swift */; };
 		01F9F14021DB2AE9001DB147 /* Navigator+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */; };
 		01F9F14221DB2AE9001DB147 /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13921DB2AE9001DB147 /* Navigator.swift */; };
 		01F9F14921DB2B06001DB147 /* TabItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F14421DB2B06001DB147 /* TabItemViewController.swift */; };
@@ -78,12 +78,12 @@
 		0131718222353EE400E87E5E /* SmartNavigator.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SmartNavigator.podspec; sourceTree = "<group>"; };
 		0131718322353EE400E87E5E /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		0131718422353EE400E87E5E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		0144E938233D1FB6003A2F24 /* PageObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageObject.swift; sourceTree = "<group>"; };
 		01495FC5223A9E7700216DE7 /* PopoverPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverPresentationController.swift; sourceTree = "<group>"; };
 		016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Navigator.swift"; sourceTree = "<group>"; };
-		01DF8AD72281E8F5009409EB /* PopoverTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverTransition.swift; sourceTree = "<group>"; };
+		01DF8AD72281E8F5009409EB /* FadeTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeTransition.swift; sourceTree = "<group>"; };
 		01F9F13121DB2AE9001DB147 /* Fallback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fallback.swift; sourceTree = "<group>"; };
-		01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigatorDataProtocol.swift; sourceTree = "<group>"; };
-		01F9F13321DB2AE9001DB147 /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
+		01F9F13221DB2AE9001DB147 /* Navigatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Navigatable.swift; sourceTree = "<group>"; };
 		01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Navigator+Private.swift"; sourceTree = "<group>"; };
 		01F9F13921DB2AE9001DB147 /* Navigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
 		01F9F14421DB2B06001DB147 /* TabItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabItemViewController.swift; sourceTree = "<group>"; };
@@ -159,11 +159,11 @@
 		01F9F13021DB2AE9001DB147 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				01F9F13321DB2AE9001DB147 /* DataModel.swift */,
 				01F9F13121DB2AE9001DB147 /* Fallback.swift */,
+				01F9F13221DB2AE9001DB147 /* Navigatable.swift */,
 				01F9F13921DB2AE9001DB147 /* Navigator.swift */,
 				01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */,
-				01F9F13221DB2AE9001DB147 /* NavigatorDataProtocol.swift */,
+				0144E938233D1FB6003A2F24 /* PageObject.swift */,
 				01F9F15021DB2FF9001DB147 /* Transition */,
 				0119676022F33D42006676DE /* UINavigationController+Transition.swift */,
 				016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */,
@@ -187,9 +187,9 @@
 			isa = PBXGroup;
 			children = (
 				01F9F15321DB3003001DB147 /* CircleTransition.swift */,
+				01DF8AD72281E8F5009409EB /* FadeTransition.swift */,
 				01F9F15421DB3003001DB147 /* MatrixTransition.swift */,
 				01495FC5223A9E7700216DE7 /* PopoverPresentationController.swift */,
-				01DF8AD72281E8F5009409EB /* PopoverTransition.swift */,
 				01F9F15121DB3003001DB147 /* ScaleTransition.swift */,
 				01F9F15221DB3003001DB147 /* Transition.swift */,
 			);
@@ -419,17 +419,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				01F9F15721DB3003001DB147 /* CircleTransition.swift in Sources */,
-				01F9F13C21DB2AE9001DB147 /* DataModel.swift in Sources */,
 				01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */,
 				01F9F15821DB3003001DB147 /* MatrixTransition.swift in Sources */,
+				01F9F13B21DB2AE9001DB147 /* Navigatable.swift in Sources */,
 				01F9F14021DB2AE9001DB147 /* Navigator+Private.swift in Sources */,
-				0119676122F33D42006676DE /* UINavigationController+Transition.swift in Sources */,
 				01F9F14221DB2AE9001DB147 /* Navigator.swift in Sources */,
-				01F9F13B21DB2AE9001DB147 /* NavigatorDataProtocol.swift in Sources */,
+				0144E939233D1FB6003A2F24 /* PageObject.swift in Sources */,
 				01495FC6223A9E7700216DE7 /* PopoverPresentationController.swift in Sources */,
-				01DF8AD82281E8F6009409EB /* PopoverTransition.swift in Sources */,
+				01DF8AD82281E8F6009409EB /* FadeTransition.swift in Sources */,
 				01F9F15521DB3003001DB147 /* ScaleTransition.swift in Sources */,
 				01F9F15621DB3003001DB147 /* Transition.swift in Sources */,
+				0119676122F33D42006676DE /* UINavigationController+Transition.swift in Sources */,
 				016ABB2F22316C0800B1AE6E /* UIViewController+Navigator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -552,6 +552,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -608,6 +609,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -632,11 +634,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.Navigator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.Navigator;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -659,10 +660,9 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.Navigator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.Navigator;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -673,16 +673,15 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AGG3RNQPH;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = NavigatorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.NavigatorTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.NavigatorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NavigatorDemo.app/NavigatorDemo";
 			};
@@ -694,16 +693,15 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AGG3RNQPH;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = NavigatorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.Syzygy.NavigatorTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.NavigatorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NavigatorDemo.app/NavigatorDemo";
 			};
@@ -715,15 +713,14 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4AGG3RNQPH;
 				INFOPLIST_FILE = NavigatorDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.NavigatorDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.NavigatorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -734,15 +731,14 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4AGG3RNQPH;
 				INFOPLIST_FILE = NavigatorDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.syzygy.NavigatorDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.NavigatorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

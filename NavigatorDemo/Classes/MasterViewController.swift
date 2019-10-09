@@ -3,7 +3,7 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 2018/9/13.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -42,22 +42,22 @@ class MasterViewController: UITableViewController {
         let navClass = UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil
         let mode: Navigator.Mode = UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push
         let dict = ["from": "\(self)", "message": "Passed a dictionary type data"]
-        let data = DataModel(vcClass: DetailViewController.self, navClass: navClass, mode: mode, title: title, additionalData: dict)
+        let page = PageObject(vcClass: DetailViewController.self, navClass: navClass, mode: mode, title: title, extraData: dict)
         
-        navigator?.show(data)
+        navigator?.show(page)
     }
 }
 
 private extension MasterViewController {
     
     @objc dynamic func onOverlay() {
-        let data = DataModel(vcClass: DetailViewController.self, mode: .overlay, title: String(arc4random()), additionalData: (self, "Passed a tuple type data"))
-        data.transitionClass = CircleTransition.self
-        navigator?.show(data)
+        let page = PageObject(vcClass: DetailViewController.self, mode: .overlay, title: String(arc4random()), extraData: (self, "Passed a tuple type data"))
+        page.transitionClass = CircleTransition.self
+        navigator?.show(page)
     }
     
     @objc dynamic func onPopover() {
-        let data = DataModel(vcClass: DetailViewController.self, mode: .popover, title: String(arc4random()), additionalData: (self, "Passed a tuple type data"))
-        navigator?.show(data)
+        let page = PageObject(vcClass: DetailViewController.self, mode: .popover, title: String(arc4random()), extraData: (self, "Passed a tuple type data"))
+        navigator?.show(page)
     }
 }

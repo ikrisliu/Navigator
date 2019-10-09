@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 2019/8/1.
-//  Copyright © 2019 Syzygy. All rights reserved.
+//  Copyright © 2019 Crescent. All rights reserved.
 //
 
 import UIKit

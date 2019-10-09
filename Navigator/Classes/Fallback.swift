@@ -3,17 +3,17 @@
 //  Navigator
 //
 //  Created by Kris Liu on 2018/8/27.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
 import os.log
 
-@objc open class Fallback: UIViewController, NavigatorDataProtocol {
+@objc open class Fallback: UIViewController, Navigatable {
     
-    public func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
-        title = data.title
-        os_log("➡️ [Navigator]: Received data from %@ before show: %@", String(describing: fromViewController), data)
+    public func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+        title = page.title
+        os_log("➡️ [Navigator]: Received data from %@ before show: %@", String(describing: fromVC), page)
     }
     
     open override func viewDidLoad() {

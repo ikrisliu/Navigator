@@ -49,10 +49,10 @@ dependencies: [
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Decoupling Way: Recommend to use this way among modules
     // View controller class name (The swift class name should be "ModuleName.ClassName")
-    let main = DataModel(vcName: "ModuleName.ViewController", navName: "UINavigationController", mode: .reset)
+    let main = PageObject(vcName: "ModuleName.ViewController", navName: "UINavigationController", mode: .reset)
     
     // Coupling Way: Recommend to use this way inside one module
-    let main = DataModel(vcClass: ViewController.self, navClass: UINavigationController.self, mode: .reset)
+    let main = PageObject(vcClass: ViewController.self, navClass: UINavigationController.self, mode: .reset)
     
     // If present view controller without passing any `UINavigationController`, use it as default one.
     Navigator.defaultNavigationControllerClass = UINavigationController.self
@@ -67,9 +67,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### SplitViewControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let master = DataModel(vcClass: MasterViewController.self, navClass: UINavigationController.self)
-    let detail = DataModel(vcClass: DetailViewController.self, navClass: UINavigationController.self)
-    let split = DataModel(vcClass: SplitViewController.self, children: [master, detail])
+    let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self)
+    let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self)
+    let split = PageObject(vcClass: SplitViewController.self, children: [master, detail])
     
     Navigator.root.window = window
     Navigator.root.show(split)
@@ -81,13 +81,13 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### TabBarControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let firstTab = DataModel(vcClass: TabItemViewController.self, navClass: UINavigationController.self)
+    let firstTab = PageObject(vcClass: TabItemViewController.self, navClass: UINavigationController.self)
     
-    let master = DataModel(vcClass: MasterViewController.self, navClass: UINavigationController.self)
-    let detail = DataModel(vcClass: DetailViewController.self, navClass: UINavigationController.self)
-    let secondTab = DataModel(vcClass: SplitViewController.self, children: [master, detail])
+    let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self)
+    let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self)
+    let secondTab = PageObject(vcClass: SplitViewController.self, children: [master, detail])
     
-    let tabs = DataModel(vcClass: UITabBarController.self, mode: .reset, children: [firstTab, secondTab])
+    let tabs = PageObject(vcClass: UITabBarController.self, mode: .reset, children: [firstTab, secondTab])
     
     Navigator.root.window = window
     Navigator.root.show(tabs)
@@ -103,25 +103,25 @@ Supported navigation mode: `Push`, `Present`, `Overlay`, `Popover` and `Goto`
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
         // Decoupling Way
-        let data = DataModel(vcName: "UIViewController"), mode: .push)
+        let page = PageObject(vcName: "UIViewController"), mode: .push)
         
         // Coupling Way
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
-        let data = DataModel(vcClass: UIViewController.self, mode: .present, title: "Hello", additionalData: "You can pass any type object")
+        let page = PageObject(vcClass: UIViewController.self, mode: .present, title: "Hello", extraData: "You can pass any type object")
         
-        navigator?.show(data)
+        navigator?.show(page)
     }
     
     @objc private func onTapShowPopoverViewControler() {
         // Show from bottom
-        let data = DataModel(vcClass: UIViewController.self, mode: .overlay, title: "Hello", additionalData: "You can pass any type object")
-        data.sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: 500))
+        let page = PageObject(vcClass: UIViewController.self, mode: .overlay, title: "Hello", extraData: "You can pass any type object")
+        page.sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: 500))
         
         // Show in center
-        let data = DataModel(vcClass: UIViewController.self, mode: .popover, title: "Hello", additionalData: "You can pass any type object")
-        data.sourceRect = CGRect(origin: .zero, size: .init(width: 300, height: 500))
+        let page = PageObject(vcClass: UIViewController.self, mode: .popover, title: "Hello", extraData: "You can pass any type object")
+        page.sourceRect = CGRect(origin: .zero, size: .init(width: 300, height: 500))
         
-        navigator?.show(data)
+        navigator?.show(page)
     }
     
     @objc private func onTapDismissViewControler() {
@@ -140,21 +140,21 @@ Use Safari or other approaches to test the deep link
 ```swift
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
     // Show top view controller base on current vc stack
-    let data = DataModel(vcClass: TopViewController.self)
-    Navigator.current.deepLink(data)
+    let page = PageObject(vcClass: TopViewController.self)
+    Navigator.current.deepLink(page)
 
     // Show top view controller base on current vc stack
-    Navigator.current.open(url: url) { (_) -> DataModel? in
-        // Parse the deep link url to below data model for showing
-        return DataModel(vcClass: TopViewController.self)
+    Navigator.current.open(url: url) { (_) -> PageObject? in
+        // Parse the deep link url to below page object for showing
+        return PageObject(vcClass: TopViewController.self)
     }
 
     // Show a chain of view controllers from root vc
-    Navigator.root.open(url: url) { (_) -> DataModel? in
+    Navigator.root.open(url: url) { (_) -> PageObject? in
         // Parse the deep link url to below data models for showing
-        let root = DataModel(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
-        let middle = DataModel(vcClass: MiddleViewController.self)
-        let top = DataModel(vcClass: TopViewController.self)
+        let root = PageObject(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
+        let middle = PageObject(vcClass: MiddleViewController.self)
+        let top = PageObject(vcClass: TopViewController.self)
 
         return root --> middle --> top
     }
@@ -174,30 +174,30 @@ class CustomTransition: Transition {
 
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
-        let data = DataModel(vcClass: UIViewController.self, mode: .present)
-        data.transitionStyle = .flipHorizontal
+        let page = PageObject(vcClass: UIViewController.self, mode: .present)
+        page.transitionStyle = .flipHorizontal
         
-        let data = DataModel(vcClass: UIViewController.self, mode: .present)
-        data.transitionName = "CustomTransition"
+        let page = PageObject(vcClass: UIViewController.self, mode: .present)
+        page.transitionName = "CustomTransition"
 
-        navigator?.show(data)
+        navigator?.show(page)
     }
 }
 ```
 
 ### Data Receiving
 ```swift
-class DetailViewController: UIViewController, NavigatorDataProtocol {
+class DetailViewController: UIViewController, Navigatable {
     private var data: Any?
     
     // Receive this callback when open by other view controller
-    func onDataReceiveBeforeShow(_ data: DataModel, fromViewController: UIViewController?) {
-        title = data.title
-        data = data.additionalData
+    func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+        title = page.title
+        data = page.extraData
     }
     
     // Receive this callback when dismiss from next view controller
-    func onDataReceiveAfterBack(_ data: Any?, fromViewController: UIViewController?) {
+    func onDataReceiveAfterBack(_ data: Any?, fromVC: UIViewController?) {
         self.data = data
     }
 }

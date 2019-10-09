@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 5/11/18.
-//  Copyright © 2018 Syzygy. All rights reserved.
+//  Copyright © 2018 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -12,7 +12,7 @@ import os.log
 @objc public class Navigator: NSObject {
     
     /// Use root navigator to open the initial view controller when App launch
-    /// Also can use it to open any view controller for quick launch and debug, only need provide VC required data.
+    /// Also can use it to open any view controller for quick launch and debug, only need provide pageObject required data.
     @objc public static let root = Navigator()
     
     /// The default navigation controller which is used for containing content view controller when navigator mode is `present`.
@@ -65,11 +65,11 @@ import os.log
     
     var showAnimated: Bool = true
     var dismissAnimated: Bool = true
-    var showCompletion: CompletionBlock?
-    var dismissCompletion: CompletionBlock?
+    var showingCompletion: CompletionBlock?
+    var dismissingCompletion: CompletionBlock?
     
-    weak var showModel: DataModel?
-    var dismissData: Any?
+    weak var showingPage: PageObject?
+    var dismissingData: Any?
     
     var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
 }
@@ -79,26 +79,26 @@ public extension Navigator {
     
     typealias CompletionBlock = (() -> Void)
     
-    /// Show a view controller with required data in dictionary.
-    /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
+    /// Show a view controller with required page object.
+    /// Build a linked node with page object to handle universal link or deep link (A => B => C => D)
     /// - Note:
     ///   If the view controller is swift class, must add module name as prefix for class name.
     ///
     /// - Parameters:
-    ///   - data: The data is required for view controller, can be any type. At least VC class name is required.
+    ///   - page: The page object is required for view controller, can be any type. At least VC class name is required.
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func show(_ data: DataModel, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func show(_ page: PageObject, animated: Bool = true, completion: CompletionBlock? = nil) {
         Navigator._current = self
         
-        showModel = data
+        showingPage = page
         showAnimated = animated
-        showCompletion = completion
+        showingCompletion = completion
         
         showViewControllers()
     }
     
-    /// Dismiss any view controller with optional data in dictionary.
+    /// Dismiss any view controller with optional data from level.
     /// (A => B => C => D) -> dismiss(level: 1) -> (A => B)
     ///
     /// - Parameters:
@@ -110,9 +110,9 @@ public extension Navigator {
     @objc func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         self.level = level
         
-        dismissData = data
+        dismissingData = data
         dismissAnimated = animated
-        dismissCompletion = completion
+        dismissingCompletion = completion
         
         dismissViewControllers()
     }
@@ -174,53 +174,53 @@ public extension Navigator {
 // MARK: - Deep Link
 public extension Navigator {
     
-    /// Deep link to a view controller with required data in DataModel.
-    /// Build a linked node with data to handle universal link or deep link (A => B => C => D)
+    /// Deep link to a view controller with required page object.
+    /// Build a linked node with page object to handle universal link or deep link (A => B => C => D)
     ///   - If use `Navigator.root.deepLink()`, it will build view controllers from root view controller, the mode should be `reset`.
     ///   - If use `Navigator.current.deepLink()`, it will show deep linking VCs base on current visible view controller.
     ///     If the mode is `goto`, should use `Navigator.current.deepLink()`.
     ///
-    /// - Parameter data: The data is required for view controller, can be any type. At least VC class name is required.
-    @objc func deepLink(_ data: DataModel) {
+    /// - Parameter page: The page object is required for view controller, can be any type. At least VC class name is required.
+    @objc func deepLink(_ page: PageObject) {
         guard topViewController?.ignoreDeepLinking == false else { return }
         
-        if data.mode == .goto {
+        if page.mode == .goto {
             if self != Navigator.current {
                 assertionFailure("Should use `Navigator.current` to call this deep link method")
             }
             
-            Navigator.goto(vcName: data.vcName, animated: false)
+            Navigator.goto(vcName: page.vcName, animated: false)
             
-            if let nextData = data.next {
-                Navigator.current.showDeepLinkViewControllers(nextData)
-                nextData.next = nil // Make sure linked all vc data models free
+            if let nextPage = page.next {
+                Navigator.current.showDeepLinkViewControllers(nextPage)
+                nextPage.next = nil // Make sure linked all page objects free
             }
         } else {
-            if (self == Navigator.root && data.mode != .reset) || (self != Navigator.root && data.mode == .reset) {
+            if (self == Navigator.root && page.mode != .reset) || (self != Navigator.root && page.mode == .reset) {
                 assertionFailure("Should use `reset` mode when use `Navigator.root` call deep link method")
             }
             
-            if data.next != nil {
-                showDeepLinkViewControllers(data)
-                data.next = nil
+            if page.next != nil {
+                showDeepLinkViewControllers(page)
+                page.next = nil
             } else {
-                show(data)
+                show(page)
             }
         }
     }
 
-    typealias DeepLinkHandler = ((URL) -> DataModel?)
+    typealias DeepLinkHandler = ((URL) -> PageObject?)
     
     /// Use this method to open the specified resource. If the specified URL scheme is handled by another app, iOS launches that app and passes the URL to it.
     ///
     /// - Parameters:
     ///   - url: The resource identified by this URL may be local to the current app or it may be one that must be provided by a different app.
     ///          UIKit supports many common schemes, including the http, https, tel, facetime, and mailto schemes.
-    ///   - handler: The handler is for parsing the url and return a data model for navigator show. If handler is nil, will open URL by UIApplication.
+    ///   - handler: The handler is for parsing the url and return a page object for navigator show. If handler is nil, will open URL by UIApplication.
     @objc func open(url: URL, handler: DeepLinkHandler? = nil) {
         if let handler = handler {
-            if let dataModel = handler(url) {
-                self.deepLink(dataModel)
+            if let page = handler(url) {
+                self.deepLink(page)
             }
         } else {
             UIApplication.shared.open(url)

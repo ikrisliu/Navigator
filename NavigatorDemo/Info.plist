@@ -22,7 +22,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.syzygy.NavigatorDemo</string>
+			<string>com.crescent.NavigatorDemo</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>navigatordemo</string>

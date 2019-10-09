@@ -1,9 +1,9 @@
 //
-//  DataModel.swift
+//  PageObject.swift
 //  Navigator
 //
 //  Created by Kris Liu on 2019/1/1.
-//  Copyright © 2019 Syzygy. All rights reserved.
+//  Copyright © 2019 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -13,7 +13,7 @@ public typealias CompletionClosure = (Bool, Any?) -> Void
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
 @objcMembers
-public class DataModel: NSObject {
+public class PageObject: NSObject {
     
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
     public let vcName: UIViewController.Name
@@ -29,8 +29,8 @@ public class DataModel: NSObject {
     /// Navigation or view controller's title
     public var title: String?
     
-    /// Additional data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
-    public var additionalData: Any?
+    /// Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
+    public var extraData: Any?
     
     /// The optional callback to be executed after dimisss view controller.
     public var completion: CompletionClosure?
@@ -53,11 +53,11 @@ public class DataModel: NSObject {
     public var fallback: UIViewController.Type?
     
     /// Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    public var children: [DataModel]?
+    public var children: [PageObject]?
     
     /// The next navigating view controller name with required data
     /// Use this variable to build linked node when you handle universal link or deep link
-    public internal(set) var next: DataModel?
+    public internal(set) var next: PageObject?
     
     
     /// Data model's designated initializer
@@ -68,14 +68,19 @@ public class DataModel: NSObject {
     ///   - navigationController: Navigation controller class name (Used for containing the view controller)
     ///   - mode: See **Navigator.Mode** (push, present and so on)
     ///   - title: Navigation or view controller's title
-    ///   - additionalData: Additional data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
+    ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
     ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    public init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil, children: [DataModel]? = nil) {
+    public init(vcName: UIViewController.Name,
+                navName: UIViewController.Name? = nil,
+                mode: Navigator.Mode = .push,
+                title: String? = nil,
+                extraData: Any? = nil,
+                children: [PageObject]? = nil) {
         self.vcName = vcName
         self.navName = navName
         self.mode = mode
         self.title = title
-        self.additionalData = additionalData
+        self.extraData = extraData
         self.children = children
         
         let size = UIScreen.main.bounds.size
@@ -89,14 +94,14 @@ public class DataModel: NSObject {
 }
 
 // MARK: - Convenience Initializer
-public extension DataModel {
+public extension PageObject {
     
-    convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil) {
+    convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
         let navName = (mode == .present) ? UIViewController.Name.defaultNavigation : nil
-        self.init(vcName: vcName, navName: navName, mode: mode, title: title, additionalData: additionalData)
+        self.init(vcName: vcName, navName: navName, mode: mode, title: title, extraData: extraData)
     }
     
-    convenience init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, title: String? = nil, children: [DataModel]) {
+    convenience init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, title: String? = nil, children: [PageObject]) {
         self.init(vcName: vcName, navName: navName, mode: .reset, title: title, children: children)
     }
     
@@ -108,25 +113,25 @@ public extension DataModel {
     ///   - navClass: Navigation controller class type
     ///   - mode: See **Navigator.Mode** (push, present and so on)
     ///   - title: Navigation or view controller's title
-    ///   - additionalData: Additional data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
+    ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
     ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
     convenience init(vcClass: UIViewController.Type,
                      navClass: UIViewController.Type? = nil,
                      mode: Navigator.Mode = .push,
                      title: String? = nil,
-                     additionalData: Any? = nil,
-                     children: [DataModel]? = nil) {
+                     extraData: Any? = nil,
+                     children: [PageObject]? = nil) {
         self.init(vcName: .init(NSStringFromClass(vcClass)),
                   navName: navClass != nil ? .init(NSStringFromClass(navClass!)) : nil,
-                  mode: mode, title: title, additionalData: additionalData, children: children)
+                  mode: mode, title: title, extraData: extraData, children: children)
     }
     
-    convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, additionalData: Any? = nil) {
+    convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
         let navClass = (mode == .present) ? Navigator.defaultNavigationControllerClass : nil
-        self.init(vcClass: vcClass, navClass: navClass, mode: mode, title: title, additionalData: additionalData)
+        self.init(vcClass: vcClass, navClass: navClass, mode: mode, title: title, extraData: extraData)
     }
     
-    convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type? = nil, title: String? = nil, children: [DataModel]) {
+    convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type? = nil, title: String? = nil, children: [PageObject]) {
         self.init(vcClass: vcClass, navClass: navClass, mode: .reset, title: title, children: children)
     }
 }
@@ -134,10 +139,10 @@ public extension DataModel {
 // MARK: - Custom Operator
 infix operator -->: AdditionPrecedence
 
-extension DataModel {
+extension PageObject {
     
     /// Use this custom operator to build navigation data for univeral link and deep link
-    public static func --> (left: DataModel, right: DataModel) -> DataModel {
+    public static func --> (left: PageObject, right: PageObject) -> PageObject {
         var curr = left
         while let next = curr.next {
             curr = next
@@ -149,7 +154,7 @@ extension DataModel {
 }
 
 // MARK: - Description
-extension DataModel {
+extension PageObject {
     
     private var stringRepresentation: String? {
         var dict: [String: Any] = [:]
@@ -173,7 +178,7 @@ extension DataModel {
     public override var debugDescription: String {
         var desc = "", indent = ""
         var index = 0
-        var curr: DataModel? = self
+        var curr: PageObject? = self
         
         repeat {
             desc += indent + (curr!.stringRepresentation ?? "")
@@ -213,7 +218,8 @@ extension UIModalPresentationStyle: CustomStringConvertible {
         case .overCurrentContext: return "overCurrentContext"
         case .popover: return "popover"
         case .none: return "none"
-        @unknown default: fatalError()
+        case .automatic: return "automatic"
+        default: fatalError()
         }
     }
 }

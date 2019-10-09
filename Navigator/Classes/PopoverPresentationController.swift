@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 2019/3/14.
-//  Copyright © 2019 Syzygy. All rights reserved.
+//  Copyright © 2019 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -23,10 +23,8 @@ class PopoverPresentationController: UIPresentationController {
         }
     }
     
-    override func containerViewWillLayoutSubviews() {
-        super.containerViewWillLayoutSubviews()
-        
-        presentedView?.frame = sourceRect
+    override var frameOfPresentedViewInContainerView: CGRect {
+        return sourceRect
     }
     
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
