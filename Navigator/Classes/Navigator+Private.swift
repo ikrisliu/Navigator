@@ -11,7 +11,6 @@ import os.log
 
 // MARK: - Page Stack
 extension Navigator {
-    
     var stackCount: Int { return stack.count }
     
     var navigationController: UINavigationController? {
@@ -21,7 +20,6 @@ extension Navigator {
         
         for _ in 0..<stackCount {
             popStack()
-            
             if let navigationController = topViewController?.navigationController {
                 return navigationController
             }
@@ -75,7 +73,6 @@ extension Navigator {
 
 // MARK: - Show View Controllers
 extension Navigator {
-    
     func showViewControllers() {
         guard let page = showingPage else { return }
         
@@ -124,7 +121,6 @@ extension Navigator {
         
         if topVC is UITabBarController || topVC is UISplitViewController {
             guard var next = page.next else { return }
-            
             let viewControllers = Navigator.childViewControllers(of: topVC)
             let viewController = viewControllers.first(where: { NSStringFromClass(type(of: $0)) == next.vcName.rawValue })
             
@@ -173,24 +169,23 @@ extension Navigator {
     
     @discardableResult
     func p_showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool) -> Bool {
+        viewController.navigatorMode = page.mode
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
         toVC.modalPresentationStyle = page.presentationStyle
-        p_sendDataBeforeShow(page, fromVC: topViewController, toVC: viewController)
+        passPageObject(page, fromVC: topViewController, toVC: viewController)
+        sendDataBeforeShow(page.extraData, fromVC: topViewController, toVC: viewController)
         
         switch page.mode {
         case .reset:
             resetViewController(toVC)
-
         case .push:
             setupTransition(page, for: topViewController?.navigationController)
             navigationController?.pushViewController(toVC, animated: animated, completion: showingCompletion)
-            
         case .present:
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: showingCompletion)
-            
         case .overlay, .popover:
             if page.transitionClass == nil {
                 page.transitionClass = page.mode == .popover ? FadeTransition.self : Transition.self
@@ -198,7 +193,6 @@ extension Navigator {
             setupTransition(page, for: toVC)
             toVC.modalPresentationStyle = .custom
             topViewController?.present(toVC, animated: animated, completion: showingCompletion)
-            
         case .goto:
             assertionFailure("Please call navigator `goto` method for showing <\(page.vcName)>")
             return false
@@ -209,7 +203,6 @@ extension Navigator {
             rootViewController = toVC
         }
         
-        viewController.navigatorMode = page.mode
         pushStack(viewController)
         
         return true
@@ -318,7 +311,7 @@ extension Navigator {
         
         for page in pages {
             let toVC = createViewController(page)
-            p_sendDataBeforeShow(page, fromVC: toViewController, toVC: toVC)
+            passPageObject(page, fromVC: toViewController, toVC: toVC)
             viewControllers.append(toVC.navigationController ?? toVC)
             
             if let children = page.children, !children.isEmpty {
@@ -356,7 +349,6 @@ extension Navigator {
 
 // MARK: - Dismiss View Controllers
 extension Navigator {
-    
     // Disallow dismiss the root view controller
     func dismissViewControllers() {
         if level < 0 && (stackCount + level) <= 0 { return }
@@ -428,7 +420,7 @@ extension Navigator {
 // MARK: - Goto View Controller
 extension Navigator {
     
-    func gotoViewControllerIfExisted(_ vcName: String, animated: Bool = true) -> Bool {
+    func gotoViewControllerIfExisted(_ vcName: String, data: Any? = nil, animated: Bool = true) -> Bool {
         guard self !== Navigator.root else {
             guard let rootVC = rootViewController else { return false }
             
@@ -438,6 +430,7 @@ extension Navigator {
             
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (rootVC as? UITabBarController)?.selectedIndex = index
+                sendDataBeforeShow(data, fromVC: topViewController, toVC: vc)
                 Navigator.current.dismiss(level: -1, animated: animated)
                 return true
             } else {
@@ -446,25 +439,26 @@ extension Navigator {
             }
         }
         
-        guard let index = stackIndex(of: vcName) else { return false }
-        if index + 1 < stackCount {
-            popStack(from: index + 1)
-        }
-        
         guard let rootVC = Navigator.root.rootViewController else { return false }
         
         let viewControllers = Navigator.childViewControllers(of: rootVC)
-        if let rootVC = rootViewController, let index = viewControllers.firstIndex(of: rootVC) {
-            (rootViewController as? UITabBarController)?.selectedIndex = index
+        if let rootVC = rootViewController, let index = viewControllers.firstIndex(of: rootVC),
+            let selectedVC = (rootVC as? UITabBarController)?.selectedViewController {
+            (rootVC as? UITabBarController)?.selectedIndex = index
+            sendDataBeforeShow(data, fromVC: topViewController, toVC: selectedVC)
         }
         
-        guard let topVC = topViewController else { return false }
+        let previousTopVC = topViewController
+        guard let index = stackIndex(of: vcName), index > 0 else { return false }
+        guard let poppedVC = popStack(from: index - 1), let toVC = topViewController else { return false }
         
-        if let navControler = topVC.navigationController {
-            navControler.popToViewController(topVC, animated: animated)
+        if let navControler = toVC.navigationController {
+            navControler.popToViewController(toVC, animated: animated)
         } else {
-            topVC.dismiss(animated: animated, completion: nil)
+            poppedVC.dismiss(animated: animated, completion: nil)
         }
+        
+        sendDataBeforeShow(data, fromVC: previousTopVC, toVC: toVC)
         
         return true
     }
@@ -473,20 +467,26 @@ extension Navigator {
 // MARK: - Send and Receive Data
 extension Navigator {
     
-    func p_sendDataBeforeShow(_ page: PageObject, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), page)
+    func passPageObject(_ page: PageObject, fromVC: UIViewController?, toVC: UIViewController) {
+        os_log("➡️ [Navigator]: Pass page object from %@ after init: %@", String(describing: fromVC), page)
         guard let navigatableVC = toVC as? Navigatable else { return }
-        navigatableVC.onPageObjectReceiveBeforeShow?(page, fromVC: fromVC)
+        navigatableVC.onPageDidInitialize?(page, fromVC: fromVC)
+    }
+    
+    func sendDataBeforeShow(_ data: Any?, fromVC: UIViewController?, toVC: UIViewController) {
+        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), "\(data ?? "nil")")
+        guard let navigatableVC = toVC as? Navigatable else { return }
+        navigatableVC.onDataReceiveBeforeShow?(data, fromVC: fromVC)
     }
     
     func p_sendDataBeforeBack(_ data: Any, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("⬅️ [Navigator]: Send data from %@ before before: %@", String(describing: fromVC), "\(data)")
+        os_log("⬅️ [Navigator]: Send data from %@ before back: %@", String(describing: fromVC), "\(data)")
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveBeforeBack?(data, fromVC: fromVC)
     }
     
     func p_sendDataAfterBack(_ data: Any, toVC: UIViewController) {
-        os_log("⬅️ [Navigator]: Send data to %@ after before: %@", toVC, "\(data)")
+        os_log("⬅️ [Navigator]: Send data to %@ after back: %@", toVC, "\(data)")
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveAfterBack?(data, fromVC: nil)
         

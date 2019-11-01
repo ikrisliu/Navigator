@@ -11,7 +11,7 @@ import Navigator
 
 class DetailViewController: UIViewController, Navigatable {
     
-    func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         title = page.title ?? "Detail"
         print("Received additional data: \(page.extraData ?? "")")
     }

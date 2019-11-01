@@ -15,7 +15,7 @@ class TabItemViewController: UIViewController, Navigatable {
     private var page: PageObject?
     private var tuple: TupleType?
     
-    func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         print("Received data before show from \(String(describing: fromVC)): \(page)")
         
         self.page = page

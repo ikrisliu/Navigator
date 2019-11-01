@@ -154,20 +154,20 @@ public extension Navigator {
     /// - Parameters:
     ///   - vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
     ///   - animated: Whether show view controller with animation, default is true.
-    @objc class func goto(vcName: UIViewController.Name, animated: Bool = true) {
-        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName.rawValue) else { return }
+    @objc class func goto(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true) {
+        guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName.rawValue, data: data) else { return }
         
         let viewControllers = childViewControllers(of: rootVC)
         
         for vc in viewControllers where vc.navigator != nil {
-            if vc.navigator!.gotoViewControllerIfExisted(vcName.rawValue) {
+            if vc.navigator!.gotoViewControllerIfExisted(vcName.rawValue, data: data) {
                 break
             }
         }
     }
     
-    @objc class func goto(vcClass: UIViewController.Type, animated: Bool = true) {
-        goto(vcName: .init(NSStringFromClass(vcClass)), animated: animated)
+    @objc class func goto(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true) {
+        goto(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated)
     }
 }
 

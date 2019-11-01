@@ -11,7 +11,7 @@ import os.log
 
 @objc open class Fallback: UIViewController, Navigatable {
     
-    public func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+    public func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         title = page.title
         os_log("➡️ [Navigator]: Received data from %@ before show: %@", String(describing: fromVC), page)
     }

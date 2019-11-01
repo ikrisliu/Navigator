@@ -185,13 +185,13 @@ class DetailViewController: UIViewController {
 }
 ```
 
-### Data Receiving
+### Data Passing
 ```swift
 class DetailViewController: UIViewController, Navigatable {
     private var data: Any?
     
     // Receive this callback when open by other view controller
-    func onPageObjectReceiveBeforeShow(_ page: PageObject, fromVC: UIViewController?) {
+    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         title = page.title
         data = page.extraData
     }
