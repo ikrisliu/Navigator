@@ -14,6 +14,5 @@ let package = Package(
         .target(
             name: "Navigator",
             path: "Navigator")
-    ],
-    swiftLanguageVersions: [.v4, .v5]
+    ]
 )
