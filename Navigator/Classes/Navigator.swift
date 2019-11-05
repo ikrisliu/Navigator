@@ -153,6 +153,7 @@ public extension Navigator {
     ///
     /// - Parameters:
     ///   - vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
+    ///   - data: The data is passed to target view controller, default is nil.
     ///   - animated: Whether show view controller with animation, default is true.
     @objc class func goto(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true) {
         guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName.rawValue, data: data) else { return }
@@ -189,7 +190,7 @@ public extension Navigator {
                 assertionFailure("Should use `Navigator.current` to call this deep link method")
             }
             
-            Navigator.goto(vcName: page.vcName, animated: false)
+            Navigator.goto(vcName: page.vcName, data: page.extraData, animated: false)
             
             if let nextPage = page.next {
                 Navigator.current.showDeepLinkViewControllers(nextPage)
