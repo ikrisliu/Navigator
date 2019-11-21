@@ -195,11 +195,11 @@ extension Transition {
             
         case .changed:
             let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((translation.x + xLocation) / recognizerView.bounds.width)
-            update(ratio / 2.0)
+            update(ratio)
             
         case .ended:
             isInteractive = false
-            let offset = isVertical ? CGFloat.maximum(velocity.y, translation.y - yLocation/2) : CGFloat.maximum(velocity.x, translation.x - xLocation/2)
+            let offset = isVertical ? CGFloat.maximum(velocity.y / 2, translation.y + yLocation) : CGFloat.maximum(velocity.x / 2, translation.x + xLocation)
             let isFinish = isVertical ? offset > recognizerView.bounds.height/2 : offset > recognizerView.bounds.width/2
             
             if isFinish {

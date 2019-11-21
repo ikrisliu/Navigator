@@ -1,14 +1,14 @@
 //
-//  ScaleTransition.swift
+//  PushTransition.swift
 //  Navigator
 //
-//  Created by Kris Liu on 2018/8/25.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Created by Kris Liu on 2019/11/21.
+//  Copyright © 2019 Syzygy. All rights reserved.
 //
 
 import UIKit
 
-@objc public class ScaleTransition: Transition {
+public class PushTransition: Transition {
     
     private lazy var dimmedBackgroundView: UIView = {
         let view = UIView()
@@ -20,7 +20,7 @@ import UIKit
     public required init() {
         super.init()
         interactiveGestureEnabled = true
-        orientation = .vertical
+        orientation = .horizontal
     }
     
     public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
@@ -31,24 +31,21 @@ import UIKit
         let containerView = transitionContext.containerView
         dimmedBackgroundView.frame = containerView.frame
         
-        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
-        
-        var scaleTransform = CATransform3DMakeScale(0.9, 0.9, 1)
-        scaleTransform.m34 = 1.0 / -500.0
-        
         if isShow {
             if let toView = toView {
                 containerView.addSubview(dimmedBackgroundView)
                 containerView.addSubview(toView)
-                toView.layer.transform = isVertical ? CATransform3DMakeTranslation(0, toView.bounds.height, 0) : CATransform3DMakeTranslation(toView.bounds.width, 0, 0)
+                toView.transform = CGAffineTransform(translationX: toView.bounds.width, y: 0)
             }
+            
+            let translationX = fromView != nil ? -fromView!.bounds.width / 3 : 0
             
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.4
-                toView?.layer.transform = CATransform3DIdentity
-                fromView?.layer.transform = scaleTransform
+                toView?.transform = .identity
+                fromView?.transform = CGAffineTransform(translationX: translationX, y: 0)
             }, completion: { _ in
-                fromView?.layer.transform = CATransform3DIdentity
+                fromView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         } else {
@@ -62,13 +59,16 @@ import UIKit
                 return
             }
             
-            toView?.layer.transform = scaleTransform
+            let translationX = toView != nil ? -toView!.bounds.width / 3 : 0
+            
+            toView?.transform = CGAffineTransform(translationX: translationX, y: 0)
             
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.0
-                toView?.layer.transform = CATransform3DIdentity
-                fromView.layer.transform = self.isVertical ? CATransform3DMakeTranslation(0, fromView.bounds.height, 0) : CATransform3DMakeTranslation(fromView.bounds.width, 0, 0)
+                toView?.transform = .identity
+                fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
             }, completion: { _ in
+                toView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         }

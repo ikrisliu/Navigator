@@ -47,6 +47,10 @@ import os.log
         }
     }
     
+    @objc public var viewControllers: [UIViewController] {
+        return stack.compactMap({ $0.viewController })
+    }
+    
     @objc public init(rootViewController: UIViewController? = nil) {
         super.init()
         
