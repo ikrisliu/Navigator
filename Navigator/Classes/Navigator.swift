@@ -69,8 +69,6 @@ import os.log
     
     var showAnimated: Bool = true
     var dismissAnimated: Bool = true
-    var showingCompletion: CompletionBlock?
-    var dismissingCompletion: CompletionBlock?
     
     weak var showingPage: PageObject?
     var dismissingData: Any?
@@ -97,9 +95,8 @@ public extension Navigator {
         
         showingPage = page
         showAnimated = animated
-        showingCompletion = completion
         
-        showViewControllers()
+        showViewControllers(completion: completion)
     }
     
     /// Dismiss any view controller with optional data from level.
@@ -116,9 +113,8 @@ public extension Navigator {
         
         dismissingData = data
         dismissAnimated = animated
-        dismissingCompletion = completion
         
-        dismissViewControllers()
+        dismissViewControllers(completion: completion)
     }
     
     /// Dismiss view controllers with the specified view controller instance.

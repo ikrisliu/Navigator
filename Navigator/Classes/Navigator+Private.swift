@@ -73,38 +73,38 @@ extension Navigator {
 
 // MARK: - Show View Controllers
 extension Navigator {
-    func showViewControllers() {
+    func showViewControllers(completion: CompletionBlock?) {
         guard let page = showingPage else { return }
         
         let viewController = createViewController(page)
-        guard !showTabBarControlerIfExisted(viewController) else { return }
-        guard !showSplitViewControllerIfExisted(viewController) else { return }
-        guard !showNavigationControlerIfExisted(viewController) else { return }
-        guard !showViewControler(viewController) else { return }
+        guard !showTabBarControlerIfExisted(viewController, completion: completion) else { return }
+        guard !showSplitViewControllerIfExisted(viewController, completion: completion) else { return }
+        guard !showNavigationControlerIfExisted(viewController, completion: completion) else { return }
+        guard !showViewControler(viewController, completion: completion) else { return }
     }
     
-    func showTabBarControlerIfExisted(_ viewController: UIViewController) -> Bool {
+    func showTabBarControlerIfExisted(_ viewController: UIViewController, completion: CompletionBlock?) -> Bool {
         guard let page = showingPage else { return false }
         guard let tabVC = viewController as? UITabBarController else { return false }
         
         addChildViewControllersIfExisted(page.children, toViewController: tabVC)
-        return showViewControler(viewController)
+        return showViewControler(viewController, completion: completion)
     }
     
-    func showSplitViewControllerIfExisted(_ viewController: UIViewController) -> Bool {
+    func showSplitViewControllerIfExisted(_ viewController: UIViewController, completion: CompletionBlock?) -> Bool {
         guard let page = showingPage else { return false }
         guard let splitVC = viewController as? UISplitViewController else { return false }
         
         addChildViewControllersIfExisted(page.children, toViewController: splitVC)
-        return showViewControler(viewController)
+        return showViewControler(viewController, completion: completion)
     }
     
-    func showNavigationControlerIfExisted(_ viewController: UIViewController) -> Bool {
+    func showNavigationControlerIfExisted(_ viewController: UIViewController, completion: CompletionBlock?) -> Bool {
         guard let page = showingPage else { return false }
         guard let navVC = viewController as? UINavigationController else { return false }
         
         addChildViewControllersIfExisted(page.children, toViewController: navVC)
-        return showViewControler(viewController)
+        return showViewControler(viewController, completion: completion)
     }
     
     // Deep Link
@@ -112,7 +112,7 @@ extension Navigator {
         self.showingPage = page
         
         guard let topVC = topViewController else {
-            showViewControllers()
+            showViewControllers(completion: nil)
             if let next = page.next {
                 Navigator.root.showDeepLinkViewControllers(next)
             }
@@ -144,7 +144,7 @@ extension Navigator {
         var next: PageObject? = page
         while let nextPage = next {
             let viewController = createViewController(nextPage)
-            p_showViewControler(viewController, page: nextPage, animated: nextPage.next == nil)
+            p_showViewControler(viewController, page: nextPage, animated: nextPage.next == nil, completion: nil)
             next = nextPage.next
         }
     }
@@ -162,13 +162,13 @@ extension Navigator {
     }
     
     // Show view controller by push or present way. If mode is root, show the view controller directly.
-    func showViewControler(_ viewController: UIViewController) -> Bool {
+    func showViewControler(_ viewController: UIViewController, completion: CompletionBlock?) -> Bool {
         guard let page = showingPage else { return false }
-        return p_showViewControler(viewController, page: page, animated: showAnimated)
+        return p_showViewControler(viewController, page: page, animated: showAnimated, completion: completion)
     }
     
     @discardableResult
-    func p_showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool) -> Bool {
+    func p_showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool, completion: CompletionBlock?) -> Bool {
         viewController.navigatorMode = page.mode
         let toVC = viewController.navigationController ?? viewController
         
@@ -179,20 +179,20 @@ extension Navigator {
         
         switch page.mode {
         case .reset:
-            resetViewController(toVC)
+            resetViewController(toVC, completion: completion)
         case .push:
             setupTransition(page, for: topViewController?.navigationController)
-            navigationController?.pushViewController(toVC, animated: animated, completion: showingCompletion)
+            navigationController?.pushViewController(toVC, animated: animated, completion: completion)
         case .present:
             setupTransition(page, for: toVC)
-            topViewController?.present(toVC, animated: animated, completion: showingCompletion)
+            topViewController?.present(toVC, animated: animated, completion: completion)
         case .overlay, .popover:
             if page.transitionClass == nil {
                 page.transitionClass = page.mode == .popover ? FadeTransition.self : Transition.self
             }
             setupTransition(page, for: toVC)
             toVC.modalPresentationStyle = .custom
-            topViewController?.present(toVC, animated: animated, completion: showingCompletion)
+            topViewController?.present(toVC, animated: animated, completion: completion)
         case .goto:
             assertionFailure("Please call navigator `goto` method for showing <\(page.vcName)>")
             return false
@@ -208,7 +208,7 @@ extension Navigator {
         return true
     }
     
-    func resetViewController(_ viewController: UIViewController) {
+    func resetViewController(_ viewController: UIViewController, completion: CompletionBlock?) {
         if let splitVC = topViewController?.splitViewController, splitVC.viewControllers.count > 1 {   // iPad
             splitVC.showDetailViewController(viewController, sender: nil)
         } else {
@@ -217,7 +217,7 @@ extension Navigator {
         
         popStackAll()
         setupNavigatorForViewController(viewController)
-        showingCompletion?()
+        completion?()
     }
     
     // Set custom tranistion animation when push or present a view controller
@@ -350,23 +350,23 @@ extension Navigator {
 // MARK: - Dismiss View Controllers
 extension Navigator {
     // Disallow dismiss the root view controller
-    func dismissViewControllers() {
+    func dismissViewControllers(completion: CompletionBlock?) {
         if level < 0 && (stackCount + level) <= 0 { return }
         guard let dismissedVC = popStack(from: level) else { return }
         
-        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover || dismissedVC.navigatorMode == .popover {
-            dismissViewController(dismissedVC)
+        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover {
+            dismissViewController(dismissedVC, completion: completion)
             return
         }
         
         if let nav = dismissedVC.navigationController {
-            popViewController(dismissedVC, fromNav: nav)
+            popViewController(dismissedVC, fromNav: nav, completion: completion)
         } else {
-            dismissViewController(dismissedVC.navigationController ?? dismissedVC)
+            dismissViewController(dismissedVC.navigationController ?? dismissedVC, completion: completion)
         }
     }
     
-    func dismissViewController(_ viewController: UIViewController) {
+    func dismissViewController(_ viewController: UIViewController, completion: CompletionBlock?) {
         let vc = viewController.presentingViewController ?? viewController
         
         // Do not call public method `sendDataBeforeBack` which will lead pop stack twice
@@ -376,11 +376,11 @@ extension Navigator {
         
         vc.dismiss(animated: dismissAnimated, completion: {
             self.sendDataAfterBack(self.dismissingData)
-            self.dismissingCompletion?()
+            completion?()
         })
     }
     
-    func popViewController(_ viewController: UIViewController, fromNav: UINavigationController) {
+    func popViewController(_ viewController: UIViewController, fromNav: UINavigationController, completion: CompletionBlock?) {
         if let data = dismissingData, let topVC = topViewController {
             p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
         }
@@ -389,13 +389,13 @@ extension Navigator {
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
                     self.sendDataAfterBack(self.dismissingData)
-                    self.dismissingCompletion?()
+                    completion?()
                 }
             })
         } else {
             popTopViewController(fromNav: fromNav) {
                 self.sendDataAfterBack(self.dismissingData)
-                self.dismissingCompletion?()
+                completion?()
             }
         }
     }

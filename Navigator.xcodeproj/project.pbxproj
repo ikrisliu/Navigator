@@ -11,6 +11,7 @@
 		0144E939233D1FB6003A2F24 /* PageObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E938233D1FB6003A2F24 /* PageObject.swift */; };
 		01495FC6223A9E7700216DE7 /* PopoverPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01495FC5223A9E7700216DE7 /* PopoverPresentationController.swift */; };
 		016ABB2F22316C0800B1AE6E /* UIViewController+Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */; };
+		017DDA5023B10D7B00B9C3AC /* Navigator+Prepare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017DDA4F23B10D7B00B9C3AC /* Navigator+Prepare.swift */; };
 		018417232386DFEE00ED3B30 /* PushTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018417222386DFEE00ED3B30 /* PushTransition.swift */; };
 		01DF8AD82281E8F6009409EB /* FadeTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DF8AD72281E8F5009409EB /* FadeTransition.swift */; };
 		01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F9F13121DB2AE9001DB147 /* Fallback.swift */; };
@@ -82,6 +83,7 @@
 		0144E938233D1FB6003A2F24 /* PageObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageObject.swift; sourceTree = "<group>"; };
 		01495FC5223A9E7700216DE7 /* PopoverPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverPresentationController.swift; sourceTree = "<group>"; };
 		016ABB2E22316C0800B1AE6E /* UIViewController+Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Navigator.swift"; sourceTree = "<group>"; };
+		017DDA4F23B10D7B00B9C3AC /* Navigator+Prepare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Navigator+Prepare.swift"; sourceTree = "<group>"; };
 		018417222386DFEE00ED3B30 /* PushTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTransition.swift; sourceTree = "<group>"; };
 		01DF8AD72281E8F5009409EB /* FadeTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeTransition.swift; sourceTree = "<group>"; };
 		01F9F13121DB2AE9001DB147 /* Fallback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fallback.swift; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 				01F9F13121DB2AE9001DB147 /* Fallback.swift */,
 				01F9F13221DB2AE9001DB147 /* Navigatable.swift */,
 				01F9F13921DB2AE9001DB147 /* Navigator.swift */,
+				017DDA4F23B10D7B00B9C3AC /* Navigator+Prepare.swift */,
 				01F9F13721DB2AE9001DB147 /* Navigator+Private.swift */,
 				0144E938233D1FB6003A2F24 /* PageObject.swift */,
 				01F9F15021DB2FF9001DB147 /* Transition */,
@@ -421,6 +424,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				017DDA5023B10D7B00B9C3AC /* Navigator+Prepare.swift in Sources */,
 				01F9F15721DB3003001DB147 /* CircleTransition.swift in Sources */,
 				01F9F13A21DB2AE9001DB147 /* Fallback.swift in Sources */,
 				01F9F15821DB3003001DB147 /* MatrixTransition.swift in Sources */,
