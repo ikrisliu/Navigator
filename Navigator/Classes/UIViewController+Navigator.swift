@@ -71,6 +71,10 @@ extension UIViewController {
     /// Custom view controllers can override this variable to determine if need respond the deep linking.
     /// If return true, it will do nothing when open App via deep linking.
     @objc open var ignoreDeepLinking: Bool { return false }
+    
+    var isDismissable: Bool {
+        return navigatorMode == .present || navigatorMode == .overlay || navigatorMode == .popover
+    }
 }
 
 extension UIViewController {

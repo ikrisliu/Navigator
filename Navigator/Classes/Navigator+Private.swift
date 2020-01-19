@@ -44,8 +44,7 @@ extension Navigator {
     }
     
     // Pop stack level (0 from top)
-    @discardableResult
-    func popStack(from level: Int = 0) -> UIViewController? {
+    @discardableResult func popStack(from level: Int = 0) -> UIViewController? {
         let viewControllers = getStack(from: level)
         stack.removeLast(viewControllers.count)
         return viewControllers.first
@@ -68,6 +67,15 @@ extension Navigator {
     func stackLevel(_ index: Int) -> Int? {
         let level = index - 1   // Exclude the dismissTo target VC
         return (level >= 0 && index <= stackCount - 1) ? level : nil
+    }
+    
+    var stackLevelForTopPresentedVC: Int? {
+        for idx in (0..<stackCount) {
+            if let vc = getStack(from: idx).first, (vc.isDismissable || vc.navigationController?.isDismissable == true) {
+                return idx
+            }
+        }
+        return nil
     }
 }
 
@@ -138,7 +146,7 @@ extension Navigator {
         }
         
         if self == Navigator.root {
-            Navigator.current.dismiss(level: -1, animated: false)
+            Navigator.current.backToRoot(animated: false)
         }
         
         var next: PageObject? = page
@@ -354,7 +362,7 @@ extension Navigator {
         if level < 0 && (stackCount + level) <= 0 { return }
         guard let dismissedVC = popStack(from: level) else { return }
         
-        if dismissedVC.navigatorMode == .present || dismissedVC.navigatorMode == .overlay || dismissedVC.navigatorMode == .popover {
+        if dismissedVC.isDismissable {
             dismissViewController(dismissedVC, completion: completion)
             return
         }
@@ -419,7 +427,6 @@ extension Navigator {
 
 // MARK: - Goto View Controller
 extension Navigator {
-    
     func gotoViewControllerIfExisted(_ vcName: String, data: Any? = nil, animated: Bool = true) -> Bool {
         guard self !== Navigator.root else {
             guard let rootVC = rootViewController else { return false }
@@ -431,7 +438,7 @@ extension Navigator {
             if let vc = viewController, let index = viewControllers.firstIndex(of: vc) {
                 (rootVC as? UITabBarController)?.selectedIndex = index
                 sendDataBeforeShow(data, fromVC: topViewController, toVC: vc)
-                Navigator.current.dismiss(level: -1, animated: animated)
+                Navigator.current.backToRoot(animated: animated)
                 return true
             } else {
                 os_log("❌ [Navigator]: Can not find view controller class %@ in navigation stack", vcName)
@@ -459,14 +466,12 @@ extension Navigator {
         }
         
         sendDataBeforeShow(data, fromVC: previousTopVC, toVC: toVC)
-        
         return true
     }
 }
 
 // MARK: - Send and Receive Data
 extension Navigator {
-    
     func passPageObject(_ page: PageObject, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("➡️ [Navigator]: Pass page object from %@ after init: %@", String(describing: fromVC), page)
         guard let navigatableVC = toVC as? Navigatable else { return }
@@ -488,7 +493,7 @@ extension Navigator {
     func p_sendDataAfterBack(_ data: Any, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data to %@ after back: %@", toVC, "\(data)")
         guard let navigatableVC = toVC as? Navigatable else { return }
-        navigatableVC.onDataReceiveAfterBack?(data, fromVC: nil)
+        navigatableVC.onDataReceiveAfterBack?(data)
         
         self.dismissingData = nil  // Release reference
     }

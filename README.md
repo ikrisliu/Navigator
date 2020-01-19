@@ -127,9 +127,10 @@ class DetailViewController: UIViewController {
     @objc private func onTapDismissViewControler() {
         let data = "You can pass any type object/struct, e.g. string, tuple, dictionary and so on"
         
-        navigator?.dismiss()            // 0: dimiss current view controller, 1: dismiss top two view controllers.
-        navigator?.dismiss(level: -1)   // Dismiss to root view controller of current navigator
-        navigator?.dismiss(data)        // Pass data to previous view controller when dismiss
+        navigator?.pop(data)            // Pop the top view controller (like system navigation controller pop)
+        navigator?.dismiss(data)        // Dismiss the presented view controller (like system view controller dismiss)
+        navigator?.backToRoot(data)     // Back to root view controller of current navigator
+        navigator?.backTo(OneViewController.self)   // Back to someone specific view controller which in navigtor stack
     }
 }
 ```
@@ -144,13 +145,13 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
     Navigator.current.deepLink(page)
 
     // Show top view controller base on current vc stack
-    Navigator.current.open(url: url) { (_) -> PageObject? in
+    Navigator.current.open(url: url) { _ -> PageObject? in
         // Parse the deep link url to below page object for showing
         return PageObject(vcClass: TopViewController.self)
     }
 
     // Show a chain of view controllers from root vc
-    Navigator.root.open(url: url) { (_) -> PageObject? in
+    Navigator.root.open(url: url) { _ -> PageObject? in
         // Parse the deep link url to below data models for showing
         let root = PageObject(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
         let middle = PageObject(vcClass: MiddleViewController.self)
@@ -168,8 +169,8 @@ Create custom transition class inherits the `Transition` class and override belo
 
 ```swift
 class CustomTransition: Transition {
-	public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) { }
-	public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) { }
+    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) { }
+    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) { }
 }
 
 class DetailViewController: UIViewController {
@@ -190,14 +191,22 @@ class DetailViewController: UIViewController {
 class DetailViewController: UIViewController, Navigatable {
     private var data: Any?
     
-    // Receive this callback when open by other view controller
+    // Receive page object from previous vc after current vc initialized (before `viewDidLoad`)
+    // - Note: Only called one time after vc initialized
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         title = page.title
         data = page.extraData
     }
     
-    // Receive this callback when dismiss from next view controller
-    func onDataReceiveAfterBack(_ data: Any?, fromVC: UIViewController?) {
+    // Receive data before the current vc show (before `viewDidLoad`)
+    // - Note: May called multiple times since appear mutiple times
+    @objc optional func onDataReceiveBeforeShow(_ data: Any?, fromVC: UIViewController?) {}
+    
+    // Receive data from next vc before the next vc dismiss start
+    @objc optional func onDataReceiveBeforeBack(_ data: Any?, fromVC: UIViewController?) {}
+    
+    // Receive data from next vc after the next vc dismiss animation end
+    func onDataReceiveAfterBack(_ data: Any?) {
         self.data = data
     }
 }

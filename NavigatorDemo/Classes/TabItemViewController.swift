@@ -26,7 +26,7 @@ class TabItemViewController: UIViewController, Navigatable {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
-    func onDataReceiveAfterBack(_ data: Any?, fromVC: UIViewController?) {
+    func onDataReceiveAfterBack(_ data: Any?) {
         print("Received data after back: \(data ?? "nil")")
     }
     
@@ -61,7 +61,7 @@ private extension TabItemViewController {
     }
     
     @objc dynamic func onHome() {
-        navigator?.dismiss(level: -1)
+        navigator?.backToRoot()
     }
 }
 

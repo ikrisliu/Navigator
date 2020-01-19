@@ -50,7 +50,7 @@ public extension Navigator {
     /// Prepare navigation data and handling logic before show any page
     /// - Parameters:
     ///   - data: The data is passed to the navigated page, can be any type.
-    ///   - handlerName: The handler closure is to determine show which page.
+    ///   - handlerName: The handler class name is to determine show which page. It must implement `NavigationHandlerable` protocol.
     ///   - completion: The optional callback to be executed after navigation is completed.
     @objc static func prepare(_ data: Any? = nil, handlerName: HandlerName, completion: NavigationHandlerable.CompletionBlock? = nil) {
         if let classType = NSClassFromString(handlerName.rawValue) as? NavigationHandlerable.Type {

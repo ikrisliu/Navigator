@@ -23,5 +23,5 @@ import UIKit
     @objc optional func onDataReceiveBeforeBack(_ data: Any?, fromVC: UIViewController?)
     
     /// Receive data from next vc after the next vc dismiss animation end
-    @objc optional func onDataReceiveAfterBack(_ data: Any?, fromVC: UIViewController?)
+    @objc optional func onDataReceiveAfterBack(_ data: Any?)
 }

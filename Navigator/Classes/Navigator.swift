@@ -40,7 +40,7 @@ import os.log
     @objc public internal(set) weak var rootViewController: UIViewController? {
         willSet {
             // Avoid memory leak, if exists presented view controler, reset root view controller will lead memory lead.
-            Navigator.current.dismiss(level: -1, animated: false)
+            Navigator.current.backToRoot(animated: false)
             
             window?.rootViewController = newValue
             window?.makeKeyAndVisible()
@@ -99,22 +99,38 @@ public extension Navigator {
         showViewControllers(completion: completion)
     }
     
-    /// Dismiss any view controller with optional data from level.
-    /// (A => B => C => D) -> dismiss(level: 1) -> (A => B)
+    /// Pop the top view controller which mode is push with optional data.
+    /// - Note: It's same with system navigation controller pop method.
     ///
     /// - Parameters:
     ///   - data: The data is passed to previous view controller, default is nil.
-    ///   - level: Which view controller will be dismissed, default 0 is current VC, 1 is previous one VC.
-    ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
-        self.level = level
+    @objc func pop(_ data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard stackCount > 1 else { return }
         
         dismissingData = data
         dismissAnimated = animated
         
-        dismissViewControllers(completion: completion)
+        guard let vc = popStack(), let nav = vc.navigationController else { return }
+        popViewController(vc, fromNav: nav, completion: completion)
+    }
+    
+    /// Dismiss the view controller which navigation mode is present with optional data.
+    /// - Note: It's same with system view controller dismiss method.
+    ///
+    /// - Parameters:
+    ///   - data: The data is passed to previous view controller, default is nil.
+    ///   - animated: Whether dismiss view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    @objc func dismiss(_ data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard stackCount > 1 else { return }
+        
+        dismissingData = data
+        dismissAnimated = animated
+        
+        guard let level = stackLevelForTopPresentedVC, let vc = popStack(from: level) else { return }
+        dismissViewController(vc, completion: completion)
     }
     
     /// Dismiss view controllers with the specified view controller instance.
@@ -124,7 +140,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismissTo(viewController: UIViewController, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(viewController: UIViewController, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard let index = stackIndex(of: viewController), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
@@ -138,14 +154,24 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismissTo(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard let level = stackIndex(of: vcName.rawValue), level <= stackCount - 1 else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
     }
     
-    @objc func dismissTo(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
-        dismissTo(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated, completion: completion)
+    @objc func backTo(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        backTo(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated, completion: completion)
+    }
+    
+    /// Dismiss all view controllers and back to the root view controller.
+    ///
+    /// - Parameters:
+    ///   - data: The data is passed to previous view controller, default is nil.
+    ///   - animated: Whether dismiss view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    @objc func backToRoot(data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+        dismiss(data, level: -1, animated: animated, completion: completion)
     }
     
     /// Jump to any view controller only if the vc is already in the navigator stack.
@@ -169,6 +195,29 @@ public extension Navigator {
     
     @objc class func goto(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true) {
         goto(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated)
+    }
+}
+
+private extension Navigator {
+    
+    /// Dismiss any view controller with optional data from level.
+    /// (A => B => C => D) -> dismiss(level: 1) -> (A => B)
+    ///
+    /// - Parameters:
+    ///   - data: The data is passed to previous view controller, default is nil.
+    ///   - level: Which view controller will be dismissed, default 0 is current VC, 1 is previous one VC.
+    ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
+    ///   - animated: Whether dismiss view controller with animation, default is true.
+    ///   - completion: The optional callback to be executed after animation is completed.
+    func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
+        guard stackCount > 1 else { return }
+        
+        self.level = level
+        
+        dismissingData = data
+        dismissAnimated = animated
+        
+        dismissViewControllers(completion: completion)
     }
 }
 
