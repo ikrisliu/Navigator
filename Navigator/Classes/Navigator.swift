@@ -72,8 +72,6 @@ import os.log
     
     weak var showingPage: PageObject?
     var dismissingData: Any?
-    
-    var level: Int = 0  // Dismiss which level view controller, level 0 means that dismiss current view controller, level 1 is previous VC. (Default is 0)
 }
 
 // MARK: - Show or Dismiss
@@ -212,12 +210,10 @@ private extension Navigator {
     func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard stackCount > 1 else { return }
         
-        self.level = level
-        
         dismissingData = data
         dismissAnimated = animated
         
-        dismissViewControllers(completion: completion)
+        dismissViewControllers(level: level, completion: completion)
     }
 }
 
@@ -294,8 +290,6 @@ public extension Navigator {
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
     ///            If level is equal to -1, it will send data to root view controller of current navigator.
     @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
-        self.level = level
-        
         guard let data = data, let fromVC = getStack(from: level).first else { return }
         
         let toVC = topViewController ?? fromVC

@@ -358,7 +358,7 @@ extension Navigator {
 // MARK: - Dismiss View Controllers
 extension Navigator {
     // Disallow dismiss the root view controller
-    func dismissViewControllers(completion: CompletionBlock?) {
+    func dismissViewControllers(level: Int, completion: CompletionBlock?) {
         if level < 0 && (stackCount + level) <= 0 { return }
         guard let dismissedVC = popStack(from: level) else { return }
         
