@@ -24,7 +24,7 @@ class PopoverPresentationController: UIPresentationController {
     }
     
     override var frameOfPresentedViewInContainerView: CGRect {
-        return sourceRect
+        sourceRect
     }
     
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {

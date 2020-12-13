@@ -29,7 +29,7 @@ class SplitViewController: UISplitViewController, UISplitViewControllerDelegate 
     }
     
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
-        return UIDevice.current.userInterfaceIdiom == .phone
+        UIDevice.current.userInterfaceIdiom == .phone
     }
 }
 

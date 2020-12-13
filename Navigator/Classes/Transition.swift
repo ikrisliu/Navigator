@@ -26,7 +26,7 @@ import UIKit
     
     @objc public var sourceRect: CGRect = .zero
     
-    @objc public var isVertical: Bool { return orientation == .vertical }
+    @objc public var isVertical: Bool { orientation == .vertical }
     @objc public private(set) weak var transitionContext: UIViewControllerContextTransitioning!
     
     /// Show or Dismiss
@@ -42,7 +42,7 @@ import UIKit
     
     /// Overwrite this variable to assign a custom animation duration
     @objc open var animationDuration: TimeInterval {
-        return transitionDuration(using: transitionContext)
+        transitionDuration(using: transitionContext)
     }
     
     /// For modal present or dismiss, need overwrite by subclass if define a custom transition
@@ -75,7 +75,7 @@ import UIKit
 extension Transition: UIViewControllerAnimatedTransitioning {
     
     public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return CATransaction.animationDuration()
+        CATransaction.animationDuration()
     }
     
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -115,7 +115,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
     }
     
     public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return type(of: self) == Transition.self ? nil : self
+        type(of: self) == Transition.self ? nil : self
     }
     
     public func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
@@ -130,7 +130,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
     
     /// - Note: If need custom popover presentation controller, can overwrite this method to provide one.
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
+        PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
     }
 }
 
@@ -139,7 +139,7 @@ extension Transition: UINavigationControllerDelegate {
     
     public func navigationController(_ navigationController: UINavigationController,
                                      interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
-        return isInteractive ? self : nil
+        isInteractive ? self : nil
     }
     
     public func navigationController(_ navigationController: UINavigationController,

@@ -173,7 +173,7 @@ extension PageObject {
         return String(data: data, encoding: .utf8)
     }
     
-    public override var description: String { return debugDescription }
+    public override var description: String { debugDescription }
     
     public override var debugDescription: String {
         var desc = "", indent = ""

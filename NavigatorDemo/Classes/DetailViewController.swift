@@ -36,7 +36,7 @@ class DetailViewController: UIViewController, Navigatable {
         debugPrint("FREE MEMORY: \(self)")
     }
     
-    override var ignoreDeepLinking: Bool { return true }
+    override var ignoreDeepLinking: Bool { true }
 }
 
 private extension DetailViewController {

@@ -21,11 +21,11 @@ import UIKit
     }
     
     public override var description: String {
-        return rawValue
+        rawValue
     }
     
     public override var hash: Int {
-        return rawValue.hash
+        rawValue.hash
     }
     
     public override func isEqual(_ object: Any?) -> Bool {

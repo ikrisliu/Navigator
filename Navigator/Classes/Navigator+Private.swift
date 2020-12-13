@@ -11,7 +11,7 @@ import os.log
 
 // MARK: - Page Stack
 extension Navigator {
-    var stackCount: Int { return stack.count }
+    var stackCount: Int { stack.count }
     
     var navigationController: UINavigationController? {
         if let navigationController = topViewController?.navigationController {

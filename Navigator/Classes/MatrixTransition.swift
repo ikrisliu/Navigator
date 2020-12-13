@@ -11,7 +11,7 @@ import UIKit
 @objc public class MatrixTransition: Transition {
     
     public override var animationDuration: TimeInterval {
-        return 1.0
+        1.0
     }
     
     public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
@@ -73,7 +73,7 @@ import UIKit
     }
     
     private func random(min: CGFloat, max: CGFloat) -> CGFloat {
-        return CGFloat(arc4random()) / CGFloat(UInt32.max) * (max - min) + min
+        CGFloat(arc4random()) / CGFloat(UInt32.max) * (max - min) + min
     }
     
     private func resetYPosForSliceViews(_ sliceViews: [UIView], yPos: CGFloat) {

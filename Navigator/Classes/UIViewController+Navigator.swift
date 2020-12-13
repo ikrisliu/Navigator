@@ -22,11 +22,11 @@ extension UIViewController {
         }
         
         public override var description: String {
-            return rawValue
+            rawValue
         }
         
         public override var hash: Int {
-            return rawValue.hash
+            rawValue.hash
         }
         
         public override func isEqual(_ object: Any?) -> Bool {
@@ -52,7 +52,7 @@ extension UIViewController {
     ///   - If the VC is instantiated and opened by old way(push/present), the navigator will be nil, can't use navigator to open other VCs.
     @objc public internal(set) var navigator: Navigator? {
         get {
-            return objc_getAssociatedObject(self, &AssociationKey.navigator) as? Navigator
+            objc_getAssociatedObject(self, &AssociationKey.navigator) as? Navigator
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigator, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -61,7 +61,7 @@ extension UIViewController {
     
     @objc public internal(set) var navigatorMode: Navigator.Mode {
         get {
-            return objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Navigator.Mode ?? .push
+            objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Navigator.Mode ?? .push
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -70,10 +70,10 @@ extension UIViewController {
     
     /// Custom view controllers can override this variable to determine if need respond the deep linking.
     /// If return true, it will do nothing when open App via deep linking.
-    @objc open var ignoreDeepLinking: Bool { return false }
+    @objc open var ignoreDeepLinking: Bool { false }
     
     var isDismissable: Bool {
-        return navigatorMode == .present || navigatorMode == .overlay || navigatorMode == .popover
+        navigatorMode == .present || navigatorMode == .overlay || navigatorMode == .popover
     }
 }
 
@@ -87,7 +87,7 @@ extension UIViewController {
     
     var p_navigatorTransition: Transition? {
         get {
-            return objc_getAssociatedObject(self, &AssociationKey.navigatorTransition) as? Transition
+            objc_getAssociatedObject(self, &AssociationKey.navigatorTransition) as? Transition
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigatorTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

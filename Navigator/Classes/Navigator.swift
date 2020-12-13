@@ -48,7 +48,7 @@ import os.log
     }
     
     @objc public var viewControllers: [UIViewController] {
-        return stack.compactMap({ $0.viewController })
+        stack.compactMap({ $0.viewController })
     }
     
     @objc public init(rootViewController: UIViewController? = nil) {
@@ -63,7 +63,7 @@ import os.log
     // Private Properties
     private var _stack = [WeakWrapper]()
     var stack: [WeakWrapper] {
-        get { return _stack.filter({ $0.viewController != nil }) }
+        get { _stack.filter({ $0.viewController != nil }) }
         set { _stack = newValue }
     }
     
@@ -275,7 +275,7 @@ public extension Navigator {
     
     /// Returns a Boolean value indicating whether an app is available to handle a URL scheme.
     @objc class func canOpenURL(_ url: URL) -> Bool {
-        return UIApplication.shared.canOpenURL(url)
+        UIApplication.shared.canOpenURL(url)
     }
 }
 
@@ -310,7 +310,7 @@ public extension Navigator {
     }
     
     @objc var topViewController: UIViewController? {
-        return stack.last?.viewController
+        stack.last?.viewController
     }
 }
 
