@@ -1,6 +1,7 @@
 disabled_rules: # rule identifiers to exclude from running
   - force_cast
   - trailing_comma
+  - inclusive_language
 
 opt_in_rules: # Find all the available rules by running: swiftlint rules
   - anyobject_protocol
