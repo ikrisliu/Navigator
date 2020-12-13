@@ -18,11 +18,13 @@ Navigator is a generic navigation framework for view controllers. It can decoupl
 <p align="center"><img src ="./Images/DataPassing.jpg" /></p>
 
 ## Installation
-### Carthage
-[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. To integrate Navigator into your Xcode project using Carthage, specify it in your `Cartfile`:
+### Swift Package Manager
+[Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. To integrate Navigator into your Xcode project, specify it in your `Package.swift`.
 
-```ogdl
-github "iKrisLiu/Navigator" ~> 1.0
+```swift
+dependencies: [
+    .package(url: "https://github.com/iKrisLiu/Navigator", .upToNextMajor(from: "1.0.0"))
+]
 ```
 
 ### CocoaPods
@@ -32,13 +34,11 @@ github "iKrisLiu/Navigator" ~> 1.0
 pod 'SmartNavigator', '~> 1.0'
 ```
 
-### Swift Package Manager
-[Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. To integrate Navigator into your Xcode project, specify it in your `Package.swift`.
+### Carthage
+[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. To integrate Navigator into your Xcode project using Carthage, specify it in your `Cartfile`:
 
-```swift
-dependencies: [
-    .package(url: "https://github.com/iKrisLiu/Navigator", from: "1.0.0")
-]
+```ogdl
+github "iKrisLiu/Navigator" ~> 1.0
 ```
 
 ## Usage
