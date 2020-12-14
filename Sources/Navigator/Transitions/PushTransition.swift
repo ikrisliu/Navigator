@@ -29,23 +29,33 @@ public class PushTransition: Transition {
     
     public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
+        let fromTransView = transitionView(in: fromView) ?? fromView
+        let toTransView = transitionView(in: toView) ?? toView
+        let fromNavBar = navigationBar(in: fromView)
+        let toNavBar = navigationBar(in: toView)
+        
         dimmedBackgroundView.frame = containerView.frame
         
         if isShow {
             if let toView = toView {
                 containerView.addSubview(dimmedBackgroundView)
                 containerView.addSubview(toView)
-                toView.transform = CGAffineTransform(translationX: toView.bounds.width, y: 0)
+                
+                self.setNavigationBarAlpha(navBar: toNavBar, alpha: 0.0)
+                toTransView?.transform = CGAffineTransform(translationX: toView.bounds.width, y: 0)
             }
             
             let translationX = fromView != nil ? -fromView!.bounds.width / 3 : 0
             
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.4
-                toView?.transform = .identity
-                fromView?.transform = CGAffineTransform(translationX: translationX, y: 0)
+                
+                fromTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
+                
+                self.setNavigationBarAlpha(navBar: toNavBar, alpha: 1.0)
+                toTransView?.transform = .identity
             }, completion: { _ in
-                fromView?.transform = .identity
+                fromTransView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         } else {
@@ -61,16 +71,47 @@ public class PushTransition: Transition {
             
             let translationX = toView != nil ? -toView!.bounds.width / 3 : 0
             
-            toView?.transform = CGAffineTransform(translationX: translationX, y: 0)
+            toTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
             
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.0
-                toView?.transform = .identity
-                fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
+                
+                self.setNavigationBarAlpha(navBar: fromNavBar, alpha: 0.0)
+                fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
+                
+                toTransView?.transform = .identity
             }, completion: { _ in
-                toView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         }
+    }
+    
+    private func transitionView(in view: UIView?) -> UIView? {
+        if let clazz = NSClassFromString("UINavigationTransitionView") {
+            return subview(clazz: clazz, in: view)
+        } else {
+            return view
+        }
+    }
+    
+    private func navigationBar(in view: UIView?) -> UINavigationBar? {
+        subview(clazz: UINavigationBar.self, in: view) as? UINavigationBar
+    }
+    
+    private func subview(clazz: AnyClass, in view: UIView?) -> UIView? {
+        if let subview = view?.subviews.first(where: { $0.isKind(of: clazz) }) {
+            return subview
+        } else {
+            for subview in view?.subviews ?? [] {
+                if let result = self.subview(clazz: clazz, in: subview) {
+                    return result
+                }
+            }
+            return nil
+        }
+    }
+    
+    private func setNavigationBarAlpha(navBar: UINavigationBar?, alpha: CGFloat) {
+        navBar?.subviews.forEach({ $0.alpha = alpha })
     }
 }

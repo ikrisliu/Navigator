@@ -63,7 +63,9 @@ import UIKit
     // Private
     // Whether start interaction, different usage with variable interactiveGestureEnabled. Must need this flag.
     private var isInteractive: Bool = false
-    private var panGesture: UIPanGestureRecognizer?
+    private var leftPanGesture: UIPanGestureRecognizer?
+    private var rightPanGesture: UIPanGestureRecognizer?
+    private var verticalPanGesture: UIPanGestureRecognizer?
     private var startLocation: CGPoint?
     
     private weak var presentedVC: UIViewController?
@@ -170,22 +172,30 @@ extension Transition {
         guard let vc = viewController, interactiveGestureEnabled else { return }
         
         if isVertical {
-            panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
+            verticalPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
+            vc.view.addGestureRecognizer(verticalPanGesture!)
         } else {
-            panGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
-            (panGesture as? UIScreenEdgePanGestureRecognizer)?.edges = [.left]
+            leftPanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
+            rightPanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
+            (leftPanGesture as? UIScreenEdgePanGestureRecognizer)?.edges = [.left]
+            (rightPanGesture as? UIScreenEdgePanGestureRecognizer)?.edges = [.right]
+            vc.view.addGestureRecognizer(leftPanGesture!)
+            vc.view.addGestureRecognizer(rightPanGesture!)
         }
-        
-        vc.view.addGestureRecognizer(panGesture!)
     }
     
     @objc private func handlePanGesture(recognizer: UIPanGestureRecognizer) {
         guard let recognizerView = recognizer.view else { return }
+        
+        let isLeftPanGesture = recognizer == leftPanGesture
         let translation = recognizer.translation(in: recognizerView)
         let velocity = recognizer.velocity(in: recognizerView)
         
-        let xLocation = startLocation != nil ? startLocation!.x : 0
+        var xLocation = startLocation != nil ? startLocation!.x : 0
         let yLocation = startLocation != nil ? startLocation!.y : 0
+        
+        let xVelocity = isLeftPanGesture ? velocity.x : -velocity.x
+        let yVelocity = velocity.y
         
         switch recognizer.state {
         case .began:
@@ -194,13 +204,15 @@ extension Transition {
             handleViewController(velocity)
             
         case .changed:
-            let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((translation.x + xLocation) / recognizerView.bounds.width)
-            update(ratio)
+            let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((abs(translation.x) + xLocation) / recognizerView.bounds.width)
+            update(isLeftPanGesture ? ratio : ratio - 1)
             
         case .ended:
             isInteractive = false
-            let offset = isVertical ? CGFloat.maximum(velocity.y / 2, translation.y + yLocation) : CGFloat.maximum(velocity.x / 2, translation.x + xLocation)
-            let isFinish = isVertical ? offset > recognizerView.bounds.height/2 : offset > recognizerView.bounds.width/2
+            xLocation = isLeftPanGesture ? xLocation : recognizerView.bounds.width - xLocation
+            
+            let offset = isVertical ? CGFloat.maximum(yVelocity / 2, translation.y + yLocation) : CGFloat.maximum(xVelocity / 2, abs(translation.x) + xLocation)
+            let isFinish = isVertical ? offset > recognizerView.bounds.height / 2 : offset > recognizerView.bounds.width / 2
             
             if isFinish {
                 completionSpeed = (1.0 - percentComplete) / 2
@@ -240,10 +252,10 @@ extension Transition {
     }
     
     private func removeInteractiveGesture() {
-        guard let panGesture = panGesture else { return }
-        
-        presentedVC?.view.removeGestureRecognizer(panGesture)
-        presentingVC?.view.removeGestureRecognizer(panGesture)
-        navController?.view.removeGestureRecognizer(panGesture)
+        [verticalPanGesture, leftPanGesture, rightPanGesture].compactMap({ $0 }).forEach {
+            presentedVC?.view.removeGestureRecognizer($0)
+            presentingVC?.view.removeGestureRecognizer($0)
+            navController?.view.removeGestureRecognizer($0)
+        }
     }
 }

@@ -12,5 +12,5 @@ Pod::Spec.new do |s|
   s.swift_versions = ['5.1', '5.2', '5.3']
   
   s.module_name = 'Navigator'
-  s.source_files = 'Sources/**/*.swift'
+  s.source_files = 'Sources/Navigator/**/*.swift'
 end

@@ -97,7 +97,7 @@ public extension Navigator {
         showViewControllers(completion: completion)
     }
     
-    /// Pop the top view controller which mode is push with optional data.
+    /// Pop the top view controller which navigation mode is push with optional data.
     /// - Note: It's same with system navigation controller pop method.
     ///
     /// - Parameters:
