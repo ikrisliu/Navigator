@@ -8,9 +8,9 @@
 
 import UIKit
 
-class FadeTransition: Transition {
+@objc public class FadeTransition: Transition {
     
-    override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
+    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
         
         if isShow {
@@ -45,7 +45,7 @@ class FadeTransition: Transition {
 
 extension FadeTransition {
     
-    override func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+    public override func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: false)
     }
 }

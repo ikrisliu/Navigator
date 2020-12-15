@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class PushTransition: Transition {
+@objc public class PushTransition: Transition {
     
     private lazy var dimmedBackgroundView: UIView = {
         let view = UIView()

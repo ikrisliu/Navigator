@@ -51,7 +51,7 @@ private extension DetailViewController {
             return
         }
         
-        let page = PageObject(vcClass: TabItemViewController.self, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
+        let page = PageObject(vcCreator: { TabItemViewController() }, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(page)
     }
     

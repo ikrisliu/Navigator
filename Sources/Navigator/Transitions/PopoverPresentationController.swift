@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PopoverPresentationController: UIPresentationController {
+@objc open class PopoverPresentationController: UIPresentationController {
     
     private var sourceRect: CGRect
     private let dimmedBackgroundView = UIView()
@@ -23,15 +23,15 @@ class PopoverPresentationController: UIPresentationController {
         }
     }
     
-    override var frameOfPresentedViewInContainerView: CGRect {
+    public override var frameOfPresentedViewInContainerView: CGRect {
         sourceRect
     }
     
-    override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+    public override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
         containerView?.setNeedsLayout()
     }
     
-    override func presentationTransitionWillBegin() {
+    public override func presentationTransitionWillBegin() {
         guard let containerView = self.containerView else { return }
         
         containerView.addSubview(self.dimmedBackgroundView)
@@ -44,13 +44,13 @@ class PopoverPresentationController: UIPresentationController {
         }, completion: nil)
     }
     
-    override func dismissalTransitionWillBegin() {
+    public override func dismissalTransitionWillBegin() {
         presentingViewController.transitionCoordinator?.animate(alongsideTransition: { _ in
             self.dimmedBackgroundView.alpha = 0.0
         }, completion: nil)
     }
     
-    override func dismissalTransitionDidEnd(_ completed: Bool) {
+    public override func dismissalTransitionDidEnd(_ completed: Bool) {
         dimmedBackgroundView.removeFromSuperview()
     }
 }

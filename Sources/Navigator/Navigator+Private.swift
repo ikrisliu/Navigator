@@ -279,19 +279,21 @@ extension Navigator {
             }
         }
         
-        let vcName = page.vcName.rawValue
-        guard !vcName.isEmpty else {
-            viewController = createFallbackViewController(page)
-            return viewController
+        if let creator = page.vcCreator {
+            viewController = creator()
+        } else {
+            let vcName = page.vcName.rawValue
+            guard !vcName.isEmpty else {
+                viewController = createFallbackViewController(page)
+                return viewController
+            }
+            guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
+                os_log("❌ [Navigator]: Can not find view controller class %@ in your modules", vcName)
+                viewController = createFallbackViewController(page)
+                return viewController
+            }
+            viewController = vcType.init()
         }
-        
-        guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
-            os_log("❌ [Navigator]: Can not find view controller class %@ in your modules", vcName)
-            viewController = createFallbackViewController(page)
-            return viewController
-        }
-        
-        viewController = vcType.init()
         viewController.navigator = self
         
         return viewController

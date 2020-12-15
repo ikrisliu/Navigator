@@ -41,8 +41,8 @@ extension UIViewController {
 
 public extension UIViewController.Name {
     
-    static let invalid = UIViewController.Name("")
-    static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
+    @objc static let invalid = UIViewController.Name("")
+    @objc static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
 }
 
 extension UIViewController {

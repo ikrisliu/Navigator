@@ -9,6 +9,7 @@
 import UIKit
 
 public typealias CompletionClosure = (Bool, Any?) -> Void
+public typealias ViewControllerCreator = () -> UIViewController
 
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
@@ -18,12 +19,15 @@ public class PageObject: NSObject {
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
     public let vcName: UIViewController.Name
     
+    /// Create a view controller instance instead of vcName, if use this closure, vcName should be `UIViewController.Name.invalid`
+    public let vcCreator: ViewControllerCreator?
+    
     /// Navigation controller class name (Used for containing the view controller)
     /// If `viewController` is actually UINavigationController or its subclass, ignore this variable.
     public let navName: UIViewController.Name?
     
     /// See **Navigator.Mode** (push, present and so on)
-     /// If is present mode and `navigationController` is nil, will create a navigation controller for `viewController`.
+     /// If is `present` mode and `navName` is nil, will create a navigation controller for the content view controller.
     public var mode: Navigator.Mode = .push
     
     /// Navigation or view controller's title
@@ -64,19 +68,22 @@ public class PageObject: NSObject {
     /// If need decouple view controller classes, should call below initializers by passing class Name.
     ///
     /// - Parameters:
-    ///   - viewController: View controller class name (For swift, the class name should be "ModuleName.ClassName")
+    ///   - vcName: View controller class name (For swift, the class name should be "ModuleName.ClassName")
+    ///   - vcCreator: View controller creator closure for creating a vc instance
     ///   - navigationController: Navigation controller class name (Used for containing the view controller)
     ///   - mode: See **Navigator.Mode** (push, present and so on)
     ///   - title: Navigation or view controller's title
     ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
     ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    public init(vcName: UIViewController.Name,
-                navName: UIViewController.Name? = nil,
-                mode: Navigator.Mode = .push,
-                title: String? = nil,
-                extraData: Any? = nil,
-                children: [PageObject]? = nil) {
+    private init(vcName: UIViewController.Name,
+                 vcCreator: ViewControllerCreator? = nil,
+                 navName: UIViewController.Name? = nil,
+                 mode: Navigator.Mode = .push,
+                 title: String? = nil,
+                 extraData: Any? = nil,
+                 children: [PageObject]? = nil) {
         self.vcName = vcName
+        self.vcCreator = vcCreator
         self.navName = navName
         self.mode = mode
         self.title = title
@@ -133,6 +140,15 @@ public extension PageObject {
     
     convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type? = nil, title: String? = nil, children: [PageObject]) {
         self.init(vcClass: vcClass, navClass: navClass, mode: .reset, title: title, children: children)
+    }
+    
+    convenience init(vcCreator: @escaping ViewControllerCreator, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
+        let navName = (mode == .present) ? UIViewController.Name.defaultNavigation : nil
+        self.init(vcName: .invalid, vcCreator: vcCreator, navName: navName, mode: mode, title: title, extraData: extraData)
+    }
+    
+    convenience init(vcCreator: @escaping ViewControllerCreator, navName: UIViewController.Name? = nil, title: String? = nil, children: [PageObject]) {
+        self.init(vcName: .invalid, vcCreator: vcCreator, navName: navName, mode: .reset, title: title, children: children)
     }
 }
 
