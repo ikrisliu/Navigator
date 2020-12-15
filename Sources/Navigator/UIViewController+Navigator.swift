@@ -45,6 +45,14 @@ public extension UIViewController.Name {
     @objc static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
 }
 
+private enum AssociationKey {
+    static var navigator: UInt8 = 0
+    static var navigatorMode: UInt8 = 0
+    static var navigatorTransition: UInt8 = 0
+    static var pageObject: UInt8 = 0
+    static var contextData: UInt8 = 0
+}
+
 extension UIViewController {
     
     /// Add a navigator variable for each view controller(VC) instance. So VC can open other VCs by navigator to decouple.
@@ -68,21 +76,49 @@ extension UIViewController {
         }
     }
     
+    @objc public internal(set) var pageObject: PageObject? {
+        get {
+            objc_getAssociatedObject(self, &AssociationKey.pageObject) as? PageObject
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociationKey.pageObject, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
     /// Custom view controllers can override this variable to determine if need respond the deep linking.
     /// If return true, it will do nothing when open App via deep linking.
     @objc open var ignoreDeepLinking: Bool { false }
+}
+
+/// Context data which cross view controllers for the same navigator
+extension UIViewController {
     
-    var isDismissable: Bool {
-        navigatorMode == .present || navigatorMode == .overlay || navigatorMode == .popover
+    @objc public func setContext(_ data: [String: Any]) {
+        objc_setAssociatedObject(self, &AssociationKey.contextData, data, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
+    
+    private var _context: [String: Any] {
+        objc_getAssociatedObject(self, &AssociationKey.contextData) as? [String: Any] ?? [:]
+    }
+    
+    @objc public var context: [String: Any] {
+        guard let vcs = navigator?.stack.compactMap({ $0.viewController }) else { return [:] }
+        guard let index = vcs.firstIndex(of: self) else { return [:] }
+        
+        return vcs.prefix(through: index).map({ $0._context }).reduce([:]) { (result, dict) -> [String: Any] in
+            result.merging(dict) { (_, new) in new }
+        }
+    }
+    
+    public func context<T>(forKey: String) -> [T]? {
+        navigator?.stack.compactMap { $0.viewController?._context[forKey] } as? [T]
     }
 }
 
 extension UIViewController {
     
-    private enum AssociationKey {
-        static var navigator: UInt8 = 0
-        static var navigatorMode: UInt8 = 0
-        static var navigatorTransition: UInt8 = 0
+    var isDismissable: Bool {
+        navigatorMode == .present || navigatorMode == .overlay || navigatorMode == .popover
     }
     
     var p_navigatorTransition: Transition? {

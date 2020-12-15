@@ -295,6 +295,7 @@ extension Navigator {
             viewController = vcType.init()
         }
         viewController.navigator = self
+        viewController.pageObject = page
         
         return viewController
     }

@@ -30,6 +30,8 @@ class DetailViewController: UIViewController, Navigatable {
         if navigatorMode == .present {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onTapClose))
         }
+        
+        print("Context data: \(context)")
     }
     
     deinit {

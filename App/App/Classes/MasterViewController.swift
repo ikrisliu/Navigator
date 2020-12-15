@@ -21,6 +21,8 @@ class MasterViewController: UITableViewController {
         let popover = UIBarButtonItem(title: "Popover", style: .plain, target: self, action: #selector(onPopover))
         
         navigationItem.rightBarButtonItems = [overlay, popover]
+        
+        setContext(["data": "This is context data."])
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
