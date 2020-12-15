@@ -101,6 +101,7 @@ extension UIViewController {
         objc_getAssociatedObject(self, &AssociationKey.contextData) as? [String: Any] ?? [:]
     }
     
+    /// Get all context data, if has same key among view controllers, use the newest value which nearest from the current view controller.
     @objc public var context: [String: Any] {
         guard let vcs = navigator?.stack.compactMap({ $0.viewController }) else { return [:] }
         guard let index = vcs.firstIndex(of: self) else { return [:] }
