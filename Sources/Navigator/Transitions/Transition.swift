@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 5/28/18.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit

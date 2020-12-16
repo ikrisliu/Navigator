@@ -3,7 +3,7 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 2018/9/13.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -32,6 +32,17 @@ class DetailViewController: UIViewController, Navigatable {
         }
         
         print("Context data: \(context)")
+        
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = String(arc4random())
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 32)
+        view.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
     
     deinit {

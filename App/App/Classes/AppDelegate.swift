@@ -3,7 +3,7 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 5/11/18.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -27,6 +27,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Navigator.root.window = window
         Navigator.root.show(tabPages)
+        
+        UINavigationBar.appearance().isTranslucent = false
+        UITabBar.appearance().isTranslucent = false
         
         return true
     }

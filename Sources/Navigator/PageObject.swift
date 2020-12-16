@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 2019/1/1.
-//  Copyright © 2019 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -70,7 +70,7 @@ public class PageObject: NSObject {
     /// - Parameters:
     ///   - vcName: View controller class name (For swift, the class name should be "ModuleName.ClassName")
     ///   - vcCreator: View controller creator closure for creating a vc instance
-    ///   - navigationController: Navigation controller class name (Used for containing the view controller)
+    ///   - navName: Navigation controller class name (Used for containing the view controller)
     ///   - mode: See **Navigator.Mode** (push, present and so on)
     ///   - title: Navigation or view controller's title
     ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.

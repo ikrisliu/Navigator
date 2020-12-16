@@ -3,7 +3,7 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 5/11/18.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -36,13 +36,21 @@ class TabItemViewController: UIViewController, Navigatable {
         view.backgroundColor = UIColor(red: .random(), green: .random(), blue: .random(), alpha: 1.0)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapShowViewControler)))
         
-        guard let tuple = tuple else { return }
         let label = UILabel()
-        label.frame = view.frame
-        label.autoresizingMask = [.flexibleWidth, .flexibleWidth]
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.text = tuple.greeting + String(tuple.message)
+        label.font = .systemFont(ofSize: 32)
         view.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        
+        if let tuple = tuple {
+            label.text = tuple.greeting + String(tuple.message)
+        } else {
+            label.text = String(arc4random())
+        }
     }
     
     deinit {
@@ -55,8 +63,7 @@ private extension TabItemViewController {
     
     @objc dynamic func onTapShowViewControler() {
         let page = PageObject(vcClass: DetailViewController.self, mode: .present, title: String(arc4random()), extraData: "Passed a string type data")
-//        page.transitionClass = ScaleTransition.self
-        page.transitionClass = MatrixTransition.self
+        page.transitionClass = PushTransition.self
         navigator?.show(page)
     }
     

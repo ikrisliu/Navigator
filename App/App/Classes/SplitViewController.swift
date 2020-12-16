@@ -3,7 +3,7 @@
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 2018/9/13.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit
@@ -21,6 +21,8 @@ class SplitViewController: UISplitViewController, UISplitViewControllerDelegate 
         
         delegate = self
         maximumPrimaryColumnWidth = 300
+        
+        extendedLayoutIncludesOpaqueBars = true // Set it true because of iOS 14.3 bug
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {

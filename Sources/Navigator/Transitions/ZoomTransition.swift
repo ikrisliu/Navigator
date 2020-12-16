@@ -1,14 +1,14 @@
 //
-//  ScaleTransition.swift
+//  ZoomTransition.swift
 //  Navigator
 //
 //  Created by Kris Liu on 2018/8/25.
-//  Copyright © 2018 Crescent. All rights reserved.
+//  Copyright © 2021 Crescent. All rights reserved.
 //
 
 import UIKit
 
-@objc public class ScaleTransition: Transition {
+@objc public class ZoomTransition: Transition {
     
     private lazy var dimmedBackgroundView: UIView = {
         let view = UIView()

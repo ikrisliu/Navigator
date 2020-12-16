@@ -3,7 +3,7 @@
 //  Navigator
 //
 //  Created by Kris Liu on 2019/11/21.
-//  Copyright © 2019 Syzygy. All rights reserved.
+//  Copyright © 2021 Syzygy. All rights reserved.
 //
 
 import UIKit
@@ -70,7 +70,6 @@ import UIKit
             }
             
             let translationX = toView != nil ? -toView!.bounds.width / 3 : 0
-            
             toTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
             
             UIView.animate(withDuration: animationDuration, animations: {
