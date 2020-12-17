@@ -19,7 +19,7 @@ import UIKit
     
     public required init() {
         super.init()
-        interactiveGestureEnabled = true
+        interactiveGestureEdges = [.top, .bottom]
         orientation = .vertical
     }
     
