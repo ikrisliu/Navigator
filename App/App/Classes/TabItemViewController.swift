@@ -12,13 +12,11 @@ import Navigator
 class TabItemViewController: UIViewController, Navigatable {
 
     private typealias TupleType = (greeting: String, message: UInt32)
-    private var page: PageObject?
     private var tuple: TupleType?
     
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         print("Received data before show from \(String(describing: fromVC)): \(page)")
         
-        self.page = page
         title = page.title ?? "Favorites"
         tuple = page.extraData as? TupleType
         
@@ -55,7 +53,7 @@ class TabItemViewController: UIViewController, Navigatable {
     
     deinit {
         debugPrint("FREE MEMORY: \(self)")
-        navigator?.sendDataAfterBack(page?.extraData)
+        navigator?.sendDataAfterBack(pageObject?.extraData)
     }
 }
 

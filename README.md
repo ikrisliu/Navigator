@@ -211,3 +211,22 @@ class DetailViewController: UIViewController, Navigatable {
     }
 }
 ```
+
+### Context Data
+If set context data in view controller A and open view controller B -> C by sequence, you can easily get the context data in view controller B or C.
+
+```swift
+class ViewControllerA: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setContext(["data": "This is context data."])
+    }
+}
+
+class ViewControllerC: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print(context)
+    }
+}
+```
