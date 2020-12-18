@@ -11,7 +11,9 @@ Navigator is a generic navigation framework for view controllers. It can decoupl
 - Data passing between view controllers bidirectional, inject data provider implementation for mocking data.
 - Navigation between view controllers with system default or custom transition animation
 - Support deep link and universal link
-- Goto any navigator
+- Goto any view controller of any navigator
+- Set context data and share it among view controllers
+- Custmize view controller transition animation
 
 ## Architecture
 <p align="center"><img src ="./Images/Navigator.jpg" /></p>
