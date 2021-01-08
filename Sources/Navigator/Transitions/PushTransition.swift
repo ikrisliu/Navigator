@@ -75,11 +75,16 @@ import UIKit
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.0
                 
-                self.setNavigationBarAlpha(navBar: fromNavBar, alpha: 0.0)
-                fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
+                if toNavBar?.isTranslucent == false {
+                    self.setNavigationBarAlpha(navBar: fromNavBar, alpha: 0.0)
+                    fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
+                } else {
+                    fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
+                }
                 
                 toTransView?.transform = .identity
             }, completion: { _ in
+                toTransView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         }

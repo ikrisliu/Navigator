@@ -27,7 +27,8 @@ import UIKit
     @objc public var sourceRect: CGRect = .zero
     
     @objc public var isVertical: Bool { orientation == .vertical }
-    @objc public private(set) weak var transitionContext: UIViewControllerContextTransitioning!
+    @objc public var transitionContext: UIViewControllerContextTransitioning { _transitionContext! }
+    private weak var _transitionContext: UIViewControllerContextTransitioning?
     
     /// Show or Dismiss
     @objc public private(set) var isShow = false
@@ -81,7 +82,7 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     }
     
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        self.transitionContext = transitionContext
+        _transitionContext = transitionContext
         
         let fromView = transitionContext.view(forKey: .from)
         let toView = transitionContext.view(forKey: .to)
@@ -202,6 +203,10 @@ extension Transition {
         
         switch recognizer.state {
         case .began:
+            if _transitionContext?.isAnimated == true {
+                finish()
+                return
+            }
             if verticalPanGesture != nil && translation.y < 0 { return }
             
             isInteractive = true
@@ -220,10 +225,10 @@ extension Transition {
             let isFinish = isVertical ? offset > recognizerView.bounds.height / 2 : offset > recognizerView.bounds.width / 2
             
             if isFinish {
-                completionSpeed = (1.0 - percentComplete) / 2
+                completionSpeed = (1.0 - percentComplete)
                 finish()
             } else {
-                completionSpeed = 0.1
+                completionSpeed = 0.25
                 cancel()
             }
             

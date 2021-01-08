@@ -181,7 +181,7 @@ extension Navigator {
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
-        toVC.modalPresentationStyle = page.presentationStyle
+        toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? page.presentationStyle : .currentContext
         passPageObject(page, fromVC: topViewController, toVC: viewController)
         sendDataBeforeShow(page.extraData, fromVC: topViewController, toVC: viewController)
         

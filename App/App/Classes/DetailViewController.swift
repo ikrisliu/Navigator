@@ -49,6 +49,11 @@ class DetailViewController: UIViewController, Navigatable {
         debugPrint("FREE MEMORY: \(self)")
     }
     
+    override var hidesBottomBarWhenPushed: Bool {
+        get { true }
+        set { super.hidesBottomBarWhenPushed = newValue }
+    }
+    
     override var ignoreDeepLinking: Bool { true }
 }
 
