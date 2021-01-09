@@ -27,7 +27,7 @@ class DetailViewController: UIViewController, Navigatable {
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
         }
         
-        if navigatorMode == .present {
+        if navigatorMode == .customPush {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onTapClose))
         }
         

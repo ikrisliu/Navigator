@@ -46,7 +46,7 @@ public class PageObject: NSObject {
     /// need pass a transition class which creates a custom presentation view controller.
     public var presentationStyle: UIModalPresentationStyle = .fullScreen
     
-    /// Transition class type for custom transition animation
+    /// Transition class type for custom transition animation. If navigator mode is `customPush`, the transition class will be `PushTransition` which can't be changed.
     public var transitionClass: Transition.Type?
     
     /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
@@ -84,14 +84,19 @@ public class PageObject: NSObject {
                  children: [PageObject]? = nil) {
         self.vcName = vcName
         self.vcCreator = vcCreator
-        self.navName = navName
         self.mode = mode
         self.title = title
         self.extraData = extraData
         self.children = children
         
-        let size = UIScreen.main.bounds.size
+        switch mode {
+        case .present, .customPush:
+            self.navName = navName ?? UIViewController.Name.defaultNavigation
+        case .reset, .goto, .push, .overlay, .popover:
+            self.navName = navName
+        }
         
+        let size = UIScreen.main.bounds.size
         if mode == .overlay {
             sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: size.height / 2))
         } else if mode == .popover {
@@ -104,8 +109,7 @@ public class PageObject: NSObject {
 public extension PageObject {
     
     convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        let navName = (mode == .present) ? UIViewController.Name.defaultNavigation : nil
-        self.init(vcName: vcName, navName: navName, mode: mode, title: title, extraData: extraData)
+        self.init(vcName: vcName, navName: nil, mode: mode, title: title, extraData: extraData)
     }
     
     convenience init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, title: String? = nil, children: [PageObject]) {
@@ -134,8 +138,7 @@ public extension PageObject {
     }
     
     convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        let navClass = (mode == .present) ? Navigator.defaultNavigationControllerClass : nil
-        self.init(vcClass: vcClass, navClass: navClass, mode: mode, title: title, extraData: extraData)
+        self.init(vcClass: vcClass, navClass: nil, mode: mode, title: title, extraData: extraData)
     }
     
     convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type? = nil, title: String? = nil, children: [PageObject]) {
@@ -143,12 +146,11 @@ public extension PageObject {
     }
     
     convenience init(vcCreator: @escaping ViewControllerCreator, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        let navName = (mode == .present) ? UIViewController.Name.defaultNavigation : nil
-        self.init(vcName: .invalid, vcCreator: vcCreator, navName: navName, mode: mode, title: title, extraData: extraData)
+        self.init(vcName: .empty, vcCreator: vcCreator, navName: nil, mode: mode, title: title, extraData: extraData)
     }
     
     convenience init(vcCreator: @escaping ViewControllerCreator, navName: UIViewController.Name? = nil, title: String? = nil, children: [PageObject]) {
-        self.init(vcName: .invalid, vcCreator: vcCreator, navName: navName, mode: .reset, title: title, children: children)
+        self.init(vcName: .empty, vcCreator: vcCreator, navName: navName, mode: .reset, title: title, children: children)
     }
 }
 

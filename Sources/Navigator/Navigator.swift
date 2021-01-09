@@ -325,7 +325,9 @@ public extension Navigator {
         case goto
         case push
         case present
-        // The presentationStyle must be forced with `custom` when mode is overlay/popover
+        /// Use view controller present method to simulate system push behaviour via `PushTransition` animation
+        case customPush
+        /// The presentationStyle must be forced with `custom` when mode is overlay/popover
         case overlay
         case popover
         
@@ -335,6 +337,7 @@ public extension Navigator {
             case .goto: return "goto"
             case .push: return "push"
             case .present: return "present"
+            case .customPush: return "customPush"
             case .overlay: return "overlay"
             case .popover: return "popover"
             }

@@ -181,7 +181,7 @@ extension Navigator {
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
-        toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? page.presentationStyle : .currentContext
+        toVC.modalPresentationStyle = page.presentationStyle
         passPageObject(page, fromVC: topViewController, toVC: viewController)
         sendDataBeforeShow(page.extraData, fromVC: topViewController, toVC: viewController)
         
@@ -192,6 +192,10 @@ extension Navigator {
             setupTransition(page, for: topViewController?.navigationController)
             navigationController?.pushViewController(toVC, animated: animated, completion: completion)
         case .present:
+            setupTransition(page, for: toVC)
+            topViewController?.present(toVC, animated: animated, completion: completion)
+        case .customPush:
+            toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
         case .overlay, .popover:
@@ -230,7 +234,7 @@ extension Navigator {
     
     // Set custom tranistion animation when push or present a view controller
     func setupTransition(_ page: PageObject, for viewController: UIViewController?) {
-        if let transitionClass = page.transitionClass, let vc = viewController {
+        if let transitionClass = (page.mode == .customPush ? PushTransition.self : page.transitionClass), let vc = viewController {
             vc.p_navigatorTransition = transitionClass.init()
             
             if var sourceRect = page.sourceRect {

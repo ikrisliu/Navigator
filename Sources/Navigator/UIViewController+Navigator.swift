@@ -41,7 +41,7 @@ extension UIViewController {
 
 public extension UIViewController.Name {
     
-    @objc static let invalid = UIViewController.Name("")
+    @objc static let empty = UIViewController.Name("")
     @objc static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
 }
 
@@ -119,7 +119,12 @@ extension UIViewController {
 extension UIViewController {
     
     var isDismissable: Bool {
-        navigatorMode == .present || navigatorMode == .overlay || navigatorMode == .popover
+        switch navigatorMode {
+        case .present, .customPush, .overlay, .popover:
+            return true
+        case .reset, .goto, .push:
+            return false
+        }
     }
     
     var p_navigatorTransition: Transition? {

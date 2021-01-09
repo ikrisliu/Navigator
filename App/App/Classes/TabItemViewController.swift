@@ -60,8 +60,7 @@ class TabItemViewController: UIViewController, Navigatable {
 private extension TabItemViewController {
     
     @objc dynamic func onTapShowViewControler() {
-        let page = PageObject(vcClass: DetailViewController.self, mode: .present, title: String(arc4random()), extraData: "Passed a string type data")
-        page.transitionClass = PushTransition.self
+        let page = PageObject(vcClass: DetailViewController.self, mode: .customPush, title: String(arc4random()), extraData: "Passed a string type data")
         navigator?.show(page)
     }
     
