@@ -234,7 +234,7 @@ extension Navigator {
     
     // Set custom tranistion animation when push or present a view controller
     func setupTransition(_ page: PageObject, for viewController: UIViewController?) {
-        if let transitionClass = (page.mode == .customPush ? PushTransition.self : page.transitionClass), let vc = viewController {
+        if let transitionClass = page.transitionClass, let vc = viewController {
             vc.p_navigatorTransition = transitionClass.init()
             
             if var sourceRect = page.sourceRect {

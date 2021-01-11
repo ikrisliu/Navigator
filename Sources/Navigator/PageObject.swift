@@ -46,7 +46,7 @@ public class PageObject: NSObject {
     /// need pass a transition class which creates a custom presentation view controller.
     public var presentationStyle: UIModalPresentationStyle = .fullScreen
     
-    /// Transition class type for custom transition animation. If navigator mode is `customPush`, the transition class will be `PushTransition` which can't be changed.
+    /// Transition class type for custom transition animation. If navigator mode is `customPush`, the transition class will be `PushTransition` by default.
     public var transitionClass: Transition.Type?
     
     /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
@@ -90,8 +90,11 @@ public class PageObject: NSObject {
         self.children = children
         
         switch mode {
-        case .present, .customPush:
+        case .present:
             self.navName = navName ?? UIViewController.Name.defaultNavigation
+        case .customPush:
+            self.navName = navName ?? UIViewController.Name.defaultNavigation
+            self.transitionClass = PushTransition.self
         case .reset, .goto, .push, .overlay, .popover:
             self.navName = navName
         }
