@@ -367,17 +367,20 @@ extension Navigator {
     // Disallow dismiss the root view controller
     func dismissViewControllers(level: Int, completion: CompletionBlock?) {
         if level < 0 && (stackCount + level) <= 0 { return }
+        
+        let vcs = getStack(from: level).dropLast()
         guard let dismissedVC = popStack(from: level) else { return }
         
         if dismissedVC.isDismissable {
+            // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle`
+            vcs.forEach({ $0.dismiss(animated: false, completion: nil) })
             dismissViewController(dismissedVC, completion: completion)
-            return
-        }
-        
-        if let nav = dismissedVC.navigationController {
-            popViewController(dismissedVC, fromNav: nav, completion: completion)
         } else {
-            dismissViewController(dismissedVC.navigationController ?? dismissedVC, completion: completion)
+            if let nav = dismissedVC.navigationController {
+                popViewController(dismissedVC, fromNav: nav, completion: completion)
+            } else {
+                dismissViewController(dismissedVC.navigationController ?? dismissedVC, completion: completion)
+            }
         }
     }
     

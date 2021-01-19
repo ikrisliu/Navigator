@@ -58,6 +58,6 @@ import UIKit
 private extension PopoverPresentationController {
     
     @objc dynamic func onTapDimmedBackgroundView() {
-        presentingViewController.dismiss(animated: true, completion: nil)
+        presentingViewController.navigator?.dismiss(animated: true, completion: nil)
     }
 }

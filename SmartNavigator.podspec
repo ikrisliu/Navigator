@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'SmartNavigator'
-  s.version = '1.5.0'
+  s.version = '1.5.1'
   s.license = 'MIT'
   s.summary = 'Generic navigation framework for view controllers'
   s.homepage = 'https://github.com/iKrisLiu/Navigator'

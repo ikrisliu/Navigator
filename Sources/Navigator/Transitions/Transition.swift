@@ -63,7 +63,7 @@ import UIKit
     
     // MARK: - Private -
     // Whether start interaction, different usage with variable interactiveGestureEdges. Must need this flag.
-    private var isInteractive: Bool = false
+    private var isInteractionInProgress: Bool = false
     private var leftPanGesture: UIPanGestureRecognizer?
     private var rightPanGesture: UIPanGestureRecognizer?
     private var verticalPanGesture: UIPanGestureRecognizer?
@@ -99,7 +99,7 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     
     public func animationEnded(_ transitionCompleted: Bool) {
         isShow = false
-        isInteractive = false
+        isInteractionInProgress = false
     }
 }
 
@@ -123,7 +123,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
     
     public func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
         isShow = false
-        return (isInteractive && type(of: self) != Transition.self) ? self : nil
+        return (isInteractionInProgress && type(of: self) != Transition.self) ? self : nil
     }
     
 //    public func interactionControllerForPresentation(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
@@ -142,7 +142,7 @@ extension Transition: UINavigationControllerDelegate {
     
     public func navigationController(_ navigationController: UINavigationController,
                                      interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
-        isInteractive ? self : nil
+        isInteractionInProgress ? self : nil
     }
     
     public func navigationController(_ navigationController: UINavigationController,
@@ -170,7 +170,8 @@ extension Transition: UINavigationControllerDelegate {
 extension Transition {
     
     private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController?) {
-        guard let vc = viewController, !interactiveGestureEdges.isEmpty else { return }
+        guard let vc = (viewController as? UINavigationController)?.topViewController ?? viewController,
+              !interactiveGestureEdges.isEmpty else { return }
 
         if interactiveGestureEdges.contains(.left) {
             leftPanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
@@ -209,16 +210,18 @@ extension Transition {
             }
             if verticalPanGesture != nil && translation.y < 0 { return }
             
-            isInteractive = true
+            isInteractionInProgress = true
             startLocation = recognizer.location(in: recognizerView.superview)
-            handleViewController(velocity)
+            handleViewController()
             
         case .changed:
             let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((abs(translation.x) + xLocation) / recognizerView.bounds.width)
             update(isReverse ? ratio - 1 : ratio)
             
         case .ended:
-            isInteractive = false
+            guard isInteractionInProgress else { return }
+            
+            isInteractionInProgress = false
             xLocation = isReverse ? recognizerView.bounds.width - xLocation : xLocation
             
             let offset = isVertical ? CGFloat.maximum(yVelocity / 2, translation.y + yLocation) : CGFloat.maximum(xVelocity / 2, abs(translation.x) + xLocation)
@@ -227,13 +230,14 @@ extension Transition {
             if isFinish {
                 completionSpeed = (1.0 - percentComplete)
                 finish()
+                popPresentedViewController()
             } else {
                 completionSpeed = 0.25
                 cancel()
             }
             
         case .failed, .cancelled:
-            isInteractive = false
+            isInteractionInProgress = false
             cancel()
             
         default:
@@ -241,7 +245,11 @@ extension Transition {
         }
     }
     
-    private func handleViewController(_ velocity: CGPoint) {
+    private func popPresentedViewController() {
+        presentedVC?.navigator?.popStack()
+    }
+    
+    private func handleViewController() {
         if isModal {
             if isShow {
                 if let vc = presentedVC {
