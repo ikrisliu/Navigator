@@ -52,7 +52,7 @@ extension Navigator {
     
     func getStack(from level: Int = 0) -> [UIViewController] {
         let index = level >= 0 ? level + 1 : max(stackCount + level, 0)
-        guard index < stackCount else { return [] }
+        guard index <= stackCount else { return [] }
         
         return stack.prefix(max(index, 0)).compactMap({ $0.viewController })
     }
