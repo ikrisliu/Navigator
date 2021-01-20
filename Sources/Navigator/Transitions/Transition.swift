@@ -72,6 +72,7 @@ import UIKit
     private weak var presentedVC: UIViewController?
     private weak var presentingVC: UIViewController?
     private weak var navController: UINavigationController?
+    private weak var panGestureVC: UIViewController?
 }
 
 // MARK: - UIViewControllerAnimatedTransitioning
@@ -98,6 +99,10 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     }
     
     public func animationEnded(_ transitionCompleted: Bool) {
+        if !isShow {
+            panGestureVC?.didFinishDismissing(.interactiveGesture)
+        }
+        
         isShow = false
         isInteractionInProgress = false
     }
@@ -171,7 +176,8 @@ extension Transition {
     
     private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController?) {
         guard let vc = (viewController as? UINavigationController)?.topViewController ?? viewController,
-              !interactiveGestureEdges.isEmpty else { return }
+              !interactiveGestureEdges.isEmpty, vc.enableInteractiveDismissGesture else { return }
+        panGestureVC = vc
 
         if interactiveGestureEdges.contains(.left) {
             leftPanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
@@ -204,6 +210,10 @@ extension Transition {
         
         switch recognizer.state {
         case .began:
+            if panGestureVC?.shouldDismissByInteractiveGesture != true {
+                cancel()
+                return
+            }
             if _transitionContext?.isAnimated == true {
                 finish()
                 return
@@ -215,6 +225,8 @@ extension Transition {
             handleViewController()
             
         case .changed:
+            guard isInteractionInProgress else { return }
+            
             let ratio = isVertical ? (translation.y / recognizerView.bounds.height) : ((abs(translation.x) + xLocation) / recognizerView.bounds.width)
             update(isReverse ? ratio - 1 : ratio)
             
@@ -229,8 +241,7 @@ extension Transition {
             
             if isFinish {
                 completionSpeed = (1.0 - percentComplete)
-                finish()
-                popPresentedViewController()
+                finishAll()
             } else {
                 completionSpeed = 0.25
                 cancel()
@@ -245,8 +256,10 @@ extension Transition {
         }
     }
     
-    private func popPresentedViewController() {
-        presentedVC?.navigator?.popStack()
+    func finishAll() {
+        panGestureVC?.willFinishDismissing(.interactiveGesture)
+        finish()
+        presentedVC?.navigator?.popStack()  // To avoid the retain cycled vc can't be removed from navigator stack
     }
     
     private func handleViewController() {

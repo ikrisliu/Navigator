@@ -47,15 +47,14 @@ extension Navigator {
     @discardableResult func popStack(from level: Int = 0) -> UIViewController? {
         let viewControllers = getStack(from: level)
         stack.removeLast(viewControllers.count)
-        return viewControllers.first
+        return viewControllers.last
     }
     
     func getStack(from level: Int = 0) -> [UIViewController] {
-        let index = level >= 0 ? level : max(stackCount + level - 1, 0)
+        let index = level >= 0 ? level + 1 : max(stackCount + level, 0)
         guard index < stackCount else { return [] }
         
-        let lasts = max(index, 0)
-        return stack.suffix(min(stackCount, lasts + 1)).compactMap({ $0.viewController })
+        return stack.prefix(max(index, 0)).compactMap({ $0.viewController })
     }
     
     @discardableResult
@@ -71,7 +70,7 @@ extension Navigator {
     
     var stackLevelForTopPresentedVC: Int? {
         for idx in (0..<stackCount) {
-            if let vc = getStack(from: idx).first, (vc.isDismissable || vc.navigationController?.isDismissable == true) {
+            if let vc = getStack(from: idx).last, (vc.isDismissable || vc.navigationController?.isDismissable == true) {
                 return idx
             }
         }
@@ -373,7 +372,13 @@ extension Navigator {
         
         if dismissedVC.isDismissable {
             // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle`
-            vcs.forEach({ $0.dismiss(animated: false, completion: nil) })
+            vcs.forEach({
+                if $0.isDismissable {
+                    $0.dismiss(animated: false, completion: nil)
+                } else {
+                    $0.navigationController?.popToViewController($0, animated: false)
+                }
+            })
             dismissViewController(dismissedVC, completion: completion)
         } else {
             if let nav = dismissedVC.navigationController {

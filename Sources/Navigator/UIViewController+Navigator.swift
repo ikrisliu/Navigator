@@ -8,6 +8,7 @@
 
 import UIKit
 
+// MARK: - UIViewController.Name
 extension UIViewController {
     
     @objc public class Name: NSObject, RawRepresentable {
@@ -45,6 +46,38 @@ public extension UIViewController.Name {
     @objc static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
 }
 
+// MARK: - Open Methods
+@objc public enum DismissAction: Int {
+    case tap
+    case tapOutside // For `overlay` or `popover` mode
+    case interactiveGesture
+}
+
+extension UIViewController {
+    
+    /// If enable interactive dismiss gesture for presented view controller which mode must be `customPush`
+    @objc open var enableInteractiveDismissGesture: Bool { true }
+    
+    /// If should dismiss view controller which mode must be `customPush` when triggered an interactive pan gesture
+    @objc open var shouldDismissByInteractiveGesture: Bool { true }
+    
+    /// Custom view controllers can override this variable to determine if need respond the deep linking.
+    /// If return true, it will do nothing when open App via deep linking.
+    @objc open var ignoreDeepLinking: Bool { false }
+    
+    /// When create a left navigation bar button item, you should use this method as target `selector`.
+    @objc dynamic open func onDismiss() {
+        willFinishDismissing(.tap)
+        navigator?.dismiss { [weak self] in
+            self?.didFinishDismissing(.tap)
+        }
+    }
+    
+    @objc open func willFinishDismissing(_ action: DismissAction) { }
+    @objc open func didFinishDismissing(_ action: DismissAction) { }
+}
+
+// MARK: - Public Properties
 private enum AssociationKey {
     static var navigator: UInt8 = 0
     static var navigatorMode: UInt8 = 0
@@ -84,12 +117,9 @@ extension UIViewController {
             objc_setAssociatedObject(self, &AssociationKey.pageObject, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
-    
-    /// Custom view controllers can override this variable to determine if need respond the deep linking.
-    /// If return true, it will do nothing when open App via deep linking.
-    @objc open var ignoreDeepLinking: Bool { false }
 }
 
+// MARK: - Context Data
 /// Context data which cross view controllers for the same navigator
 extension UIViewController {
     
@@ -116,6 +146,7 @@ extension UIViewController {
     }
 }
 
+// MARK: - Internal
 extension UIViewController {
     
     var isDismissable: Bool {

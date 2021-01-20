@@ -17,13 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var tabPages: PageObject!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let firstTab = PageObject(vcClass: TabItemViewController.self, navClass: UINavigationController.self)
+        let firstTab = PageObject(vcClass: TabItemViewController.self, navClass: UINavigationController.self, mode: .reset)
         
-        let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self)
-        let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self)
-        let secondTab = PageObject(vcClass: SplitViewController.self, children: [master, detail])
+        let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self, mode: .reset)
+        let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self, mode: .reset)
+        let secondTab = PageObject(vcClass: SplitViewController.self, navClass: nil, children: [master, detail])
         
-        tabPages = PageObject(vcClass: UITabBarController.self, mode: .reset, children: [firstTab, secondTab])
+        tabPages = PageObject(vcClass: UITabBarController.self, navClass: nil, mode: .reset, children: [firstTab, secondTab])
         
         Navigator.root.window = window
         Navigator.root.show(tabPages)

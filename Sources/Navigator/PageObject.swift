@@ -70,7 +70,7 @@ public class PageObject: NSObject {
     /// - Parameters:
     ///   - vcName: View controller class name (For swift, the class name should be "ModuleName.ClassName")
     ///   - vcCreator: View controller creator closure for creating a vc instance
-    ///   - navName: Navigation controller class name (Used for containing the view controller)
+    ///   - navName: Navigation controller class name (Used for containing the view controller), it alwayes `nil` for `push` and `goto` mode.
     ///   - mode: See **Navigator.Mode** (push, present and so on)
     ///   - title: Navigation or view controller's title
     ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
@@ -90,12 +90,12 @@ public class PageObject: NSObject {
         self.children = children
         
         switch mode {
-        case .present:
-            self.navName = navName ?? UIViewController.Name.defaultNavigation
+        case .push, .goto:
+            self.navName = nil
         case .customPush:
-            self.navName = navName ?? UIViewController.Name.defaultNavigation
+            self.navName = navName
             self.transitionClass = PushTransition.self
-        case .reset, .goto, .push, .overlay, .popover:
+        case .reset, .present, .overlay, .popover:
             self.navName = navName
         }
         
@@ -112,10 +112,10 @@ public class PageObject: NSObject {
 public extension PageObject {
     
     convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        self.init(vcName: vcName, navName: nil, mode: mode, title: title, extraData: extraData)
+        self.init(vcName: vcName, navName: .defaultNavigation, mode: mode, title: title, extraData: extraData)
     }
     
-    convenience init(vcName: UIViewController.Name, navName: UIViewController.Name? = nil, title: String? = nil, children: [PageObject]) {
+    convenience init(vcName: UIViewController.Name, navName: UIViewController.Name?, title: String? = nil, children: [PageObject]) {
         self.init(vcName: vcName, navName: navName, mode: .reset, title: title, children: children)
     }
     
@@ -130,7 +130,7 @@ public extension PageObject {
     ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
     ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
     convenience init(vcClass: UIViewController.Type,
-                     navClass: UIViewController.Type? = nil,
+                     navClass: UIViewController.Type?,
                      mode: Navigator.Mode = .push,
                      title: String? = nil,
                      extraData: Any? = nil,
@@ -141,18 +141,18 @@ public extension PageObject {
     }
     
     convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        self.init(vcClass: vcClass, navClass: nil, mode: mode, title: title, extraData: extraData)
+        self.init(vcClass: vcClass, navClass: Navigator.defaultNavigationControllerClass, mode: mode, title: title, extraData: extraData)
     }
     
-    convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type? = nil, title: String? = nil, children: [PageObject]) {
+    convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type?, title: String? = nil, children: [PageObject]) {
         self.init(vcClass: vcClass, navClass: navClass, mode: .reset, title: title, children: children)
     }
     
     convenience init(vcCreator: @escaping ViewControllerCreator, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        self.init(vcName: .empty, vcCreator: vcCreator, navName: nil, mode: mode, title: title, extraData: extraData)
+        self.init(vcName: .empty, vcCreator: vcCreator, navName: .defaultNavigation, mode: mode, title: title, extraData: extraData)
     }
     
-    convenience init(vcCreator: @escaping ViewControllerCreator, navName: UIViewController.Name? = nil, title: String? = nil, children: [PageObject]) {
+    convenience init(vcCreator: @escaping ViewControllerCreator, navName: UIViewController.Name?, title: String? = nil, children: [PageObject]) {
         self.init(vcName: .empty, vcCreator: vcCreator, navName: navName, mode: .reset, title: title, children: children)
     }
 }

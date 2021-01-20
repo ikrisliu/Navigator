@@ -28,7 +28,7 @@ class DetailViewController: UIViewController, Navigatable {
         }
         
         if navigatorMode == .customPush {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onTapClose))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onDismiss))
         }
         
         print("Context data: \(context)")
@@ -55,6 +55,10 @@ class DetailViewController: UIViewController, Navigatable {
     }
     
     override var ignoreDeepLinking: Bool { true }
+    
+    override func onDismiss() {
+        navigator?.dismiss("\(self) is dismissed")
+    }
 }
 
 private extension DetailViewController {
@@ -71,9 +75,5 @@ private extension DetailViewController {
         
         let page = PageObject(vcCreator: { TabItemViewController() }, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(page)
-    }
-    
-    @objc dynamic func onTapClose() {
-        navigator?.dismiss("\(self) is dismissed")
     }
 }

@@ -45,7 +45,7 @@ class NavigatorTests: XCTestCase {
     }
     
     func testDismissTo() {
-        let vc = Navigator.root.getStack(from: 2).first!
+        let vc = Navigator.root.getStack(from: 2).last!
         var index = Navigator.root.stackIndex(of: vc)!
         XCTAssertEqual(index, 2)
         Navigator.root.popStack(from: Navigator.root.stackLevel(index)!)
