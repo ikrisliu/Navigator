@@ -65,8 +65,11 @@ extension UIViewController {
     /// If return true, it will do nothing when open App via deep linking.
     @objc open var ignoreDeepLinking: Bool { false }
     
+    /// This method will be triggered by touching system back button or interactive pan gesture, the vc's navigation mode must be `push`.
+    @objc open func onSystemBack() { }
+    
     /// When create a left navigation bar button item, you should use this method as target `selector`.
-    @objc dynamic open func onDismiss() {
+    @objc open func onDismiss() {
         willFinishDismissing(.tap)
         navigator?.dismiss { [weak self] in
             self?.didFinishDismissing(.tap)
@@ -100,9 +103,9 @@ extension UIViewController {
         }
     }
     
-    @objc public internal(set) var navigatorMode: Navigator.Mode {
+    @objc public internal(set) var navigationMode: Navigator.Mode {
         get {
-            objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Navigator.Mode ?? .push
+            objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Navigator.Mode ?? .reset
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -150,7 +153,7 @@ extension UIViewController {
 extension UIViewController {
     
     var isDismissable: Bool {
-        switch navigatorMode {
+        switch navigationMode {
         case .present, .customPush, .overlay, .popover:
             return true
         case .reset, .goto, .push:
@@ -164,6 +167,20 @@ extension UIViewController {
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.navigatorTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    static func swizzleViewDidDisappear() {
+        let originalMethod = class_getInstanceMethod(Self.self, #selector(viewDidDisappear(_:)))!
+        let swizzledMethod = class_getInstanceMethod(Self.self, #selector(swizzle_viewDidDisappear(_:)))!
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+    
+    @objc dynamic private func swizzle_viewDidDisappear(_ animated: Bool) {
+        swizzle_viewDidDisappear(animated)
+        
+        if isMovingFromParent {
+            onSystemBack()
         }
     }
 }

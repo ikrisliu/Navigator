@@ -27,7 +27,7 @@ class DetailViewController: UIViewController, Navigatable {
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
         }
         
-        if navigatorMode == .customPush {
+        if navigationMode == .customPush {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onDismiss))
         }
         
@@ -45,20 +45,28 @@ class DetailViewController: UIViewController, Navigatable {
         ])
     }
     
+    override var hidesBottomBarWhenPushed: Bool {
+        get { false }
+        set { super.hidesBottomBarWhenPushed = newValue }
+    }
+    
+    override func onSystemBack() {
+        debugPrint("onSystemBack")
+    }
+    
+    override func willFinishDismissing(_ action: DismissAction) {
+        debugPrint("willFinishDismissing - \(action.rawValue)")
+    }
+    
+    override func didFinishDismissing(_ action: DismissAction) {
+        debugPrint("didFinishDismissing - \(action.rawValue)")
+    }
+    
     deinit {
         debugPrint("FREE MEMORY: \(self)")
     }
     
-    override var hidesBottomBarWhenPushed: Bool {
-        get { true }
-        set { super.hidesBottomBarWhenPushed = newValue }
-    }
-    
     override var ignoreDeepLinking: Bool { true }
-    
-    override func onDismiss() {
-        navigator?.dismiss("\(self) is dismissed")
-    }
 }
 
 private extension DetailViewController {
@@ -68,12 +76,12 @@ private extension DetailViewController {
     }
     
     @objc dynamic func onTapShowViewControler() {
-        guard navigatorMode != .overlay, navigatorMode != .popover else {
+        guard navigationMode != .overlay, navigationMode != .popover else {
             navigator?.dismiss()
             return
         }
         
-        let page = PageObject(vcCreator: { TabItemViewController() }, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
+        let page = PageObject(vcCreator: { TabItemViewController() }, mode: .customPush, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
         navigator?.show(page)
     }
 }

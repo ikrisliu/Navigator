@@ -99,7 +99,7 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     }
     
     public func animationEnded(_ transitionCompleted: Bool) {
-        if !isShow {
+        if isInteractionInProgress && !isShow && _transitionContext?.transitionWasCancelled != true {
             panGestureVC?.didFinishDismissing(.interactiveGesture)
         }
         
@@ -233,7 +233,6 @@ extension Transition {
         case .ended:
             guard isInteractionInProgress else { return }
             
-            isInteractionInProgress = false
             xLocation = isReverse ? recognizerView.bounds.width - xLocation : xLocation
             
             let offset = isVertical ? CGFloat.maximum(yVelocity / 2, translation.y + yLocation) : CGFloat.maximum(xVelocity / 2, abs(translation.x) + xLocation)

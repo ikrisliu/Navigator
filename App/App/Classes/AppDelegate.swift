@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self, mode: .reset)
         let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self, mode: .reset)
-        let secondTab = PageObject(vcClass: SplitViewController.self, navClass: nil, children: [master, detail])
+        let secondTab = PageObject(vcClass: SplitViewController.self, navClass: nil, mode: .reset, children: [master, detail])
         
         tabPages = PageObject(vcClass: UITabBarController.self, navClass: nil, mode: .reset, children: [firstTab, secondTab])
         

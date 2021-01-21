@@ -27,26 +27,15 @@ extension Navigator {
         return nil
     }
     
-    // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
-    func stackIndex(of viewController: UIViewController) -> Int? {
-        guard let index = stack.map({ $0.viewController }).firstIndex(of: viewController) else { return nil }
-        return index < stackCount - 1 ? stackCount - 1 - index : nil
-    }
-    
-    func stackIndex(of vcName: String) -> Int? {
-        guard let index = stack.lastIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName }) else { return nil }
-        return index < stackCount - 1 ? stackCount - 1 - index : nil
-    }
-    
     func pushStack(_ viewController: UIViewController) {
         stack = stack.filter({ $0.viewController != nil })
-        stack.append(WeakWrapper(viewController))
+        stack.insert(WeakWrapper(viewController), at: 0)
     }
     
     // Pop stack level (0 from top)
     @discardableResult func popStack(from level: Int = 0) -> UIViewController? {
         let viewControllers = getStack(from: level)
-        stack.removeLast(viewControllers.count)
+        stack.removeFirst(viewControllers.count)
         return viewControllers.last
     }
     
@@ -62,9 +51,18 @@ extension Navigator {
         return popStack(from: stackCount - 1)
     }
     
-    // Calculate dismiss level according to stack index for `dismissTo` method
+    // Calculate stack level (0 from bottom) according to dismiss level (0 from top)
+    func stackIndex(of viewController: UIViewController) -> Int? {
+        stack.map({ $0.viewController }).firstIndex(of: viewController)
+    }
+    
+    func stackIndex(of vcName: String) -> Int? {
+        stack.firstIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName })
+    }
+    
+    // Calculate dismiss level according to stack index for `backTo` method
     func stackLevel(_ index: Int) -> Int? {
-        let level = index - 1   // Exclude the dismissTo target VC
+        let level = index - 1   // Exclude the backTo target VC
         return (level >= 0 && index <= stackCount - 1) ? level : nil
     }
     
@@ -176,7 +174,6 @@ extension Navigator {
     
     @discardableResult
     func p_showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool, completion: CompletionBlock?) -> Bool {
-        viewController.navigatorMode = page.mode
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
@@ -194,7 +191,11 @@ extension Navigator {
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
         case .customPush:
-            toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
+            if topViewController?.modalPresentationStyle == .fullScreen || topViewController?.navigationController?.modalPresentationStyle == .fullScreen {
+                toVC.modalPresentationStyle = .fullScreen
+            } else {
+                toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
+            }
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
         case .overlay, .popover:
@@ -297,8 +298,10 @@ extension Navigator {
             }
             viewController = vcType.init()
         }
+        
         viewController.navigator = self
         viewController.pageObject = page
+        viewController.navigationMode = page.mode
         
         return viewController
     }
@@ -354,7 +357,7 @@ extension Navigator {
     
     func setupNavigatorForViewController(_ viewController: UIViewController) {
         rootViewController = viewController
-        viewController.navigatorMode = .reset
+        viewController.navigationMode = .reset
         viewController.navigator = self
         viewController.navigationController?.navigator = self
         (viewController as? UINavigationController)?.topViewController?.navigator = self
@@ -367,25 +370,22 @@ extension Navigator {
     func dismissViewControllers(level: Int, completion: CompletionBlock?) {
         if level < 0 && (stackCount + level) <= 0 { return }
         
-        let vcs = getStack(from: level).dropLast()
+        let vcs = getStack(from: level).dropLast()  // Remove stack bottom element which needs dismiss with animation
         guard let dismissedVC = popStack(from: level) else { return }
         
-        if dismissedVC.isDismissable {
-            // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle`
-            vcs.forEach({
-                if $0.isDismissable {
-                    $0.dismiss(animated: false, completion: nil)
-                } else {
-                    $0.navigationController?.popToViewController($0, animated: false)
-                }
-            })
-            dismissViewController(dismissedVC, completion: completion)
-        } else {
-            if let nav = dismissedVC.navigationController {
-                popViewController(dismissedVC, fromNav: nav, completion: completion)
+        // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle`
+        vcs.forEach({
+            if $0.isDismissable {
+                $0.presentingViewController?.dismiss(animated: false, completion: nil)
             } else {
-                dismissViewController(dismissedVC.navigationController ?? dismissedVC, completion: completion)
+                $0.navigationController?.popToViewController($0, animated: false)
             }
+        })
+        
+        if dismissedVC.isDismissable {
+            dismissViewController(dismissedVC, completion: completion)
+        } else if let nav = dismissedVC.navigationController {
+            popViewController(dismissedVC, fromNav: nav, completion: completion)
         }
     }
     

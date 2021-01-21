@@ -29,11 +29,11 @@ class NavigatorTests: XCTestCase {
     }
     
     func testGetStack() {
-        XCTAssertEqual(Navigator.root.getStack(from: 0).last, vc1)
-        XCTAssertEqual(Navigator.root.getStack(from: 1).last, vc2)
+        XCTAssertEqual(Navigator.root.getStack(from: 0).last, vc5)
+        XCTAssertEqual(Navigator.root.getStack(from: 1).last, vc4)
         XCTAssertEqual(Navigator.root.getStack(from: -2).last, vc3)
-        XCTAssertEqual(Navigator.root.getStack(from: -1).last, vc4)
-        XCTAssertEqual(Navigator.root.getStack(from: 4).last, vc5)
+        XCTAssertEqual(Navigator.root.getStack(from: -1).last, vc2)
+        XCTAssertEqual(Navigator.root.getStack(from: 4).last, vc1)
     }
     
     func testDismissLevelFromTop() {

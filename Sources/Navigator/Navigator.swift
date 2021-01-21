@@ -36,7 +36,15 @@ import os.log
     internal static var _current = root
     
     /// - Note: Must set the window variable first, then call navigator's show method.
-    @objc public weak var window: UIWindow?
+    @objc public weak var window: UIWindow? {
+        willSet {
+            // Make sure swizzle method only call once for working
+            if self == Navigator.root && window != newValue {
+                UIViewController.swizzleViewDidDisappear()
+            }
+        }
+    }
+    
     @objc public internal(set) weak var rootViewController: UIViewController? {
         willSet {
             // Avoid memory leak, if exists presented view controler, reset root view controller will lead memory lead.
@@ -134,7 +142,7 @@ public extension Navigator {
     /// Dismiss view controllers with the specified view controller instance.
     ///
     /// - Parameters:
-    ///   - viewController: The view controller must exist in navigation stack.
+    ///   - viewController: The VC that you want to be at the top of the stack. This VC must currently be on the navigation stack.
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
@@ -153,7 +161,7 @@ public extension Navigator {
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func backTo(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
-        guard let level = stackIndex(of: vcName.rawValue), level <= stackCount - 1 else { return }
+        guard let index = stackIndex(of: vcName.rawValue), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
     }
@@ -310,7 +318,7 @@ public extension Navigator {
     }
     
     @objc var topViewController: UIViewController? {
-        stack.last?.viewController
+        stack.first?.viewController
     }
 }
 

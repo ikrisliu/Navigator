@@ -51,6 +51,11 @@ class TabItemViewController: UIViewController, Navigatable {
         }
     }
     
+    override var hidesBottomBarWhenPushed: Bool {
+        get { true }
+        set { super.hidesBottomBarWhenPushed = newValue }
+    }
+    
     deinit {
         debugPrint("FREE MEMORY: \(self)")
         navigator?.sendDataAfterBack(pageObject?.extraData)
