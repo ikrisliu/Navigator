@@ -191,11 +191,7 @@ extension Navigator {
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
         case .customPush:
-            if topViewController?.modalPresentationStyle == .fullScreen || topViewController?.navigationController?.modalPresentationStyle == .fullScreen {
-                toVC.modalPresentationStyle = .fullScreen
-            } else {
-                toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
-            }
+            toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
         case .overlay, .popover:
@@ -373,19 +369,21 @@ extension Navigator {
         let vcs = getStack(from: level).dropLast()  // Remove stack bottom element which needs dismiss with animation
         guard let dismissedVC = popStack(from: level) else { return }
         
-        // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle`
-        vcs.forEach({
-            if $0.isDismissable {
-                $0.presentingViewController?.dismiss(animated: false, completion: nil)
-            } else {
-                $0.navigationController?.popToViewController($0, animated: false)
+        let animatedDismissClosure = {
+            if dismissedVC.isDismissable {
+                self.dismissViewController(dismissedVC, completion: completion)
+            } else if let nav = dismissedVC.navigationController {
+                self.popViewController(dismissedVC, fromNav: nav, completion: completion)
             }
-        })
+        }
         
-        if dismissedVC.isDismissable {
-            dismissViewController(dismissedVC, completion: completion)
-        } else if let nav = dismissedVC.navigationController {
-            popViewController(dismissedVC, fromNav: nav, completion: completion)
+        // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle` on diff iOS system
+        if let presentingVC = vcs.last(where: { $0.isFullScreenModalPresentationStyle })?.presentingViewController {
+            presentingVC.dismiss(animated: false) {
+                animatedDismissClosure()
+            }
+        } else {
+            animatedDismissClosure()
         }
     }
     
@@ -433,10 +431,7 @@ extension Navigator {
     
     func findPresentingViewController(base viewController: UIViewController, in navController: UINavigationController) -> UIViewController? {
         let baseIndex = navController.viewControllers.firstIndex(of: viewController) ?? 0
-        for (index, vc) in (navController.viewControllers as Array).enumerated() where index >= baseIndex && vc.presentedViewController != nil {
-            return vc
-        }
-        return nil
+        return navController.viewControllers.suffix(navController.viewControllers.count - baseIndex).first(where: { $0.presentedViewController != nil })
     }
 }
 

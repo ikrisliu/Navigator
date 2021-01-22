@@ -30,9 +30,11 @@ import UIKit
     public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
         let fromTransView = transitionView(in: fromView) ?? fromView
-        let toTransView = transitionView(in: toView) ?? toView
         let fromNavBar = navigationBar(in: fromView)
+        let fromTitleView = titleView(in: fromNavBar)
+        let toTransView = transitionView(in: toView) ?? toView
         let toNavBar = navigationBar(in: toView)
+        let toTitleView = titleView(in: toNavBar)
         
         dimmedBackgroundView.frame = containerView.frame
         
@@ -41,21 +43,23 @@ import UIKit
                 containerView.addSubview(dimmedBackgroundView)
                 containerView.addSubview(toView)
                 
-                self.setNavigationBarAlpha(navBar: toNavBar, alpha: 0.0)
+                self.hideNavigationBar(toNavBar)
                 toTransView?.transform = CGAffineTransform(translationX: toView.bounds.width, y: 0)
             }
             
             let translationX = fromView != nil ? -fromView!.bounds.width / 3 : 0
-            
+
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.4
                 
                 fromTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
+                fromTitleView?.transform = CGAffineTransform(translationX: -(fromTitleView?.bounds.width ?? 0), y: 0)
                 
-                self.setNavigationBarAlpha(navBar: toNavBar, alpha: 1.0)
+                self.showNavigationBar(toNavBar)
                 toTransView?.transform = .identity
             }, completion: { _ in
                 fromTransView?.transform = .identity
+                fromTitleView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         } else {
@@ -70,21 +74,25 @@ import UIKit
             }
             
             let translationX = toView != nil ? -toView!.bounds.width / 3 : 0
+            
             toTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
+            toTitleView?.transform = CGAffineTransform(translationX: -(toTitleView?.bounds.width ?? 0), y: 0)
             
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.0
                 
                 if toNavBar?.isTranslucent == false {
-                    self.setNavigationBarAlpha(navBar: fromNavBar, alpha: 0.0)
+                    self.hideNavigationBar(fromNavBar)
                     fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
                 } else {
                     fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
                 }
                 
                 toTransView?.transform = .identity
+                toTitleView?.transform = .identity
             }, completion: { _ in
                 toTransView?.transform = .identity
+                toTitleView?.transform = .identity
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         }
@@ -102,6 +110,12 @@ import UIKit
         subview(clazz: UINavigationBar.self, in: view) as? UINavigationBar
     }
     
+    private func titleView(in navBar: UINavigationBar?) -> UIView? {
+        navBar?.topItem?.titleView ?? navBar?.subviews.compactMap({
+            subview(clazz: UILabel.self, in: $0)
+        }).last
+    }
+    
     private func subview(clazz: AnyClass, in view: UIView?) -> UIView? {
         if let subview = view?.subviews.first(where: { $0.isKind(of: clazz) }) {
             return subview
@@ -115,7 +129,17 @@ import UIKit
         }
     }
     
-    private func setNavigationBarAlpha(navBar: UINavigationBar?, alpha: CGFloat) {
-        navBar?.subviews.forEach({ $0.alpha = alpha })
+    private func showNavigationBar(_ navBar: UINavigationBar?) {
+        navBar?.subviews.forEach({ $0.alpha = 1.0 })
+        if let titleView = self.titleView(in: navBar) {
+            titleView.transform = .identity
+        }
+    }
+    
+    private func hideNavigationBar(_ navBar: UINavigationBar?) {
+        navBar?.subviews.forEach({ $0.alpha = 0.0 })
+        if let titleView = self.titleView(in: navBar), let navBar = navBar {
+            titleView.transform = CGAffineTransform(translationX: navBar.bounds.width / 2, y: 0)
+        }
     }
 }

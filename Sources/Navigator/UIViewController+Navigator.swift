@@ -161,6 +161,10 @@ extension UIViewController {
         }
     }
     
+    var isFullScreenModalPresentationStyle: Bool {
+        modalPresentationStyle == .fullScreen || navigationController?.modalPresentationStyle == .fullScreen
+    }
+    
     var p_navigatorTransition: Transition? {
         get {
             objc_getAssociatedObject(self, &AssociationKey.navigatorTransition) as? Transition
