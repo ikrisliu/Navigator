@@ -22,6 +22,7 @@ import UIKit
     
     public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
         let containerView = transitionContext.containerView
+        let fromLayoutContainerView = layoutContainerView(in: fromView)
         
         if isShow {
             if let toView = toView {
@@ -33,12 +34,13 @@ import UIKit
             
             UIView.animate(withDuration: animationDuration, animations: {
                 fromView?.transform = CGAffineTransform(translationX: translationX, y: 0)
-                self.layoutContainerView(in: fromView)?.subviews.forEach({
+                fromLayoutContainerView?.subviews.forEach({
                     $0.transform = CGAffineTransform(translationX: -translationX / 3, y: 0)
                 })
                 toView?.transform = .identity
             }, completion: { _ in
                 fromView?.transform = .identity
+                fromLayoutContainerView?.subviews.forEach({ $0.transform = .identity })
                 self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
             })
         } else {
@@ -56,7 +58,7 @@ import UIKit
             
             UIView.animate(withDuration: animationDuration, animations: {
                 fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
-                self.layoutContainerView(in: fromView)?.subviews.forEach({
+                fromLayoutContainerView?.subviews.forEach({
                     $0.transform = CGAffineTransform(translationX: -fromView.bounds.width / 3, y: 0)
                 })
                 toView?.transform = .identity

@@ -377,7 +377,7 @@ extension Navigator {
             }
         }
         
-        // Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle` on diff iOS system
+        // NOTE: Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle` on diff iOS system
         if let presentingVC = vcs.last(where: { $0.isFullScreenModalPresentationStyle })?.presentingViewController {
             presentingVC.dismiss(animated: false) {
                 animatedDismissClosure()

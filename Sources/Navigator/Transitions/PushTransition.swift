@@ -139,7 +139,7 @@ import UIKit
     private func hideNavigationBar(_ navBar: UINavigationBar?) {
         navBar?.subviews.forEach({ $0.alpha = 0.0 })
         if let titleView = self.titleView(in: navBar), let navBar = navBar {
-            titleView.transform = CGAffineTransform(translationX: navBar.bounds.width / 2, y: 0)
+            titleView.transform = CGAffineTransform(translationX: navBar.bounds.width / 3, y: 0)
         }
     }
 }
