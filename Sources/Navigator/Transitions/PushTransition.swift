@@ -10,6 +10,9 @@ import UIKit
 
 @objc public class PushTransition: Transition {
     
+    private let titleViewMoveFactor: CGFloat = 1.0
+    private let titleViewMoveFastFactor: CGFloat = 1.5
+    
     private lazy var dimmedBackgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
@@ -43,7 +46,7 @@ import UIKit
                 containerView.addSubview(dimmedBackgroundView)
                 containerView.addSubview(toView)
                 
-                self.hideNavigationBar(toNavBar)
+                self.hideNavigationBar(toNavBar, factor: titleViewMoveFactor)
                 toTransView?.transform = CGAffineTransform(translationX: toView.bounds.width, y: 0)
             }
             
@@ -53,10 +56,11 @@ import UIKit
                 self.dimmedBackgroundView.alpha = 0.4
                 
                 fromTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
-                fromTitleView?.transform = CGAffineTransform(translationX: -(fromTitleView?.bounds.width ?? 0), y: 0)
-                
+                self.hideNavigationBar(fromNavBar, factor: -self.titleViewMoveFastFactor)
                 self.showNavigationBar(toNavBar)
+                
                 toTransView?.transform = .identity
+                toTitleView?.transform = .identity
             }, completion: { _ in
                 fromTransView?.transform = .identity
                 fromTitleView?.transform = .identity
@@ -76,17 +80,18 @@ import UIKit
             let translationX = toView != nil ? -toView!.bounds.width / 3 : 0
             
             toTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
-            toTitleView?.transform = CGAffineTransform(translationX: -(toTitleView?.bounds.width ?? 0), y: 0)
+            hideNavigationBar(toNavBar, factor: -titleViewMoveFactor)
             
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.0
                 
                 if toNavBar?.isTranslucent == false {
-                    self.hideNavigationBar(fromNavBar)
+                    self.hideNavigationBar(fromNavBar, factor: self.titleViewMoveFastFactor)
                     fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
                 } else {
                     fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
                 }
+                self.showNavigationBar(toNavBar)
                 
                 toTransView?.transform = .identity
                 toTitleView?.transform = .identity
@@ -113,7 +118,7 @@ import UIKit
     private func titleView(in navBar: UINavigationBar?) -> UIView? {
         navBar?.topItem?.titleView ?? navBar?.subviews.compactMap({
             subview(clazz: UILabel.self, in: $0)
-        }).last
+        }).last(where: { $0.superview?.superview?.isKind(of: UINavigationBar.self) == true })
     }
     
     private func subview(clazz: AnyClass, in view: UIView?) -> UIView? {
@@ -136,10 +141,10 @@ import UIKit
         }
     }
     
-    private func hideNavigationBar(_ navBar: UINavigationBar?) {
+    private func hideNavigationBar(_ navBar: UINavigationBar?, factor: CGFloat) {
         navBar?.subviews.forEach({ $0.alpha = 0.0 })
-        if let titleView = self.titleView(in: navBar), let navBar = navBar {
-            titleView.transform = CGAffineTransform(translationX: navBar.bounds.width / 3, y: 0)
+        if let titleView = self.titleView(in: navBar) {
+            titleView.transform = CGAffineTransform(translationX: titleView.bounds.width * factor, y: 0)
         }
     }
 }

@@ -57,7 +57,7 @@ extension Navigator {
     }
     
     func stackIndex(of vcName: String) -> Int? {
-        stack.firstIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName })
+        stack.lastIndex(where: { NSStringFromClass(type(of: $0.viewController as AnyObject)) == vcName })
     }
     
     // Calculate dismiss level according to stack index for `backTo` method

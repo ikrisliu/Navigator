@@ -181,11 +181,13 @@ extension Transition {
 
         if interactiveGestureEdges.contains(.left) {
             leftPanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
+            leftPanGesture?.delegate = self
             (leftPanGesture as? UIScreenEdgePanGestureRecognizer)?.edges = [.left]
             vc.view.addGestureRecognizer(leftPanGesture!)
         }
         if interactiveGestureEdges.contains(.right) {
             rightPanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handlePanGesture(recognizer:)))
+            rightPanGesture?.delegate = self
             (rightPanGesture as? UIScreenEdgePanGestureRecognizer)?.edges = [.right]
             vc.view.addGestureRecognizer(rightPanGesture!)
         }
@@ -287,5 +289,13 @@ extension Transition {
             presentingVC?.view.removeGestureRecognizer($0)
             navController?.view.removeGestureRecognizer($0)
         }
+    }
+}
+
+extension Transition: UIGestureRecognizerDelegate {
+    
+    // Set left and right `UIScreenEdgePanGestureRecognizer` as highest priority and ignore other gestures.
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        true
     }
 }

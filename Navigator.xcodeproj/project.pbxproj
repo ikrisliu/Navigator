@@ -7,37 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01BA918325C06F2C00F9B4C9 /* ZoomTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BA918125C06F2C00F9B4C9 /* ZoomTransition.swift */; };
+		01BA918425C06F2C00F9B4C9 /* ParallaxTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BA918225C06F2C00F9B4C9 /* ParallaxTransition.swift */; };
+		01BA918725C06F4B00F9B4C9 /* UINavigationController+Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BA918625C06F4A00F9B4C9 /* UINavigationController+Transition.swift */; };
 		01F72A122585F186006C3567 /* Fallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A022585F186006C3567 /* Fallback.swift */; };
 		01F72A132585F186006C3567 /* UIViewController+Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A032585F186006C3567 /* UIViewController+Navigator.swift */; };
 		01F72A142585F186006C3567 /* PageObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A042585F186006C3567 /* PageObject.swift */; };
 		01F72A152585F186006C3567 /* Navigatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A052585F186006C3567 /* Navigatable.swift */; };
 		01F72A162585F186006C3567 /* Navigator+Prepare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A062585F186006C3567 /* Navigator+Prepare.swift */; };
 		01F72A172585F186006C3567 /* CircleTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A082585F186006C3567 /* CircleTransition.swift */; };
-		01F72A182585F186006C3567 /* UINavigationController+Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A092585F186006C3567 /* UINavigationController+Transition.swift */; };
 		01F72A192585F186006C3567 /* FadeTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A0A2585F186006C3567 /* FadeTransition.swift */; };
 		01F72A1A2585F186006C3567 /* PopoverPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A0B2585F186006C3567 /* PopoverPresentationController.swift */; };
 		01F72A1B2585F186006C3567 /* MatrixTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A0C2585F186006C3567 /* MatrixTransition.swift */; };
 		01F72A1C2585F186006C3567 /* Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A0D2585F186006C3567 /* Transition.swift */; };
 		01F72A1D2585F186006C3567 /* PushTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A0E2585F186006C3567 /* PushTransition.swift */; };
-		01F72A1E2585F186006C3567 /* ScaleTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A0F2585F186006C3567 /* ScaleTransition.swift */; };
 		01F72A1F2585F186006C3567 /* Navigator+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A102585F186006C3567 /* Navigator+Private.swift */; };
 		01F72A202585F186006C3567 /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F72A112585F186006C3567 /* Navigator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		01BA918125C06F2C00F9B4C9 /* ZoomTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZoomTransition.swift; sourceTree = "<group>"; };
+		01BA918225C06F2C00F9B4C9 /* ParallaxTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParallaxTransition.swift; sourceTree = "<group>"; };
+		01BA918625C06F4A00F9B4C9 /* UINavigationController+Transition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Transition.swift"; sourceTree = "<group>"; };
 		01F72A022585F186006C3567 /* Fallback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fallback.swift; sourceTree = "<group>"; };
 		01F72A032585F186006C3567 /* UIViewController+Navigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+Navigator.swift"; sourceTree = "<group>"; };
 		01F72A042585F186006C3567 /* PageObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageObject.swift; sourceTree = "<group>"; };
 		01F72A052585F186006C3567 /* Navigatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Navigatable.swift; sourceTree = "<group>"; };
 		01F72A062585F186006C3567 /* Navigator+Prepare.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Navigator+Prepare.swift"; sourceTree = "<group>"; };
 		01F72A082585F186006C3567 /* CircleTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleTransition.swift; sourceTree = "<group>"; };
-		01F72A092585F186006C3567 /* UINavigationController+Transition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Transition.swift"; sourceTree = "<group>"; };
 		01F72A0A2585F186006C3567 /* FadeTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FadeTransition.swift; sourceTree = "<group>"; };
 		01F72A0B2585F186006C3567 /* PopoverPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverPresentationController.swift; sourceTree = "<group>"; };
 		01F72A0C2585F186006C3567 /* MatrixTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatrixTransition.swift; sourceTree = "<group>"; };
 		01F72A0D2585F186006C3567 /* Transition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transition.swift; sourceTree = "<group>"; };
 		01F72A0E2585F186006C3567 /* PushTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushTransition.swift; sourceTree = "<group>"; };
-		01F72A0F2585F186006C3567 /* ScaleTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScaleTransition.swift; sourceTree = "<group>"; };
 		01F72A102585F186006C3567 /* Navigator+Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Navigator+Private.swift"; sourceTree = "<group>"; };
 		01F72A112585F186006C3567 /* Navigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
 		01FB8E8120A5C34B00776808 /* Navigator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Navigator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,6 +74,7 @@
 				01F72A102585F186006C3567 /* Navigator+Private.swift */,
 				01F72A042585F186006C3567 /* PageObject.swift */,
 				01F72A072585F186006C3567 /* Transitions */,
+				01BA918625C06F4A00F9B4C9 /* UINavigationController+Transition.swift */,
 				01F72A032585F186006C3567 /* UIViewController+Navigator.swift */,
 			);
 			path = Navigator;
@@ -81,13 +84,13 @@
 			isa = PBXGroup;
 			children = (
 				01F72A082585F186006C3567 /* CircleTransition.swift */,
-				01F72A092585F186006C3567 /* UINavigationController+Transition.swift */,
 				01F72A0A2585F186006C3567 /* FadeTransition.swift */,
-				01F72A0B2585F186006C3567 /* PopoverPresentationController.swift */,
 				01F72A0C2585F186006C3567 /* MatrixTransition.swift */,
-				01F72A0D2585F186006C3567 /* Transition.swift */,
+				01BA918225C06F2C00F9B4C9 /* ParallaxTransition.swift */,
+				01F72A0B2585F186006C3567 /* PopoverPresentationController.swift */,
 				01F72A0E2585F186006C3567 /* PushTransition.swift */,
-				01F72A0F2585F186006C3567 /* ScaleTransition.swift */,
+				01F72A0D2585F186006C3567 /* Transition.swift */,
+				01BA918125C06F2C00F9B4C9 /* ZoomTransition.swift */,
 			);
 			path = Transitions;
 			sourceTree = "<group>";
@@ -189,19 +192,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				01F72A162585F186006C3567 /* Navigator+Prepare.swift in Sources */,
+				01BA918425C06F2C00F9B4C9 /* ParallaxTransition.swift in Sources */,
 				01F72A1C2585F186006C3567 /* Transition.swift in Sources */,
 				01F72A152585F186006C3567 /* Navigatable.swift in Sources */,
 				01F72A202585F186006C3567 /* Navigator.swift in Sources */,
 				01F72A172585F186006C3567 /* CircleTransition.swift in Sources */,
 				01F72A1F2585F186006C3567 /* Navigator+Private.swift in Sources */,
 				01F72A122585F186006C3567 /* Fallback.swift in Sources */,
+				01BA918325C06F2C00F9B4C9 /* ZoomTransition.swift in Sources */,
 				01F72A1B2585F186006C3567 /* MatrixTransition.swift in Sources */,
+				01BA918725C06F4B00F9B4C9 /* UINavigationController+Transition.swift in Sources */,
 				01F72A1D2585F186006C3567 /* PushTransition.swift in Sources */,
 				01F72A192585F186006C3567 /* FadeTransition.swift in Sources */,
 				01F72A1A2585F186006C3567 /* PopoverPresentationController.swift in Sources */,
 				01F72A142585F186006C3567 /* PageObject.swift in Sources */,
-				01F72A1E2585F186006C3567 /* ScaleTransition.swift in Sources */,
-				01F72A182585F186006C3567 /* UINavigationController+Transition.swift in Sources */,
 				01F72A132585F186006C3567 /* UIViewController+Navigator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
