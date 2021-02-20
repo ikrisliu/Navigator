@@ -31,12 +31,22 @@ import UIKit
     }
     
     public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
+        let fromVC = transitionContext.viewController(forKey: .from)
+        let toVC = transitionContext.viewController(forKey: .to)
+        
+        var newFromView = fromView ?? fromVC?.view  // Make sure transition view not nil and can do animation
+        var newToView = toView ?? toVC?.view        // The same as above
+        
+        // In order to keep previous view stay when do the transition if previous view controller has custom presentation controller
+        newFromView = fromVC?.presentationController?.isKind(of: PopoverPresentationController.self) == true ? nil : newFromView
+        newToView = toVC?.presentationController?.isKind(of: PopoverPresentationController.self) == true ? nil : newToView
+        
         let containerView = transitionContext.containerView
-        let fromTransView = transitionView(in: fromView) ?? fromView
-        let fromNavBar = navigationBar(in: fromView)
+        let fromTransView = transitionView(in: newFromView) ?? newFromView
+        let fromNavBar = navigationBar(in: newFromView)
         let fromTitleView = titleView(in: fromNavBar)
-        let toTransView = transitionView(in: toView) ?? toView
-        let toNavBar = navigationBar(in: toView)
+        let toTransView = transitionView(in: newToView) ?? newToView
+        let toNavBar = navigationBar(in: newToView)
         let toTitleView = titleView(in: toNavBar)
         
         dimmedBackgroundView.frame = containerView.frame
@@ -50,7 +60,14 @@ import UIKit
                 toTransView?.transform = CGAffineTransform(translationX: toView.bounds.width, y: 0)
             }
             
-            let translationX = fromView != nil ? -fromView!.bounds.width / 3 : 0
+            // To avoid naviagtion bar is transparent to below when do the transition (e.g. PDP -> PLP)
+            if fromNavBar?.isTranslucent == true {
+                let bgView = UIView(frame: containerView.frame)
+                bgView.backgroundColor = ((fromVC as? UINavigationController)?.topViewController?.view ?? fromVC?.view)?.backgroundColor
+                containerView.insertSubview(bgView, at: 0)
+            }
+            
+            let translationX = fromTransView != nil ? -fromTransView!.bounds.width / 3 : 0
 
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.4
@@ -77,7 +94,7 @@ import UIKit
                 return
             }
             
-            let translationX = toView != nil ? -toView!.bounds.width / 3 : 0
+            let translationX = toTransView != nil ? -toTransView!.bounds.width / 3 : 0
             
             toTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
             hideNavigationBar(toNavBar, includingBgView: false, titleTranslationFactor: -titleViewMoveFactor)
@@ -85,12 +102,8 @@ import UIKit
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.0
                 
-                if toNavBar?.isTranslucent == false {
-                    self.hideNavigationBar(fromNavBar, includingBgView: true, titleTranslationFactor: self.titleViewMoveFastFactor)
-                    fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
-                } else {
-                    fromView.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
-                }
+                self.hideNavigationBar(fromNavBar, includingBgView: fromNavBar?.isTranslucent == false, titleTranslationFactor: self.titleViewMoveFastFactor)
+                fromTransView?.transform = CGAffineTransform(translationX: fromView.bounds.width, y: 0)
                 self.showNavigationBar(toNavBar)
                 
                 toTransView?.transform = .identity
