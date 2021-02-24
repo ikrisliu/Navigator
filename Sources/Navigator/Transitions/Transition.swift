@@ -105,6 +105,8 @@ extension Transition: UIViewControllerAnimatedTransitioning {
         
         isShow = false
         isInteractionInProgress = false
+        
+        addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC)
     }
 }
 
@@ -116,8 +118,6 @@ extension Transition: UIViewControllerTransitioningDelegate {
         isModal = true
         presentedVC = presented
         presentingVC = presenting
-        
-        addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC)
         
         return type(of: self) == Transition.self ? nil : self
     }
@@ -163,8 +163,6 @@ extension Transition: UINavigationControllerDelegate {
         
         isShow = (fromIndex != nil && toIndex != nil && toIndex! > fromIndex!)
         isModal = false
-        
-        addInteractiveGestureToViewControllerIfNeeded(viewController: navController)
         
         return self
     }
@@ -296,6 +294,6 @@ extension Transition: UIGestureRecognizerDelegate {
     
     // Set left and right `UIScreenEdgePanGestureRecognizer` as highest priority and ignore other gestures.
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        true
+        panGestureVC?.shouldDismissByInteractiveGesture == true
     }
 }
