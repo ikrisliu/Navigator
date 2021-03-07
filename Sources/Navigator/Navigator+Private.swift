@@ -193,7 +193,9 @@ extension Navigator {
         case .customPush:
             toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
             setupTransition(page, for: toVC)
-            topViewController?.present(toVC, animated: animated, completion: completion)
+            // NOTE: Always set the animated with true, otherwise, no interactive gesture will be added to presented VC.
+            // (If passed in animated parameter is false, PushTransition's animation duration will be close to zero.)
+            topViewController?.present(toVC, animated: true, completion: completion)
         case .overlay, .popover:
             if page.transitionClass == nil {
                 page.transitionClass = page.mode == .popover ? FadeTransition.self : Transition.self

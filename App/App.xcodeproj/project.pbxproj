@@ -109,7 +109,6 @@
 			buildConfigurationList = 01E7C7352585E7A300B7292A /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
 				01E7C71D2585E7A200B7292A /* Sources */,
-				01F72A2F2585F5E5006C3567 /* Swift Lint */,
 				01E7C71E2585E7A200B7292A /* Frameworks */,
 				01E7C71F2585E7A200B7292A /* Resources */,
 			);
@@ -169,27 +168,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		01F72A2F2585F5E5006C3567 /* Swift Lint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Swift Lint";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint --config ../.swiftlint.yml\nelse\n    echo \"error: SwiftLint not installed, please run [brew install swiftlint]\"\nfi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		01E7C71D2585E7A200B7292A /* Sources */ = {

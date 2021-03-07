@@ -69,7 +69,7 @@ import UIKit
     private var verticalPanGesture: UIPanGestureRecognizer?
     private var startLocation: CGPoint?
     
-    private weak var presentedVC: UIViewController?
+    weak var presentedVC: UIViewController?
     private weak var presentingVC: UIViewController?
     private weak var navController: UINavigationController?
     private weak var panGestureVC: UIViewController?

@@ -26,6 +26,11 @@ import UIKit
         orientation = .horizontal
     }
     
+    public override func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        // Must set duration with `Double.leastNonzeroMagnitude` if show animated is false because `0.0` has delay bug.
+        (isShow && presentedVC?.navigator?.showAnimated == false) ? Double.leastNonzeroMagnitude : super.transitionDuration(using: transitionContext)
+    }
+    
     public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
         animatePresentingTransition(from: fromView, to: toView)
     }
