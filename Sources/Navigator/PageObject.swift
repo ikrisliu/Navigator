@@ -89,21 +89,22 @@ public class PageObject: NSObject {
         self.extraData = extraData
         self.children = children
         
+        let size = UIScreen.main.bounds.size
+                
         switch mode {
         case .push, .goto:
             self.navName = nil
         case .customPush:
             self.navName = navName
             self.transitionClass = PushTransition.self
-        case .reset, .present, .overlay, .popover:
+        case .overlay:
             self.navName = navName
-        }
-        
-        let size = UIScreen.main.bounds.size
-        if mode == .overlay {
             sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: size.height / 2))
-        } else if mode == .popover {
+        case .popover:
+            self.navName = navName
             sourceRect = CGRect(origin: .zero, size: .init(width: size.width - 20, height: size.height / 3))
+        case .reset, .present:
+            self.navName = navName
         }
     }
 }

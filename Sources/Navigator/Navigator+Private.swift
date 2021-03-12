@@ -239,10 +239,15 @@ extension Navigator {
                 let width = vc.view.bounds.width
                 let height = vc.view.bounds.height
                 
-                if page.mode == .overlay { // origin from bottom
+                switch page.mode {
+                case .overlay:  // origin from bottom
                     sourceRect = CGRect(x: 0, y: height - sourceRect.height, width: width, height: sourceRect.height)
-                } else if page.mode == .popover, sourceRect.origin == .zero {  // origin from center
-                    sourceRect.origin = CGPoint(x: (width - sourceRect.width) / 2, y: (height - sourceRect.height) / 2)
+                case .popover:  // origin from center
+                    if sourceRect.origin == .zero {
+                        sourceRect.origin = CGPoint(x: (width - sourceRect.width) / 2, y: (height - sourceRect.height) / 2)
+                    }
+                case .reset, .goto, .push, .present, .customPush:
+                    break
                 }
                 
                 vc.p_navigatorTransition?.sourceRect = sourceRect
@@ -376,6 +381,8 @@ extension Navigator {
                 self.dismissViewController(dismissedVC, completion: completion)
             } else if let nav = dismissedVC.navigationController {
                 self.popViewController(dismissedVC, fromNav: nav, completion: completion)
+            } else {
+                completion?()
             }
         }
         
