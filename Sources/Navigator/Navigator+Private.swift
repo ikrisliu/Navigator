@@ -191,7 +191,7 @@ extension Navigator {
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
         case .customPush:
-            toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .currentContext
+            toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .overCurrentContext
             setupTransition(page, for: toVC)
             // NOTE: Always set the animated with true, otherwise, no interactive gesture will be added to presented VC.
             // (If passed in animated parameter is false, PushTransition's animation duration will be close to zero.)
@@ -373,7 +373,7 @@ extension Navigator {
     func dismissViewControllers(level: Int, completion: CompletionBlock?) {
         if level < 0 && (stackCount + level) <= 0 { return }
         
-        let vcs = getStack(from: level).dropLast()  // Remove stack bottom element which needs dismiss with animation
+        let vcs = getStack(from: level)
         guard let dismissedVC = popStack(from: level) else { return }
         
         let animatedDismissClosure = {
@@ -386,13 +386,18 @@ extension Navigator {
             }
         }
         
-        // NOTE: Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle` on diff iOS system
-        if let presentingVC = vcs.last(where: { $0.isFullScreenModalPresentationStyle })?.presentingViewController {
-            presentingVC.dismiss(animated: false) {
+        // NOTE: Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle` in different iOS system
+        if vcs.filter({ $0.isFullScreenModalPresentationStyle == false }).isEmpty {
+            animatedDismissClosure()
+        } else {
+            // Remove stack bottom element which needs dismiss with animation
+            if let presentingVC = vcs.dropLast().last(where: { $0.isFullScreenModalPresentationStyle })?.presentingViewController {
+                presentingVC.dismiss(animated: false) {
+                    animatedDismissClosure()
+                }
+            } else {
                 animatedDismissClosure()
             }
-        } else {
-            animatedDismissClosure()
         }
     }
     
