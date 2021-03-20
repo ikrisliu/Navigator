@@ -59,6 +59,7 @@ extension UIViewController {
     @objc open var enableInteractiveDismissGesture: Bool { true }
     
     /// If should dismiss view controller which mode must be `customPush` when triggered an interactive pan gesture
+    /// - NOTE: Should override the variable in subclass, do not call this variable directly.
     @objc open var shouldDismissByInteractiveGesture: Bool { true }
     
     /// Custom view controllers can override this variable to determine if need respond the deep linking.
