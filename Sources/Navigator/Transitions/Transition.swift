@@ -64,7 +64,6 @@ import UIKit
     // MARK: - Private -
     // Whether start interaction, different usage with variable interactiveGestureEdges. Must need this flag.
     private var isInteractionInProgress: Bool = false
-    private var shouldDismissViewControllerByInteractiveGesture: Bool? = false
     private var leftPanGesture: UIPanGestureRecognizer?
     private var rightPanGesture: UIPanGestureRecognizer?
     private var verticalPanGesture: UIPanGestureRecognizer?
@@ -211,9 +210,7 @@ extension Transition {
         
         switch recognizer.state {
         case .began:
-            shouldDismissViewControllerByInteractiveGesture = panGestureVC?.shouldDismissByInteractiveGesture
-            
-            if shouldDismissViewControllerByInteractiveGesture != true {
+            if panGestureVC?.shouldDismissByInteractiveGesture != true {
                 cancel()
                 return
             }
@@ -297,6 +294,6 @@ extension Transition: UIGestureRecognizerDelegate {
     
     // Set left and right `UIScreenEdgePanGestureRecognizer` as highest priority and ignore other gestures.
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        shouldDismissViewControllerByInteractiveGesture == true
+        true
     }
 }

@@ -121,6 +121,15 @@ extension UIViewController {
             objc_setAssociatedObject(self, &AssociationKey.pageObject, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
+    
+    @objc public var isOverPresentation: Bool {
+        switch navigationMode {
+        case .overlay, .popover:
+            return true
+        case .present, .customPush, .reset, .goto, .push:
+            return false
+        }
+    }
 }
 
 // MARK: - Context Data
