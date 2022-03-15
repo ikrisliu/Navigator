@@ -3,9 +3,9 @@ Pod::Spec.new do |s|
   s.version = '1.6.0'
   s.license = 'MIT'
   s.summary = 'Generic navigation framework for view controllers'
-  s.homepage = 'https://github.com/iKrisLiu/Navigator'
+  s.homepage = 'https://github.com/ongravity/Navigator'
   s.authors = { 'Kris Liu' => 'ikris.liu@gmail.com' }
-  s.source = { :git => 'https://github.com/iKrisLiu/Navigator.git', :tag => s.version }
+  s.source = { :git => 'https://github.com/ongravity/Navigator.git', :tag => s.version }
 
   s.ios.deployment_target = '10.0'
   s.swift_version = '5.3'
