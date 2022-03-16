@@ -25,7 +25,7 @@ Navigator is a generic navigation framework for view controllers. It can decoupl
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ongravity/Navigator", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/iKrisLiu/Navigator", .upToNextMajor(from: "1.0.0"))
 ]
 ```
 
@@ -40,7 +40,7 @@ pod 'SmartNavigator', '~> 1.0'
 [Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. To integrate Navigator into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "ongravity/Navigator" ~> 1.0
+github "iKrisLiu/Navigator" ~> 1.0
 ```
 
 ## Usage
