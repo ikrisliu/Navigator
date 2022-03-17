@@ -13,7 +13,7 @@ class DetailViewController: UIViewController, Navigatable {
     
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         title = page.title ?? "Detail"
-        print("Received additional data: \(page.extraData ?? "")")
+        print("Received additional data: \(String(describing: page.extraData))")
     }
     
     override func viewDidLoad() {
@@ -83,7 +83,7 @@ extension DetailViewController {
                 options:
                     withNavClass(UINavigationController.self),
                     withTitle(String(arc4random())),
-                    withExtraData((greeting: "Hello: ", message: arc4random()))
+                    withExtraData(ContentPageExtraData(from: self, message: "Search view controller"))
             )
         )
     }

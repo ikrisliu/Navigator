@@ -17,11 +17,11 @@ import UIKit
     
     /// Receive data before the current vc show (before `viewDidLoad`)
     /// - Note: May called multiple times since appear mutiple times
-    @objc optional func onDataReceiveBeforeShow(_ data: Any?, fromVC: UIViewController?)
+    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?)
     
     /// Receive data from next vc before the next vc dismiss start
-    @objc optional func onDataReceiveBeforeBack(_ data: Any?, fromVC: UIViewController?)
+    @objc optional func onDataReceiveBeforeBack(_ data: PageExtraData?, fromVC: UIViewController?)
     
     /// Receive data from next vc after the next vc dismiss animation end
-    @objc optional func onDataReceiveAfterBack(_ data: Any?)
+    @objc optional func onDataReceiveAfterBack(_ data: PageExtraData?)
 }

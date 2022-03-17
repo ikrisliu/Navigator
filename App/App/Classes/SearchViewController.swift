@@ -12,20 +12,20 @@ import Navigator
 class SearchViewController: UIViewController, Navigatable {
 
     private typealias TupleType = (greeting: String, message: UInt32)
-    private var tuple: TupleType?
+    private var pageData: ContentPageExtraData?
     
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
         print("Received data before show from \(String(describing: fromVC)): \(page)")
         
         title = page.title ?? "Favorites"
-        tuple = page.extraData as? TupleType
+        pageData = page.extraData as? ContentPageExtraData
         
         tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 0)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
-    func onDataReceiveAfterBack(_ data: Any?) {
-        print("Received data after back: \(data ?? "nil")")
+    func onDataReceiveAfterBack(_ data: PageExtraData?) {
+        print("Received data after back: \(String(describing: data))")
     }
     
     override func viewDidLoad() {
@@ -44,8 +44,8 @@ class SearchViewController: UIViewController, Navigatable {
             label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
         
-        if let tuple = tuple {
-            label.text = tuple.greeting + String(tuple.message)
+        if let data = pageData {
+            label.text = data.message
         } else {
             label.text = String(arc4random())
         }
@@ -66,7 +66,7 @@ private extension SearchViewController {
                 mode: .push,
                 options:
                     withTitle(String(arc4random())),
-                    withExtraData("Passed a string type data")
+                    withExtraData(ContentPageExtraData(from: self, message: "Show result view controller"))
             )
         )
     }

@@ -9,6 +9,20 @@
 import UIKit
 import Navigator
 
+class ContentPageExtraData : PageExtraData, CustomStringConvertible {
+    let from: UIViewController
+    let message: String
+    
+    init(from: UIViewController, message: String) {
+        self.from = from
+        self.message = message
+    }
+    
+    var description: String {
+        message
+    }
+}
+
 class MasterViewController: UITableViewController {
     
     override func viewDidLoad() {
@@ -47,7 +61,7 @@ class MasterViewController: UITableViewController {
                 options:
                     withNavClass(UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil),
                     withTitle((tableView.cellForRow(at: indexPath)?.textLabel?.text!)!),
-                    withExtraData(["from": "\(self)", "message": "Passed a dictionary type data"])
+                    withExtraData(ContentPageExtraData(from: self, message: "Show detail view controller"))
             )
         )
     }
@@ -62,7 +76,7 @@ private extension MasterViewController {
                 mode: .overlay,
                 options:
                     withTitle(String(arc4random())),
-                    withExtraData((self, "Passed a tuple type data")),
+                    withExtraData(ContentPageExtraData(from: self, message: "Show popup view controller by overlay mode")),
                     withTransitionClass(CircleTransition.self),
                     withSourceRect(.init(origin: .zero, size: .init(width: 0, height: UIScreen.main.bounds.size.height / 2)))
             )
@@ -77,7 +91,7 @@ private extension MasterViewController {
                 mode: .present,
                 options:
                     withTitle(String(arc4random())),
-                    withExtraData((self, "Passed a tuple type data")),
+                    withExtraData(ContentPageExtraData(from: self, message: "Show center popup view controller")),
                     withPresentationStyle(.custom),
                     withTransitionClass(FadeTransition.self),
                     withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))

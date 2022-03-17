@@ -12,6 +12,8 @@ public typealias PageOption = (PageObject) -> Void
 public typealias CompletionClosure = (Bool, Any?) -> Void
 public typealias ViewControllerCreator = () -> UIViewController
 
+@objc public protocol PageExtraData { }
+
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
 @objcMembers
@@ -35,7 +37,7 @@ public class PageObject: NSObject {
     public fileprivate(set) var title: String?
     
     /// Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
-    public fileprivate(set) var extraData: Any?
+    public fileprivate(set) var extraData: PageExtraData?
     
     /// The optional callback to be executed after dimisss view controller.
     public fileprivate(set) var completion: CompletionClosure?
@@ -123,7 +125,7 @@ public func withTitle(_ title: String) -> PageOption {
     }
 }
 
-public func withExtraData(_ extraData: Any) -> PageOption {
+public func withExtraData(_ extraData: PageExtraData) -> PageOption {
     return { (page: PageObject) in
         page.extraData = extraData
     }

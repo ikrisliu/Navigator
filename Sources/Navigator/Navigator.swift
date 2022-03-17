@@ -79,7 +79,7 @@ import os.log
     var dismissAnimated: Bool = true
     
     weak var showingPage: PageObject?
-    var dismissingData: Any?
+    var dismissingData: PageExtraData?
 }
 
 // MARK: - Show or Dismiss
@@ -93,7 +93,7 @@ public extension Navigator {
     ///   If the view controller is swift class, must add module name as prefix for class name.
     ///
     /// - Parameters:
-    ///   - page: The page object is required for view controller, can be any type. At least VC class name is required.
+    ///   - page: The page object is required for view controller, at least VC class name is required.
     ///   - animated: Whether show view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
     @objc func show(_ page: PageObject, animated: Bool = true, completion: CompletionBlock? = nil) {
@@ -112,7 +112,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func pop(_ data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func pop(_ data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard stackCount > 1 else { return }
         
         dismissingData = data
@@ -129,7 +129,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func dismiss(_ data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func dismiss(_ data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard stackCount > 1 else { return }
         
         dismissingData = data
@@ -146,7 +146,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func backTo(viewController: UIViewController, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(viewController: UIViewController, data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard let index = stackIndex(of: viewController), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
@@ -160,13 +160,13 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func backTo(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(vcName: UIViewController.Name, data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard let index = stackIndex(of: vcName.rawValue), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
     }
     
-    @objc func backTo(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(vcClass: UIViewController.Type, data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         backTo(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated, completion: completion)
     }
     
@@ -176,7 +176,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func backToRoot(data: Any? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backToRoot(data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         dismiss(data, level: -1, animated: animated, completion: completion)
     }
     
@@ -187,7 +187,7 @@ public extension Navigator {
     ///   - vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
     ///   - data: The data is passed to target view controller, default is nil.
     ///   - animated: Whether show view controller with animation, default is true.
-    @objc class func goto(vcName: UIViewController.Name, data: Any? = nil, animated: Bool = true) {
+    @objc class func goto(vcName: UIViewController.Name, data: PageExtraData? = nil, animated: Bool = true) {
         guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName.rawValue, data: data) else { return }
         
         let viewControllers = childViewControllers(of: rootVC)
@@ -199,7 +199,7 @@ public extension Navigator {
         }
     }
     
-    @objc class func goto(vcClass: UIViewController.Type, data: Any? = nil, animated: Bool = true) {
+    @objc class func goto(vcClass: UIViewController.Type, data: PageExtraData? = nil, animated: Bool = true) {
         goto(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated)
     }
 }
@@ -215,7 +215,7 @@ private extension Navigator {
     ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    func dismiss(_ data: Any? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
+    func dismiss(_ data: PageExtraData? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard stackCount > 1 else { return }
         
         dismissingData = data
@@ -234,7 +234,7 @@ public extension Navigator {
     ///   - If use `Navigator.current.deepLink()`, it will show deep linking VCs base on current visible view controller.
     ///     If the mode is `goto`, should use `Navigator.current.deepLink()`.
     ///
-    /// - Parameter page: The page object is required for view controller, can be any type. At least VC class name is required.
+    /// - Parameter page: The page object is required for view controller, at least VC class name is required.
     @objc func deepLink(_ page: PageObject) {
         guard topViewController?.ignoreDeepLinking == false else { return }
         
@@ -297,7 +297,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous any view controller.
     ///   - level: Send data to which view controller, default 0 is current VC, 1 is previous one VC.
     ///            If level is equal to -1, it will send data to root view controller of current navigator.
-    @objc func sendDataBeforeBack(_ data: Any?, level: Int = 0) {
+    @objc func sendDataBeforeBack(_ data: PageExtraData?, level: Int = 0) {
         guard let data = data, let fromVC = getStack(from: level).last else { return }
         
         let toVC = topViewController ?? fromVC
@@ -310,7 +310,7 @@ public extension Navigator {
     /// For this edge case, we can call this method in deinit() to solve data passing issue.
     ///
     /// - Parameter data: The data is passed to previous view controller.
-    @objc func sendDataAfterBack(_ data: Any?) {
+    @objc func sendDataAfterBack(_ data: PageExtraData?) {
         guard let data = data else { return }
         guard let toVC = topViewController else { return }
         

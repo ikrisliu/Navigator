@@ -444,7 +444,7 @@ extension Navigator {
 
 // MARK: - Goto View Controller
 extension Navigator {
-    func gotoViewControllerIfExisted(_ vcName: String, data: Any? = nil, animated: Bool = true) -> Bool {
+    func gotoViewControllerIfExisted(_ vcName: String, data: PageExtraData? = nil, animated: Bool = true) -> Bool {
         guard self !== Navigator.root else {
             guard let rootVC = rootViewController else { return false }
             
@@ -495,19 +495,19 @@ extension Navigator {
         navigatableVC.onPageDidInitialize?(page, fromVC: fromVC)
     }
     
-    func sendDataBeforeShow(_ data: Any?, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), "\(data ?? "nil")")
+    func sendDataBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?, toVC: UIViewController) {
+        os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), String(describing: data))
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveBeforeShow?(data, fromVC: fromVC)
     }
     
-    func p_sendDataBeforeBack(_ data: Any, fromVC: UIViewController?, toVC: UIViewController) {
+    func p_sendDataBeforeBack(_ data: PageExtraData, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data from %@ before back: %@", String(describing: fromVC), "\(data)")
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveBeforeBack?(data, fromVC: fromVC)
     }
     
-    func p_sendDataAfterBack(_ data: Any, toVC: UIViewController) {
+    func p_sendDataAfterBack(_ data: PageExtraData, toVC: UIViewController) {
         os_log("⬅️ [Navigator]: Send data to %@ after back: %@", toVC, "\(data)")
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveAfterBack?(data)

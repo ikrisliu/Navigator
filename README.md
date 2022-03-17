@@ -113,8 +113,8 @@ class DetailViewController: UIViewController {
         	vcClass: UIViewController.self,
         	mode: .present,
         	options:
-        		withTitle("Hello"),
-        		withExtraData("You can pass any type object")
+                withTitle("Hello"),
+                withExtraData("You can pass any type object")
         )
         
         navigator?.show(page)
@@ -207,7 +207,7 @@ class DetailViewController: UIViewController {
 ### Data Passing
 ```swift
 class DetailViewController: UIViewController, Navigatable {
-    private var data: Any?
+    private var data: PageExtraData?
     
     // Receive page object from previous vc after current vc initialized (before `viewDidLoad`)
     // - Note: Only called one time after vc initialized
@@ -218,13 +218,13 @@ class DetailViewController: UIViewController, Navigatable {
     
     // Receive data before the current vc show (before `viewDidLoad`)
     // - Note: May called multiple times since appear mutiple times
-    @objc optional func onDataReceiveBeforeShow(_ data: Any?, fromVC: UIViewController?) {}
+    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?) {}
     
     // Receive data from next vc before the next vc dismiss start
-    @objc optional func onDataReceiveBeforeBack(_ data: Any?, fromVC: UIViewController?) {}
+    @objc optional func onDataReceiveBeforeBack(_ data: PageExtraData?, fromVC: UIViewController?) {}
     
     // Receive data from next vc after the next vc dismiss animation end
-    func onDataReceiveAfterBack(_ data: Any?) {
+    func onDataReceiveAfterBack(_ data: PageExtraData?) {
         self.data = data
     }
 }
