@@ -12,10 +12,12 @@
 		01E7C7312585E7A300B7292A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01E7C72F2585E7A300B7292A /* LaunchScreen.storyboard */; };
 		01E7C7402585E8AD00B7292A /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7C73B2585E8AD00B7292A /* SplitViewController.swift */; };
 		01E7C7412585E8AD00B7292A /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7C73C2585E8AD00B7292A /* DetailViewController.swift */; };
-		01E7C7422585E8AD00B7292A /* TabItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7C73D2585E8AD00B7292A /* TabItemViewController.swift */; };
+		01E7C7422585E8AD00B7292A /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7C73D2585E8AD00B7292A /* SearchViewController.swift */; };
 		01E7C7432585E8AD00B7292A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7C73E2585E8AD00B7292A /* AppDelegate.swift */; };
 		01E7C7442585E8AD00B7292A /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7C73F2585E8AD00B7292A /* MasterViewController.swift */; };
 		01E7C74C2585EA9800B7292A /* Navigator in Frameworks */ = {isa = PBXBuildFile; productRef = 01E7C74B2585EA9800B7292A /* Navigator */; };
+		01FC3FAB27E305E100F49E2F /* PopupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC3FAA27E305E100F49E2F /* PopupViewController.swift */; };
+		01FC3FAD27E30A5600F49E2F /* ResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC3FAC27E30A5600F49E2F /* ResultViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,10 +28,12 @@
 		01E7C7322585E7A300B7292A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01E7C73B2585E8AD00B7292A /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		01E7C73C2585E8AD00B7292A /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
-		01E7C73D2585E8AD00B7292A /* TabItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabItemViewController.swift; sourceTree = "<group>"; };
+		01E7C73D2585E8AD00B7292A /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		01E7C73E2585E8AD00B7292A /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		01E7C73F2585E8AD00B7292A /* MasterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
 		01E7C7482585EA2A00B7292A /* Navigator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Navigator; path = ..; sourceTree = "<group>"; };
+		01FC3FAA27E305E100F49E2F /* PopupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupViewController.swift; sourceTree = "<group>"; };
+		01FC3FAC27E30A5600F49E2F /* ResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,9 +80,11 @@
 			children = (
 				01E7C73B2585E8AD00B7292A /* SplitViewController.swift */,
 				01E7C73C2585E8AD00B7292A /* DetailViewController.swift */,
-				01E7C73D2585E8AD00B7292A /* TabItemViewController.swift */,
+				01E7C73D2585E8AD00B7292A /* SearchViewController.swift */,
 				01E7C73E2585E8AD00B7292A /* AppDelegate.swift */,
 				01E7C73F2585E8AD00B7292A /* MasterViewController.swift */,
+				01FC3FAA27E305E100F49E2F /* PopupViewController.swift */,
+				01FC3FAC27E30A5600F49E2F /* ResultViewController.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -176,9 +182,11 @@
 			files = (
 				01E7C7442585E8AD00B7292A /* MasterViewController.swift in Sources */,
 				01E7C7432585E8AD00B7292A /* AppDelegate.swift in Sources */,
-				01E7C7422585E8AD00B7292A /* TabItemViewController.swift in Sources */,
+				01FC3FAD27E30A5600F49E2F /* ResultViewController.swift in Sources */,
+				01E7C7422585E8AD00B7292A /* SearchViewController.swift in Sources */,
 				01E7C7402585E8AD00B7292A /* SplitViewController.swift in Sources */,
 				01E7C7412585E8AD00B7292A /* DetailViewController.swift in Sources */,
+				01FC3FAB27E305E100F49E2F /* PopupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

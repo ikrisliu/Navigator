@@ -124,7 +124,7 @@ extension UIViewController {
     
     @objc public var isOverPresentation: Bool {
         switch navigationMode {
-        case .overlay, .popover:
+        case .overlay:
             return true
         case .present, .customPush, .reset, .goto, .push:
             return false
@@ -164,7 +164,7 @@ extension UIViewController {
     
     var isDismissable: Bool {
         switch navigationMode {
-        case .present, .customPush, .overlay, .popover:
+        case .present, .customPush, .overlay:
             return true
         case .reset, .goto, .push:
             return false

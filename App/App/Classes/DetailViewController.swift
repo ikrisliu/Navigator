@@ -69,19 +69,22 @@ class DetailViewController: UIViewController, Navigatable {
     override var ignoreDeepLinking: Bool { true }
 }
 
-private extension DetailViewController {
+extension DetailViewController {
     
     @objc dynamic func onTapOpenMaster() {
         splitViewController?.updateMasterVisibility()
     }
     
-    @objc dynamic func onTapShowViewControler() {
-        guard navigationMode != .overlay, navigationMode != .popover else {
-            navigator?.dismiss()
-            return
-        }
-        
-        let page = PageObject(vcCreator: { TabItemViewController() }, mode: .customPush, title: String(arc4random()), extraData: (greeting: "Hello: ", message: arc4random()))
-        navigator?.show(page)
+    @objc open dynamic func onTapShowViewControler() {
+        navigator?.show(
+            PageObject(
+                vcCreator: { SearchViewController() },
+                mode: .present,
+                options:
+                    withNavClass(UINavigationController.self),
+                    withTitle(String(arc4random())),
+                    withExtraData((greeting: "Hello: ", message: arc4random()))
+            )
+        )
     }
 }

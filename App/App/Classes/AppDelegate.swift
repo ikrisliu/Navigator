@@ -17,19 +17,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var tabPages: PageObject!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let firstTab = PageObject(vcClass: TabItemViewController.self, navClass: UINavigationController.self, mode: .reset)
+        let search = PageObject(vcClass: SearchViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
         
-        let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self, mode: .reset)
-        let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self, mode: .reset)
-        let secondTab = PageObject(vcClass: SplitViewController.self, navClass: nil, mode: .reset, children: [master, detail])
+        let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+        let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+        let contacts = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
         
-        tabPages = PageObject(vcClass: UITabBarController.self, navClass: nil, mode: .reset, children: [firstTab, secondTab])
+        tabPages = PageObject(vcClass: UITabBarController.self, mode: .reset, options: withChildren(search, contacts))
         
         Navigator.root.window = window
         Navigator.root.show(tabPages)
         
-        UINavigationBar.appearance().isTranslucent = false
-        UITabBar.appearance().isTranslucent = false
+        if #available(iOS 15, *) {
+            let navAppearance = UINavigationBarAppearance()
+            navAppearance.configureWithOpaqueBackground()
+            UINavigationBar.appearance().standardAppearance = navAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+            
+            let tabAppearance = UITabBarAppearance()
+            tabAppearance.configureWithOpaqueBackground()
+            UITabBar.appearance().standardAppearance = tabAppearance
+            UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+        } else {
+            UINavigationBar.appearance().isTranslucent = false
+            UITabBar.appearance().isTranslucent = false
+        }
         
         return true
     }

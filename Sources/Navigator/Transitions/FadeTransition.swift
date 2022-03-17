@@ -42,10 +42,3 @@ import UIKit
         }
     }
 }
-
-extension FadeTransition {
-    
-    public override func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: false)
-    }
-}

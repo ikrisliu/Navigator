@@ -25,7 +25,7 @@ Navigator is a generic navigation framework for view controllers. It can decoupl
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/iKrisLiu/Navigator", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/ikrisliu/Navigator", .upToNextMajor(from: "1.0.0"))
 ]
 ```
 
@@ -40,7 +40,7 @@ pod 'SmartNavigator', '~> 1.0'
 [Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. To integrate Navigator into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "iKrisLiu/Navigator" ~> 1.0
+github "ikrisliu/Navigator" ~> 1.0
 ```
 
 ## Usage
@@ -51,10 +51,10 @@ github "iKrisLiu/Navigator" ~> 1.0
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Decoupling Way: Recommend to use this way among modules
     // View controller class name (The swift class name should be "ModuleName.ClassName")
-    let main = PageObject(vcName: "ModuleName.ViewController", navName: "UINavigationController", mode: .reset)
+    let main = PageObject(vcName: "ModuleName.ViewController", mode: .reset, options: withNavName(.init(rawValue: "UINavigationController"))
     
     // Coupling Way: Recommend to use this way inside one module
-    let main = PageObject(vcClass: ViewController.self, navClass: UINavigationController.self, mode: .reset)
+    let main = PageObject(vcClass: ViewController.self, navCmode: .reset, options: withNavClass(UINavigationController.self))
     
     // If present view controller without passing any `UINavigationController`, use it as default one.
     Navigator.defaultNavigationControllerClass = UINavigationController.self
@@ -69,9 +69,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### SplitViewControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self, mode: .reset)
-    let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self, mode: .reset)
-    let split = PageObject(vcClass: SplitViewController.self, navClass: nil, mode: .reset, children: [master, detail])
+    let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+    let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+    let split = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
     
     Navigator.root.window = window
     Navigator.root.show(split)
@@ -83,13 +83,13 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### TabBarControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let firstTab = PageObject(vcClass: TabItemViewController.self, navClass: UINavigationController.self, mode: .reset)
+    let firstTab = PageObject(vcClass: TabItemViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
     
-    let master = PageObject(vcClass: MasterViewController.self, navClass: UINavigationController.self, mode: .reset)
-    let detail = PageObject(vcClass: DetailViewController.self, navClass: UINavigationController.self, mode: .reset)
-    let secondTab = PageObject(vcClass: SplitViewController.self, navClass: nil, mode: .reset, children: [master, detail])
+    let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+    let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+    let secondTab = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
     
-    let tabs = PageObject(vcClass: UITabBarController.self, navClass: nil, mode: .reset, children: [firstTab, secondTab])
+    let tabs = PageObject(vcClass: UITabBarController.self, mode: .reset, options: withChildren(firstTab, secondTab))
     
     Navigator.root.window = window
     Navigator.root.show(tabs)
@@ -109,19 +109,37 @@ class DetailViewController: UIViewController {
         
         // Coupling Way
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
-        let page = PageObject(vcClass: UIViewController.self, mode: .present, title: "Hello", extraData: "You can pass any type object")
+        let page = PageObject(
+        	vcClass: UIViewController.self,
+        	mode: .present,
+        	options:
+        		withTitle("Hello"),
+        		withExtraData("You can pass any type object")
+        )
         
         navigator?.show(page)
     }
     
     @objc private func onTapShowPopoverViewControler() {
         // Show from bottom
-        let page = PageObject(vcClass: UIViewController.self, mode: .overlay, title: "Hello", extraData: "You can pass any type object")
-        page.sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: 500))
+        let page = PageObject(
+            vcClass: UIViewController.self,
+            mode: .overlay,
+            options: 
+                withTitle("Hello"), 
+                withExtraData("You can pass any type object")
+                withSourceRect(CGRect(origin: .zero, size: .init(width: 0, height: 500)))
+        )
         
         // Show in center
-        let page = PageObject(vcClass: UIViewController.self, mode: .popover, title: "Hello", extraData: "You can pass any type object")
-        page.sourceRect = CGRect(origin: .zero, size: .init(width: 300, height: 500))
+        let page = PageObject(
+            vcClass: UIViewController.self,
+            mode: .popover,
+            options:
+                withTitle("Hello"),
+                withExtraData("You can pass any type object")
+                withSourceRect(CGRect(origin: .zero, size: .init(width: 300, height: 500)))
+        )
         
         navigator?.show(page)
     }
@@ -155,7 +173,7 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
     // Show a chain of view controllers from root vc
     Navigator.root.open(url: url) { _ -> PageObject? in
         // Parse the deep link url to below data models for showing
-        let root = PageObject(vcClass: MainViewController.self, navClass: UINavigationController.self, mode: .reset)
+        let root = PageObject(vcClass: MainViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
         let middle = PageObject(vcClass: MiddleViewController.self)
         let top = PageObject(vcClass: TopViewController.self)
 
@@ -177,11 +195,9 @@ class CustomTransition: Transition {
 
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
-        let page = PageObject(vcClass: UIViewController.self, mode: .present)
-        page.transitionStyle = .flipHorizontal
-        
-        let page = PageObject(vcClass: UIViewController.self, mode: .present)
-        page.transitionName = "CustomTransition"
+        let page = PageObject(vcClass: UIViewController.self, mode: .present, options: withTransitionStyle(.flipHorizontal))
+        // or
+        let page = PageObject(vcClass: UIViewController.self, mode: .present, options: withTransitionClass(CustomTransition.self))
 
         navigator?.show(page)
     }

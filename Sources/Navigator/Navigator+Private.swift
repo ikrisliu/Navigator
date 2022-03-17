@@ -196,10 +196,7 @@ extension Navigator {
             // NOTE: Always set the animated with true, otherwise, no interactive gesture will be added to presented VC.
             // (If passed in animated parameter is false, PushTransition's animation duration will be close to zero.)
             topViewController?.present(toVC, animated: true, completion: completion)
-        case .overlay, .popover:
-            if page.transitionClass == nil {
-                page.transitionClass = page.mode == .popover ? FadeTransition.self : Transition.self
-            }
+        case .overlay:
             setupTransition(page, for: toVC)
             toVC.modalPresentationStyle = .custom
             topViewController?.present(toVC, animated: animated, completion: completion)
@@ -242,10 +239,6 @@ extension Navigator {
                 switch page.mode {
                 case .overlay:  // origin from bottom
                     sourceRect = CGRect(x: 0, y: height - sourceRect.height, width: width, height: sourceRect.height)
-                case .popover:  // origin from center
-                    if sourceRect.origin == .zero {
-                        sourceRect.origin = CGPoint(x: (width - sourceRect.width) / 2, y: (height - sourceRect.height) / 2)
-                    }
                 case .reset, .goto, .push, .present, .customPush:
                     break
                 }

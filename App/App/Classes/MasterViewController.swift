@@ -18,7 +18,7 @@ class MasterViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
         
         let overlay = UIBarButtonItem(title: "Overlay", style: .plain, target: self, action: #selector(onOverlay))
-        let popover = UIBarButtonItem(title: "Popover", style: .plain, target: self, action: #selector(onPopover))
+        let popover = UIBarButtonItem(title: "Popup", style: .plain, target: self, action: #selector(onPopup))
         
         navigationItem.rightBarButtonItems = [overlay, popover]
         
@@ -40,26 +40,55 @@ class MasterViewController: UITableViewController {
             splitViewController?.updateMasterVisibility()
         }
         
-        let title: String! = tableView.cellForRow(at: indexPath)?.textLabel?.text
-        let navClass = UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil
-        let mode: Navigator.Mode = UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push
-        let dict = ["from": "\(self)", "message": "Passed a dictionary type data"]
-        let page = PageObject(vcClass: DetailViewController.self, navClass: navClass, mode: mode, title: title, extraData: dict)
-        
-        navigator?.show(page)
+        navigator?.show(
+            PageObject(
+                vcClass: DetailViewController.self,
+                mode: UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push,
+                options:
+                    withNavClass(UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil),
+                    withTitle((tableView.cellForRow(at: indexPath)?.textLabel?.text!)!),
+                    withExtraData(["from": "\(self)", "message": "Passed a dictionary type data"])
+            )
+        )
     }
 }
 
 private extension MasterViewController {
     
     @objc dynamic func onOverlay() {
-        let page = PageObject(vcClass: DetailViewController.self, mode: .overlay, title: String(arc4random()), extraData: (self, "Passed a tuple type data"))
-        page.transitionClass = CircleTransition.self
-        navigator?.show(page)
+        navigator?.show(
+            PageObject(
+                vcClass: PopupViewController.self,
+                mode: .overlay,
+                options:
+                    withTitle(String(arc4random())),
+                    withExtraData((self, "Passed a tuple type data")),
+                    withTransitionClass(CircleTransition.self),
+                    withSourceRect(.init(origin: .zero, size: .init(width: 0, height: UIScreen.main.bounds.size.height / 2)))
+            )
+        )
     }
     
-    @objc dynamic func onPopover() {
-        let page = PageObject(vcClass: DetailViewController.self, mode: .popover, title: String(arc4random()), extraData: (self, "Passed a tuple type data"))
-        navigator?.show(page)
+    @objc dynamic func onPopup() {
+        let size = UIScreen.main.bounds.size
+        navigator?.show(
+            PageObject(
+                vcClass: PopupViewController.self,
+                mode: .present,
+                options:
+                    withTitle(String(arc4random())),
+                    withExtraData((self, "Passed a tuple type data")),
+                    withPresentationStyle(.custom),
+                    withTransitionClass(FadeTransition.self),
+                    withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
+            )
+        )
+    }
+}
+
+extension FadeTransition {
+    
+    public override func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+        PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
     }
 }

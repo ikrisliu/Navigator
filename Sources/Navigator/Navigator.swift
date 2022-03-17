@@ -335,9 +335,8 @@ public extension Navigator {
         case present
         /// Use view controller present method to simulate system push behaviour via `PushTransition` animation
         case customPush
-        /// The presentationStyle must be forced with `custom` when mode is overlay/popover
+        /// The presentationStyle must be forced with `custom` when mode is overlay
         case overlay
-        case popover
         
         public var description: String {
             switch self {
@@ -347,7 +346,6 @@ public extension Navigator {
             case .present: return "present"
             case .customPush: return "customPush"
             case .overlay: return "overlay"
-            case .popover: return "popover"
             }
         }
     }

@@ -137,7 +137,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
 //    }
     
     /// - Note: If need custom popover presentation controller, can overwrite this method to provide one.
-    public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+    open func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
     }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 
+public typealias PageOption = (PageObject) -> Void
 public typealias CompletionClosure = (Bool, Any?) -> Void
 public typealias ViewControllerCreator = () -> UIViewController
 
@@ -17,47 +18,47 @@ public typealias ViewControllerCreator = () -> UIViewController
 public class PageObject: NSObject {
     
     /// View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    public let vcName: UIViewController.Name
+    public fileprivate(set) var vcName: UIViewController.Name
     
     /// Create a view controller instance instead of vcName, if use this closure, vcName should be `UIViewController.Name.invalid`
-    public let vcCreator: ViewControllerCreator?
+    public fileprivate(set) var vcCreator: ViewControllerCreator?
     
     /// Navigation controller class name (Used for containing the view controller)
     /// If `viewController` is actually UINavigationController or its subclass, ignore this variable.
-    public let navName: UIViewController.Name?
+    public fileprivate(set) var navName: UIViewController.Name?
     
     /// See **Navigator.Mode** (push, present and so on)
      /// If is `present` mode and `navName` is nil, will create a navigation controller for the content view controller.
-    public var mode: Navigator.Mode = .push
+    public internal(set) var mode: Navigator.Mode = .push
     
     /// Navigation or view controller's title
-    public var title: String?
+    public fileprivate(set) var title: String?
     
     /// Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
-    public var extraData: Any?
+    public fileprivate(set) var extraData: Any?
     
     /// The optional callback to be executed after dimisss view controller.
-    public var completion: CompletionClosure?
+    public fileprivate(set) var completion: CompletionClosure?
     
     /// See **UIModalTransitionStyle**. If has transition class, ignore the style.
-    public var transitionStyle: UIModalTransitionStyle = .coverVertical
+    public fileprivate(set) var transitionStyle: UIModalTransitionStyle = .coverVertical
     
     /// See **UIModalPresentationStyle**. If style is *UIModalPresentationCustom*,
     /// need pass a transition class which creates a custom presentation view controller.
-    public var presentationStyle: UIModalPresentationStyle = .fullScreen
+    public fileprivate(set) var presentationStyle: UIModalPresentationStyle = .fullScreen
     
     /// Transition class type for custom transition animation. If navigator mode is `customPush`, the transition class will be `PushTransition` by default.
-    public var transitionClass: Transition.Type?
+    public fileprivate(set) var transitionClass: Transition.Type?
     
     /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
-    public var sourceView: UIView?
-    public var sourceRect: CGRect?
+    public fileprivate(set) var sourceView: UIView?
+    public fileprivate(set) var sourceRect: CGRect?
     
     /// Fallback view controller will show if no VC found (like 404 Page)
-    public var fallback: UIViewController.Type?
+    public fileprivate(set) var fallback: UIViewController.Type?
     
     /// Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    public var children: [PageObject]?
+    public fileprivate(set) var children: [PageObject]?
     
     /// The next navigating view controller name with required data
     /// Use this variable to build linked node when you handle universal link or deep link
@@ -69,92 +70,98 @@ public class PageObject: NSObject {
     ///
     /// - Parameters:
     ///   - vcName: View controller class name (For swift, the class name should be "ModuleName.ClassName")
-    ///   - vcCreator: View controller creator closure for creating a vc instance
-    ///   - navName: Navigation controller class name (Used for containing the view controller), it alwayes `nil` for `push` and `goto` mode.
     ///   - mode: See **Navigator.Mode** (push, present and so on)
-    ///   - title: Navigation or view controller's title
-    ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
-    ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    private init(vcName: UIViewController.Name,
-                 vcCreator: ViewControllerCreator? = nil,
-                 navName: UIViewController.Name? = nil,
-                 mode: Navigator.Mode = .push,
-                 title: String? = nil,
-                 extraData: Any? = nil,
-                 children: [PageObject]? = nil) {
+    ///   - options: Function options for setting the page object's properties
+    private init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, options: [PageOption]) {
         self.vcName = vcName
-        self.vcCreator = vcCreator
         self.mode = mode
-        self.title = title
-        self.extraData = extraData
-        self.children = children
         
-        let size = UIScreen.main.bounds.size
-                
         switch mode {
-        case .push, .goto:
-            self.navName = nil
         case .customPush:
-            self.navName = navName
             self.transitionClass = PushTransition.self
-        case .overlay:
-            self.navName = navName
-            sourceRect = CGRect(origin: .zero, size: .init(width: 0, height: size.height / 2))
-        case .popover:
-            self.navName = navName
-            sourceRect = CGRect(origin: .zero, size: .init(width: size.width - 20, height: size.height / 3))
-        case .reset, .present:
-            self.navName = navName
+        case .push, .present, .overlay, .goto, .reset:
+            break
         }
+        
+        super.init()
+        
+        for option in options {
+            option(self)
+        }
+    }
+    
+    public convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, options: PageOption...) {
+        self.init(vcName: vcName, mode: mode, options: options)
+    }
+    
+    public convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, options: PageOption...) {
+        self.init(vcName: .init(NSStringFromClass(vcClass)), mode: mode, options: options)
+    }
+    
+    public convenience init(vcCreator: @escaping ViewControllerCreator, mode: Navigator.Mode = .push, options: PageOption...) {
+        self.init(vcName: .empty, mode: mode, options: options)
+        self.vcCreator = vcCreator
     }
 }
 
-// MARK: - Convenience Initializer
-public extension PageObject {
-    
-    convenience init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        self.init(vcName: vcName, navName: .defaultNavigation, mode: mode, title: title, extraData: extraData)
+// MARK: - With Functions for Initializer
+public func withNavName(_ navName: UIViewController.Name?) -> PageOption {
+    return { (page: PageObject) in
+        page.navName = navName
     }
-    
-    convenience init(vcName: UIViewController.Name, navName: UIViewController.Name?, title: String? = nil, children: [PageObject]) {
-        self.init(vcName: vcName, navName: navName, mode: .reset, title: title, children: children)
+}
+
+public func withNavClass(_ navClass: UIViewController.Type?) -> PageOption {
+    return { (page: PageObject) in
+        page.navName = navClass.flatMap({ .init(NSStringFromClass($0)) }) ?? nil
     }
-    
-    /// Data model's convenience initializer.
-    /// If don't need decouple view controller classes, should call below convenience initializers.
-    ///
-    /// - Parameters:
-    ///   - vcClass: View controller class type
-    ///   - navClass: Navigation controller class type
-    ///   - mode: See **Navigator.Mode** (push, present and so on)
-    ///   - title: Navigation or view controller's title
-    ///   - extraData: Extra data for passing to previous or next view controller. Pass tuple, dictionary or model for mutiple values.
-    ///   - children: Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
-    convenience init(vcClass: UIViewController.Type,
-                     navClass: UIViewController.Type?,
-                     mode: Navigator.Mode = .push,
-                     title: String? = nil,
-                     extraData: Any? = nil,
-                     children: [PageObject]? = nil) {
-        self.init(vcName: .init(NSStringFromClass(vcClass)),
-                  navName: navClass != nil ? .init(NSStringFromClass(navClass!)) : nil,
-                  mode: mode, title: title, extraData: extraData, children: children)
+}
+
+public func withTitle(_ title: String) -> PageOption {
+    return { (page: PageObject) in
+        page.title = title
     }
-    
-    convenience init(vcClass: UIViewController.Type, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        self.init(vcClass: vcClass, navClass: Navigator.defaultNavigationControllerClass, mode: mode, title: title, extraData: extraData)
+}
+
+public func withExtraData(_ extraData: Any) -> PageOption {
+    return { (page: PageObject) in
+        page.extraData = extraData
     }
-    
-    convenience init(vcClass: UIViewController.Type, navClass: UINavigationController.Type?, title: String? = nil, children: [PageObject]) {
-        self.init(vcClass: vcClass, navClass: navClass, mode: .reset, title: title, children: children)
+}
+
+public func withTransitionStyle(_ transitionStyle: UIModalTransitionStyle) -> PageOption {
+    return { (page: PageObject) in
+        page.transitionStyle = transitionStyle
     }
-    
-    convenience init(vcCreator: @escaping ViewControllerCreator, mode: Navigator.Mode = .push, title: String? = nil, extraData: Any? = nil) {
-        self.init(vcName: .empty, vcCreator: vcCreator, navName: .defaultNavigation, mode: mode, title: title, extraData: extraData)
+}
+
+public func withPresentationStyle(_ presentationStyle: UIModalPresentationStyle) -> PageOption {
+    return { (page: PageObject) in
+        page.presentationStyle = presentationStyle
     }
-    
-    convenience init(vcCreator: @escaping ViewControllerCreator, navName: UIViewController.Name?, title: String? = nil, children: [PageObject]) {
-        self.init(vcName: .empty, vcCreator: vcCreator, navName: navName, mode: .reset, title: title, children: children)
+}
+
+public func withTransitionClass(_ transitionClass: Transition.Type) -> PageOption {
+    return { (page: PageObject) in
+        page.transitionClass = page.mode == .customPush ? PushTransition.self : transitionClass
+    }
+}
+
+public func withSourceView(_ sourceView: UIView) -> PageOption {
+    return { (page: PageObject) in
+        page.sourceView = sourceView
+    }
+}
+
+public func withSourceRect(_ sourceRect: CGRect) -> PageOption {
+    return { (page: PageObject) in
+        page.sourceRect = sourceRect
+    }
+}
+
+public func withChildren(_ children: PageObject...) -> PageOption {
+    return { (page: PageObject) in
+        page.children = children
     }
 }
 

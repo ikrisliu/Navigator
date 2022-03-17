@@ -12,5 +12,6 @@ let package = Package(
     targets: [
         .target(name: "Navigator"),
         .testTarget(name: "NavigatorTests", dependencies: ["Navigator"]),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )

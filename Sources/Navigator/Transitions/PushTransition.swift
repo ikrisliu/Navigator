@@ -72,7 +72,7 @@ import UIKit
                 containerView.insertSubview(bgView, at: 0)
             }
             
-            let translationX = fromTransView != nil ? -fromTransView!.bounds.width / 3 : 0
+            let translationX = fromTransView.map({ -$0.bounds.width / 3 }) ?? 0.0
 
             UIView.animate(withDuration: animationDuration, animations: {
                 self.dimmedBackgroundView.alpha = 0.4
@@ -99,7 +99,7 @@ import UIKit
                 return
             }
             
-            let translationX = toTransView != nil ? -toTransView!.bounds.width / 3 : 0
+            let translationX = toTransView.map({ -$0.bounds.width / 3 }) ?? 0.0
             
             toTransView?.transform = CGAffineTransform(translationX: translationX, y: 0)
             hideNavigationBar(toNavBar, includingBgView: false, titleTranslationFactor: -titleViewMoveFactor)

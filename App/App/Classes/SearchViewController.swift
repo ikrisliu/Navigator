@@ -1,5 +1,5 @@
 //
-//  TabItemViewController.swift
+//  SearchViewController.swift
 //  NavigatorDemo
 //
 //  Created by Kris Liu on 5/11/18.
@@ -9,7 +9,7 @@
 import UIKit
 import Navigator
 
-class TabItemViewController: UIViewController, Navigatable {
+class SearchViewController: UIViewController, Navigatable {
 
     private typealias TupleType = (greeting: String, message: UInt32)
     private var tuple: TupleType?
@@ -20,7 +20,7 @@ class TabItemViewController: UIViewController, Navigatable {
         title = page.title ?? "Favorites"
         tuple = page.extraData as? TupleType
         
-        tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
+        tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 0)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
@@ -51,22 +51,24 @@ class TabItemViewController: UIViewController, Navigatable {
         }
     }
     
-    override var hidesBottomBarWhenPushed: Bool {
-        get { true }
-        set { super.hidesBottomBarWhenPushed = newValue }
-    }
-    
     deinit {
         debugPrint("FREE MEMORY: \(self)")
         navigator?.sendDataAfterBack(pageObject?.extraData)
     }
 }
 
-private extension TabItemViewController {
+private extension SearchViewController {
     
     @objc dynamic func onTapShowViewControler() {
-        let page = PageObject(vcClass: DetailViewController.self, mode: .customPush, title: String(arc4random()), extraData: "Passed a string type data")
-        navigator?.show(page)
+        navigator?.show(
+            PageObject(
+                vcClass: ResultViewController.self,
+                mode: .push,
+                options:
+                    withTitle(String(arc4random())),
+                    withExtraData("Passed a string type data")
+            )
+        )
     }
     
     @objc dynamic func onHome() {
