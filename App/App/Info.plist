@@ -24,7 +24,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.crescent.NavigatorDemo</string>
+			<string>com.Gravity.NavigatorDemo</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>navigatordemo</string>

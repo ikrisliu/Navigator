@@ -1,9 +1,9 @@
 //
 //  SearchViewController.swift
-//  NavigatorDemo
+//  Navigator.App
 //
 //  Created by Kris Liu on 5/11/18.
-//  Copyright © 2021 Crescent. All rights reserved.
+//  Copyright © 2022 Gravity. All rights reserved.
 //
 
 import UIKit

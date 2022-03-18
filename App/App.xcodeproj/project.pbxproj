@@ -138,6 +138,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1220;
 				LastUpgradeCheck = 1220;
+				ORGANIZATIONNAME = Gravity;
 				TargetAttributes = {
 					01E7C7202585E7A200B7292A = {
 						CreatedOnToolsVersion = 12.2;
@@ -339,7 +340,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.navigator.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gravity.navigator.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -357,7 +358,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.crescent.navigator.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gravity.navigator.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
