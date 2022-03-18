@@ -40,7 +40,7 @@ public class PageObject: NSObject {
     public fileprivate(set) var extraData: PageExtraData?
     
     /// The optional callback to be executed after dimisss view controller.
-    public fileprivate(set) var completion: CompletionClosure?
+    public fileprivate(set) var callback: CompletionClosure?
     
     /// See **UIModalTransitionStyle**. If has transition class, ignore the style.
     public fileprivate(set) var transitionStyle: UIModalTransitionStyle = .coverVertical
@@ -55,6 +55,9 @@ public class PageObject: NSObject {
     /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
     public fileprivate(set) var sourceView: UIView?
     public fileprivate(set) var sourceRect: CGRect?
+    
+    /// Determine if the view controller can be dismissed by tapping vc's outside
+    public fileprivate(set) var dismissWhenTapOutside: Bool = true
     
     /// Fallback view controller will show if no VC found (like 404 Page)
     public fileprivate(set) var fallback: UIViewController.Type?
@@ -81,7 +84,9 @@ public class PageObject: NSObject {
         switch mode {
         case .customPush:
             self.transitionClass = PushTransition.self
-        case .push, .present, .overlay, .goto, .reset:
+        case .overlay:
+            self.transitionClass = OverlayTransition.self
+        case .push, .present, .goto, .reset:
             break
         }
         
@@ -131,6 +136,12 @@ public func withExtraData(_ extraData: PageExtraData) -> PageOption {
     }
 }
 
+public func withCallback(_ callback: @escaping CompletionClosure) -> PageOption {
+    return { (page: PageObject) in
+        page.callback = callback
+    }
+}
+
 public func withTransitionStyle(_ transitionStyle: UIModalTransitionStyle) -> PageOption {
     return { (page: PageObject) in
         page.transitionStyle = transitionStyle
@@ -158,6 +169,12 @@ public func withSourceView(_ sourceView: UIView) -> PageOption {
 public func withSourceRect(_ sourceRect: CGRect) -> PageOption {
     return { (page: PageObject) in
         page.sourceRect = sourceRect
+    }
+}
+
+public func withDismissWhenTapOutside(_ dismissWhenTapOutside: Bool) -> PageOption {
+    return { (page: PageObject) in
+        page.dismissWhenTapOutside = dismissWhenTapOutside
     }
 }
 

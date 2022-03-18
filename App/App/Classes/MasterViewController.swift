@@ -31,12 +31,18 @@ class MasterViewController: UITableViewController {
         title = "Master"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
         
-        let overlay = UIBarButtonItem(title: "Overlay", style: .plain, target: self, action: #selector(onOverlay))
-        let popover = UIBarButtonItem(title: "Popup", style: .plain, target: self, action: #selector(onPopup))
-        
-        navigationItem.rightBarButtonItems = [overlay, popover]
+        let bottomSheet = UIBarButtonItem(title: "Bottom Sheet", style: .plain, target: self, action: #selector(onBottomSheet))
+        let popup = UIBarButtonItem(title: "Popup", style: .plain, target: self, action: #selector(onPopup))
+
+        navigationItem.leftBarButtonItem = popup
+        navigationItem.rightBarButtonItem = bottomSheet
         
         setContext(["data": "This is context data."])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("\(MasterViewController.self) did disappear")
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -55,7 +61,7 @@ class MasterViewController: UITableViewController {
         }
         
         navigator?.show(
-            PageObject(
+            .init(
                 vcClass: DetailViewController.self,
                 mode: UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push,
                 options:
@@ -69,40 +75,33 @@ class MasterViewController: UITableViewController {
 
 private extension MasterViewController {
     
-    @objc dynamic func onOverlay() {
+    @objc dynamic func onBottomSheet() {
+        let size = view.bounds.size
         navigator?.show(
-            PageObject(
+            .init(
                 vcClass: PopupViewController.self,
                 mode: .overlay,
                 options:
                     withTitle(String(arc4random())),
-                    withExtraData(ContentPageExtraData(from: self, message: "Show popup view controller by overlay mode")),
-                    withTransitionClass(CircleTransition.self),
-                    withSourceRect(.init(origin: .zero, size: .init(width: 0, height: UIScreen.main.bounds.size.height / 2)))
+                    withExtraData(ContentPageExtraData(from: self, message: "Show bottom sheet by overlay mode")),
+                    withSourceRect(.init(origin: .init(x: 0, y: size.height / 2), size: .init(width: size.width, height: size.height / 2)))
             )
         )
     }
     
     @objc dynamic func onPopup() {
-        let size = UIScreen.main.bounds.size
+        let size = view.bounds.size
         navigator?.show(
-            PageObject(
+            .init(
                 vcClass: PopupViewController.self,
                 mode: .present,
                 options:
                     withTitle(String(arc4random())),
-                    withExtraData(ContentPageExtraData(from: self, message: "Show center popup view controller")),
+                    withExtraData(ContentPageExtraData(from: self, message: "Show center popup")),
                     withPresentationStyle(.custom),
                     withTransitionClass(FadeTransition.self),
                     withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
             )
         )
-    }
-}
-
-extension FadeTransition {
-    
-    public override func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
     }
 }

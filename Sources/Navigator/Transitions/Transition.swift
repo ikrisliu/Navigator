@@ -8,6 +8,8 @@
 
 import UIKit
 
+public typealias VoidClosure = () -> Void
+
 // MARK: - Public -
 @objc open class Transition: UIPercentDrivenInteractiveTransition {
     
@@ -27,8 +29,7 @@ import UIKit
     @objc public var sourceRect: CGRect = .zero
     
     @objc public var isVertical: Bool { orientation == .vertical }
-    @objc public var transitionContext: UIViewControllerContextTransitioning { _transitionContext! }
-    private weak var _transitionContext: UIViewControllerContextTransitioning?
+    @objc public private(set) weak var transitionContext: UIViewControllerContextTransitioning?
     
     /// Show or Dismiss
     @objc public private(set) var isShow = false
@@ -47,11 +48,15 @@ import UIKit
     }
     
     /// For modal present or dismiss, need overwrite by subclass if define a custom transition
-    @objc open func animatePresentingTransition(from fromView: UIView?, to toVC: UIView?) { }
+    @objc open func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) { }
     
     /// For navigation push or pop, need overwrite by subclass if define a custom transition
-    @objc open func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) { }
+    @objc open func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) { }
     
+    func completeTransition(completion: VoidClosure?) {
+        transitionContext?.completeTransition(transitionContext?.transitionWasCancelled == false)
+        completion?()
+    }
     
     @objc required public override init() {
         super.init()
@@ -83,7 +88,7 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     }
     
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        _transitionContext = transitionContext
+        self.transitionContext = transitionContext
         
         let fromView = transitionContext.view(forKey: .from)
         let toView = transitionContext.view(forKey: .to)
@@ -92,14 +97,14 @@ extension Transition: UIViewControllerAnimatedTransitioning {
         toView?.frame = transitionContext.finalFrame(for: transitionContext.viewController(forKey: .to)!)
         
         if isModal {
-            animatePresentingTransition(from: fromView, to: toView)
+            animatePresentationTransition(isShow: isShow, from: fromView, to: toView)
         } else {
-            animateNavigationTransition(from: fromView, to: toView)
+            animateNavigationTransition(isShow: isShow, from: fromView, to: toView)
         }
     }
     
     public func animationEnded(_ transitionCompleted: Bool) {
-        if isInteractionInProgress && !isShow && _transitionContext?.transitionWasCancelled != true {
+        if isInteractionInProgress && !isShow && transitionContext?.transitionWasCancelled != true {
             panGestureVC?.didFinishDismissing(.interactiveGesture)
         }
         
@@ -138,7 +143,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
     
     /// - Note: If need custom popover presentation controller, can overwrite this method to provide one.
     open func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect, dismissWhenTapOutside: true)
+        PopoverPresentationController(presentedViewController: presented, presenting: presenting, sourceRect: sourceRect)
     }
 }
 
@@ -214,7 +219,7 @@ extension Transition {
                 cancel()
                 return
             }
-            if _transitionContext?.isAnimated == true {
+            if transitionContext?.isAnimated == true {
                 finish()
                 return
             }

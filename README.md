@@ -99,10 +99,20 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ```
 
 ### Show / Dismiss
-Supported navigation mode: `Push`, `Present`, `Overlay`, `Popover` and `Goto`
+Supported navigation mode: `Push`, `Present`, `Overlay` and `Goto`
 
 ```swift
+class ContentPageData : PageExtraData {
+    let message: String
+    
+    init(message: String) {
+        self.message = message
+    }
+}
+
 class DetailViewController: UIViewController {
+    let data = ContentPageData(message: "You can pass any type object which need to implement PageExtraData protocol")
+
     @objc private func onTapShowViewControler() {
         // Decoupling Way
         let page = PageObject(vcName: "UIViewController"), mode: .push)
@@ -111,42 +121,44 @@ class DetailViewController: UIViewController {
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
         let page = PageObject(
         	vcClass: UIViewController.self,
-        	mode: .present,
+        	mode: .push,
         	options:
                 withTitle("Hello"),
-                withExtraData("You can pass any type object")
+                withExtraData(data)
         )
         
         navigator?.show(page)
     }
     
     @objc private func onTapShowPopoverViewControler() {
-        // Show from bottom
+        let size = view.bounds.size
+                
+        // Show bottom sheet
         let page = PageObject(
             vcClass: UIViewController.self,
             mode: .overlay,
             options: 
                 withTitle("Hello"), 
-                withExtraData("You can pass any type object")
-                withSourceRect(CGRect(origin: .zero, size: .init(width: 0, height: 500)))
+                withExtraData(data)
+                withSourceRect(.init(origin: .init(x: 0, y: size.height - 500), size: .init(width: size.width, height: 500)))
         )
         
-        // Show in center
+        // Show center popup
         let page = PageObject(
             vcClass: UIViewController.self,
-            mode: .popover,
+            mode: .present,
             options:
                 withTitle("Hello"),
-                withExtraData("You can pass any type object")
-                withSourceRect(CGRect(origin: .zero, size: .init(width: 300, height: 500)))
+                withExtraData(data)
+                withPresentationStyle(.custom),
+                withTransitionClass(FadeTransition.self),
+                withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
         )
         
         navigator?.show(page)
     }
     
     @objc private func onTapDismissViewControler() {
-        let data = "You can pass any type object/struct, e.g. string, tuple, dictionary and so on"
-        
         navigator?.pop(data)            // Pop the top view controller (like system navigation controller pop)
         navigator?.dismiss(data)        // Dismiss the presented view controller (like system view controller dismiss)
         navigator?.backToRoot(data)     // Back to root view controller of current navigator

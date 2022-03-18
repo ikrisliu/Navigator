@@ -61,7 +61,7 @@ private extension SearchViewController {
     
     @objc dynamic func onTapShowViewControler() {
         navigator?.show(
-            PageObject(
+            .init(
                 vcClass: ResultViewController.self,
                 mode: .push,
                 options:

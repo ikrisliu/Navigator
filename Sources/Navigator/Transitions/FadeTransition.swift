@@ -10,34 +10,34 @@ import UIKit
 
 @objc public class FadeTransition: Transition {
     
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
-        let containerView = transitionContext.containerView
+    public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        let containerView = transitionContext?.containerView
         
         if isShow {
             if let toView = toView {
-                containerView.addSubview(toView)
+                containerView?.addSubview(toView)
                 toView.alpha = 0.0
             }
             
             UIView.animate(withDuration: animationDuration, animations: {
                 toView?.alpha = 1.0
             }, completion: { _ in
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         } else {
             if let toView = toView, let fromView = fromView {
-                containerView.insertSubview(toView, belowSubview: fromView)
+                containerView?.insertSubview(toView, belowSubview: fromView)
             }
             
             guard let fromView = fromView else {
-                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
                 return
             }
             
             UIView.animate(withDuration: animationDuration, animations: {
                 fromView.alpha = 0.0
             }, completion: { _ in
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         }
     }

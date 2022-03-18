@@ -13,12 +13,12 @@ import UIKit
     private var sourceRect: CGRect
     private let dimmedBackgroundView = UIView()
     
-    public init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?, sourceRect: CGRect, dismissWhenTapOutside: Bool = true) {
+    public init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?, sourceRect: CGRect) {
         self.sourceRect = sourceRect
         
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
         
-        if dismissWhenTapOutside {
+        if presentedViewController.pageObject?.dismissWhenTapOutside == true {
             dimmedBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapDimmedBackgroundView)))
         }
     }

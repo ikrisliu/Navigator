@@ -135,8 +135,12 @@ public extension Navigator {
         dismissingData = data
         dismissAnimated = animated
         
-        guard let level = stackLevelForTopPresentedVC, let vc = popStack(from: level) else { return }
-        dismissViewController(vc, completion: completion)
+        if topViewController?.isOverlay == true {
+            dismiss(data, level: 0, animated: animated, completion: completion)
+        } else {
+            guard let level = stackLevelForTopPresentedVC, let vc = popStack(from: level) else { return }
+            dismissViewController(vc, completion: completion)
+        }
     }
     
     /// Dismiss view controllers with the specified view controller instance.
@@ -333,9 +337,9 @@ public extension Navigator {
         case goto
         case push
         case present
-        /// Use view controller present method to simulate system push behaviour via `PushTransition` animation
+        /// Use view controller present method to simulate system push behaviour via `PushTransition` animation by default
         case customPush
-        /// The presentationStyle must be forced with `custom` when mode is overlay
+        /// Add child view controller via `OverlayTransition` animation by default
         case overlay
         
         public var description: String {

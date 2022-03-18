@@ -31,8 +31,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 15, *) {
             let navAppearance = UINavigationBarAppearance()
             navAppearance.configureWithOpaqueBackground()
-            UINavigationBar.appearance().standardAppearance = navAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
             
             let tabAppearance = UITabBarAppearance()
             tabAppearance.configureWithOpaqueBackground()

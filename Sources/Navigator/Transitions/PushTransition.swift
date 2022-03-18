@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// - NOTE: This transition only work for navigation mode with `present` or `customPush`
 @objc public class PushTransition: Transition {
     
     private let titleViewMoveFactor: CGFloat = 1.0
@@ -31,11 +32,13 @@ import UIKit
         (isShow && presentedVC?.navigator?.showAnimated == false) ? Double.leastNonzeroMagnitude : super.transitionDuration(using: transitionContext)
     }
     
-    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
-        animatePresentingTransition(from: fromView, to: toView)
+    public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        animatePresentationTransition(isShow: isShow, from: fromView, to: toView, completion: completion)
     }
     
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
+    public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        guard let transitionContext = transitionContext else { return }
+        
         let fromVC = transitionContext.viewController(forKey: .from)
         let toVC = transitionContext.viewController(forKey: .to)
         
@@ -86,7 +89,7 @@ import UIKit
             }, completion: { _ in
                 fromTransView?.transform = .identity
                 fromTitleView?.transform = .identity
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         } else {
             if let toView = toView, let fromView = fromView {
@@ -116,7 +119,7 @@ import UIKit
             }, completion: { _ in
                 toTransView?.transform = .identity
                 toTitleView?.transform = .identity
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         }
     }

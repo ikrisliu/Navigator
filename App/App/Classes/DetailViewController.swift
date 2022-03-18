@@ -77,12 +77,13 @@ extension DetailViewController {
     
     @objc open dynamic func onTapShowViewControler() {
         navigator?.show(
-            PageObject(
+            .init(
                 vcCreator: { SearchViewController() },
                 mode: .present,
                 options:
                     withNavClass(UINavigationController.self),
                     withTitle(String(arc4random())),
+                withTransitionClass(PushTransition.self),
                     withExtraData(ContentPageExtraData(from: self, message: "Search view controller"))
             )
         )

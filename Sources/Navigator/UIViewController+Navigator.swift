@@ -69,6 +69,14 @@ extension UIViewController {
     /// This method will be triggered by touching system back button or interactive pan gesture, the vc's navigation mode must be `push`.
     @objc open func onSystemBack() { }
     
+    /// When create a left navigation bar button item and navigation mode is `push`, you should use this method as target `selector`.
+    @objc open func onPop() {
+        willFinishDismissing(.tap)
+        navigator?.pop { [weak self] in
+            self?.didFinishDismissing(.tap)
+        }
+    }
+    
     /// When create a left navigation bar button item, you should use this method as target `selector`.
     @objc open func onDismiss() {
         willFinishDismissing(.tap)
@@ -84,8 +92,9 @@ extension UIViewController {
 // MARK: - Public Properties
 private enum AssociationKey {
     static var navigator: UInt8 = 0
-    static var navigatorMode: UInt8 = 0
-    static var navigatorTransition: UInt8 = 0
+    static var navigationMode: UInt8 = 0
+    static var animationTransition: UInt8 = 0
+    static var dimmedBackgroundView: UInt8 = 0
     static var pageObject: UInt8 = 0
     static var contextData: UInt8 = 0
 }
@@ -106,10 +115,10 @@ extension UIViewController {
     
     @objc public internal(set) var navigationMode: Navigator.Mode {
         get {
-            objc_getAssociatedObject(self, &AssociationKey.navigatorMode) as? Navigator.Mode ?? .reset
+            objc_getAssociatedObject(self, &AssociationKey.navigationMode) as? Navigator.Mode ?? .reset
         }
         set {
-            objc_setAssociatedObject(self, &AssociationKey.navigatorMode, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociationKey.navigationMode, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
     
@@ -119,15 +128,6 @@ extension UIViewController {
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.pageObject, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-    
-    @objc public var isOverPresentation: Bool {
-        switch navigationMode {
-        case .overlay:
-            return true
-        case .present, .customPush, .reset, .goto, .push:
-            return false
         }
     }
 }
@@ -164,9 +164,18 @@ extension UIViewController {
     
     var isDismissable: Bool {
         switch navigationMode {
-        case .present, .customPush, .overlay:
+        case .present, .customPush:
             return true
-        case .reset, .goto, .push:
+        case .reset, .goto, .push, .overlay:
+            return false
+        }
+    }
+    
+    var isOverlay: Bool {
+        switch navigationMode {
+        case .overlay:
+            return true
+        case .reset, .goto, .push, .present, .customPush:
             return false
         }
     }
@@ -175,12 +184,43 @@ extension UIViewController {
         modalPresentationStyle == .fullScreen || navigationController?.modalPresentationStyle == .fullScreen
     }
     
-    var p_navigatorTransition: Transition? {
+    var animationTransition: Transition? {
         get {
-            objc_getAssociatedObject(self, &AssociationKey.navigatorTransition) as? Transition
+            objc_getAssociatedObject(self, &AssociationKey.animationTransition) as? Transition
         }
         set {
-            objc_setAssociatedObject(self, &AssociationKey.navigatorTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociationKey.animationTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    private(set) var dimmedBackgroundView: UIView? {
+        get {
+            objc_getAssociatedObject(self, &AssociationKey.dimmedBackgroundView) as? UIView
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociationKey.dimmedBackgroundView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    func addDimmedBackgroundView() {
+        let dimmedBackgroundView = UIView()
+        dimmedBackgroundView.backgroundColor = .black
+        dimmedBackgroundView.frame = view.bounds
+        self.dimmedBackgroundView = dimmedBackgroundView
+        view.addSubview(dimmedBackgroundView)
+        
+        dimmedBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTouchDimmedBgView)))
+        dimmedBackgroundView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(onTouchDimmedBgView)))
+    }
+    
+    func removeDimmedBackgroundView() {
+        dimmedBackgroundView?.removeFromSuperview()
+        dimmedBackgroundView = nil
+    }
+    
+    @objc dynamic private func onTouchDimmedBgView() {
+        if children.last?.pageObject?.dismissWhenTapOutside == true {
+            onDismiss()
         }
     }
     

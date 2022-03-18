@@ -14,11 +14,12 @@ import UIKit
         1.0
     }
     
-    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
-        animatePresentingTransition(from: fromView, to: toView)
+    public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        animatePresentationTransition(isShow: isShow, from: fromView, to: toView, completion: completion)
     }
     
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
+    public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        guard let transitionContext = transitionContext else { return }
         let containerView = transitionContext.containerView
         
         if let toView = toView {
@@ -36,7 +37,7 @@ import UIKit
         }, completion: { _ in
             toView?.isHidden = false
             sliceViews.forEach({ $0.removeFromSuperview() })
-            self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+            self.completeTransition(completion: completion)
         })
     }
     

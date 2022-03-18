@@ -10,17 +10,18 @@ import UIKit
 
 @objc public class CircleTransition: Transition {
     
-    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
-        animatePresentingTransition(from: fromView, to: toView)
+    public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        animatePresentationTransition(isShow: isShow, from: fromView, to: toView, completion: completion)
     }
     
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
-        let containerView = transitionContext.containerView
+    public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        let containerView = transitionContext?.containerView
         
-        let point = containerView.center
+        guard let point = (containerView ?? fromView ?? toView)?.center else { return }
+        
         let radius = CGFloat(sqrtf(powf(Float(point.x), 2) + powf(Float(point.y), 2)))
-        let startPath = UIBezierPath(arcCenter: containerView.center, radius: 0.01, startAngle: 0, endAngle: 2*CGFloat.pi, clockwise: true).cgPath
-        let endPath = UIBezierPath(arcCenter: containerView.center, radius: radius, startAngle: 0, endAngle: 2*CGFloat.pi, clockwise: true).cgPath
+        let startPath = UIBezierPath(arcCenter: point, radius: 0.01, startAngle: 0, endAngle: 2*CGFloat.pi, clockwise: true).cgPath
+        let endPath = UIBezierPath(arcCenter: point, radius: radius, startAngle: 0, endAngle: 2*CGFloat.pi, clockwise: true).cgPath
         let maskLayer = CAShapeLayer(layer: startPath)
         
         let circleAnimation = CABasicAnimation(keyPath: "path")
@@ -31,7 +32,7 @@ import UIKit
         
         if isShow {
             if let toView = toView {
-                containerView.addSubview(toView)
+                containerView?.addSubview(toView)
                 toView.layer.mask = maskLayer
             }
             circleAnimation.fromValue = startPath
@@ -39,7 +40,7 @@ import UIKit
         } else {
             // For custom presentation style, toView is nil.
             if let fromView = fromView, let toView = toView {
-                containerView.insertSubview(toView, belowSubview: fromView)
+                containerView?.insertSubview(toView, belowSubview: fromView)
             }
             fromView?.layer.mask = maskLayer
             circleAnimation.fromValue = endPath
@@ -50,7 +51,7 @@ import UIKit
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             fromView?.layer.mask = nil
             toView?.layer.mask = nil
-            self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+            self.completeTransition(completion: completion)
         }
     }
 }

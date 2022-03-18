@@ -5,7 +5,7 @@
 //  Created by Kris Liu on 2022/3/17.
 //
 
-import Foundation
+import UIKit
 
 class ResultViewController: DetailViewController {
     

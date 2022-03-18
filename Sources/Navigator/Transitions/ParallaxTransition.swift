@@ -16,17 +16,17 @@ import UIKit
         orientation = .horizontal
     }
     
-    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
-        animatePresentingTransition(from: fromView, to: toView)
+    public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        animatePresentationTransition(isShow: isShow, from: fromView, to: toView, completion: completion)
     }
     
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
-        let containerView = transitionContext.containerView
+    public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        let containerView = transitionContext?.containerView
         let fromLayoutContainerView = layoutContainerView(in: fromView)
         
         if isShow {
             if let toView = toView {
-                containerView.insertSubview(toView, belowSubview: fromView!)
+                containerView?.insertSubview(toView, belowSubview: fromView!)
                 toView.transform = CGAffineTransform(translationX: toView.bounds.width / 3, y: 0)
             }
             
@@ -41,15 +41,15 @@ import UIKit
             }, completion: { _ in
                 fromView?.transform = .identity
                 fromLayoutContainerView?.subviews.forEach({ $0.transform = .identity })
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         } else {
             if let toView = toView, let fromView = fromView {
-                containerView.insertSubview(toView, belowSubview: fromView)
+                containerView?.insertSubview(toView, belowSubview: fromView)
             }
             
             guard let fromView = fromView else {
-                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
                 return
             }
             
@@ -64,7 +64,7 @@ import UIKit
                 toView?.transform = .identity
             }, completion: { _ in
                 toView?.transform = .identity
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         }
     }

@@ -23,13 +23,13 @@ import UIKit
         orientation = .vertical
     }
     
-    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) {
-        animatePresentingTransition(from: fromView, to: toView)
+    public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        animatePresentationTransition(isShow: isShow, from: fromView, to: toView, completion: completion)
     }
     
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) {
-        let containerView = transitionContext.containerView
-        dimmedBackgroundView.frame = containerView.frame
+    public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
+        let containerView = transitionContext?.containerView
+        dimmedBackgroundView.frame = containerView?.frame ?? .zero
         
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
         
@@ -38,8 +38,8 @@ import UIKit
         
         if isShow {
             if let toView = toView {
-                containerView.addSubview(dimmedBackgroundView)
-                containerView.addSubview(toView)
+                containerView?.addSubview(dimmedBackgroundView)
+                containerView?.addSubview(toView)
                 toView.layer.transform = isVertical ? CATransform3DMakeTranslation(0, toView.bounds.height, 0) : CATransform3DMakeTranslation(toView.bounds.width, 0, 0)
             }
             
@@ -49,16 +49,16 @@ import UIKit
                 fromView?.layer.transform = scaleTransform
             }, completion: { _ in
                 fromView?.layer.transform = CATransform3DIdentity
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         } else {
             if let toView = toView, let fromView = fromView {
-                containerView.insertSubview(toView, belowSubview: fromView)
-                containerView.insertSubview(dimmedBackgroundView, aboveSubview: toView)
+                containerView?.insertSubview(toView, belowSubview: fromView)
+                containerView?.insertSubview(dimmedBackgroundView, aboveSubview: toView)
             }
             
             guard let fromView = fromView else {
-                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
                 return
             }
             
@@ -69,7 +69,7 @@ import UIKit
                 toView?.layer.transform = CATransform3DIdentity
                 fromView.layer.transform = self.isVertical ? CATransform3DMakeTranslation(0, fromView.bounds.height, 0) : CATransform3DMakeTranslation(fromView.bounds.width, 0, 0)
             }, completion: { _ in
-                self.transitionContext.completeTransition(!self.transitionContext.transitionWasCancelled)
+                self.completeTransition(completion: completion)
             })
         }
     }
