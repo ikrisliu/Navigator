@@ -60,9 +60,8 @@ private extension PopoverPresentationController {
     @objc dynamic func onTapDimmedBackgroundView() {
         let contentVC = (presentedViewController as? UINavigationController)?.topViewController ?? presentedViewController
         
-        contentVC.willFinishDismissing(.tapOutside)
         contentVC.navigator?.dismiss {
-            contentVC.didFinishDismissing(.tapOutside)
+            contentVC.didFinishPopOrDismiss(.tapOutside)
         }
     }
 }

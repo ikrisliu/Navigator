@@ -8,7 +8,6 @@
 
 import UIKit
 
-/// - NOTE: This transition only work for navigation mode with `present` or `customPush`
 @objc public class PushTransition: Transition {
     
     private let titleViewMoveFactor: CGFloat = 1.0
@@ -25,11 +24,6 @@ import UIKit
         super.init()
         interactiveGestureEdges = [.left, .right]
         orientation = .horizontal
-    }
-    
-    public override func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        // Must set duration with `Double.leastNonzeroMagnitude` if show animated is false because `0.0` has delay bug.
-        (isShow && presentedVC?.navigator?.showAnimated == false) ? Double.leastNonzeroMagnitude : super.transitionDuration(using: transitionContext)
     }
     
     public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {

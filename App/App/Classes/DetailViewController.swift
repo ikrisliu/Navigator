@@ -27,7 +27,7 @@ class DetailViewController: UIViewController, Navigatable {
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
         }
         
-        if navigationMode == .customPush {
+        if navigationMode == .present {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onDismiss))
         }
         
@@ -45,21 +45,12 @@ class DetailViewController: UIViewController, Navigatable {
         ])
     }
     
-    override var hidesBottomBarWhenPushed: Bool {
-        get { false }
-        set { super.hidesBottomBarWhenPushed = newValue }
+    override var shouldDismissByInteractiveGesture: Bool {
+        true
     }
     
-    override func onSystemBack() {
-        debugPrint("onSystemBack")
-    }
-    
-    override func willFinishDismissing(_ action: DismissAction) {
-        debugPrint("willFinishDismissing - \(action.rawValue)")
-    }
-    
-    override func didFinishDismissing(_ action: DismissAction) {
-        debugPrint("didFinishDismissing - \(action.rawValue)")
+    override func didFinishPopOrDismiss(_ action: DismissAction) {
+        debugPrint("didFinishPopOrDismiss - \(action.rawValue)")
     }
     
     deinit {
@@ -83,7 +74,7 @@ extension DetailViewController {
                 options:
                     withNavClass(UINavigationController.self),
                     withTitle(String(arc4random())),
-                withTransitionClass(PushTransition.self),
+                    withTransitionClass(ZoomTransition.self),
                     withExtraData(ContentPageExtraData(from: self, message: "Search view controller"))
             )
         )

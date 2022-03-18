@@ -105,13 +105,13 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     
     public func animationEnded(_ transitionCompleted: Bool) {
         if isInteractionInProgress && !isShow && transitionContext?.transitionWasCancelled != true {
-            panGestureVC?.didFinishDismissing(.interactiveGesture)
+            panGestureVC?.didFinishPopOrDismiss(.interactiveGesture)
         }
         
         isShow = false
         isInteractionInProgress = false
         
-        addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC)
+        addInteractiveGestureToViewControllerIfNeeded(viewController: presentedVC ?? navController)
     }
 }
 
@@ -261,7 +261,6 @@ extension Transition {
     }
     
     func finishAll() {
-        panGestureVC?.willFinishDismissing(.interactiveGesture)
         finish()
         presentedVC?.navigator?.popStack()  // To avoid the retain cycled vc can't be removed from navigator stack
     }

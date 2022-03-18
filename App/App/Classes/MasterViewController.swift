@@ -23,7 +23,7 @@ class ContentPageExtraData : PageExtraData, CustomStringConvertible {
     }
 }
 
-class MasterViewController: UITableViewController {
+class MasterViewController: UITableViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,6 +38,9 @@ class MasterViewController: UITableViewController {
         navigationItem.rightBarButtonItem = bottomSheet
         
         setContext(["data": "This is context data."])
+        
+//        navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -70,6 +73,11 @@ class MasterViewController: UITableViewController {
                     withExtraData(ContentPageExtraData(from: self, message: "Show detail view controller"))
             )
         )
+    }
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        navigationController?.topViewController?.enableInteractiveDismissGesture == true &&
+        navigationController?.topViewController?.shouldDismissByInteractiveGesture == true
     }
 }
 

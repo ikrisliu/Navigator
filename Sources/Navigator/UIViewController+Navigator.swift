@@ -55,7 +55,7 @@ public extension UIViewController.Name {
 
 extension UIViewController {
     
-    /// If enable interactive dismiss gesture for presented view controller which mode must be `customPush`
+    /// If enable interactive dismiss gesture for presented view controller which must have custom animation transition
     @objc open var enableInteractiveDismissGesture: Bool { true }
     
     /// If should dismiss view controller which mode must be `customPush` when triggered an interactive pan gesture
@@ -66,27 +66,21 @@ extension UIViewController {
     /// If return true, it will do nothing when open App via deep linking.
     @objc open var ignoreDeepLinking: Bool { false }
     
-    /// This method will be triggered by touching system back button or interactive pan gesture, the vc's navigation mode must be `push`.
-    @objc open func onSystemBack() { }
-    
     /// When create a left navigation bar button item and navigation mode is `push`, you should use this method as target `selector`.
     @objc open func onPop() {
-        willFinishDismissing(.tap)
         navigator?.pop { [weak self] in
-            self?.didFinishDismissing(.tap)
+            self?.didFinishPopOrDismiss(.tap)
         }
     }
     
     /// When create a left navigation bar button item, you should use this method as target `selector`.
     @objc open func onDismiss() {
-        willFinishDismissing(.tap)
         navigator?.dismiss { [weak self] in
-            self?.didFinishDismissing(.tap)
+            self?.didFinishPopOrDismiss(.tap)
         }
     }
     
-    @objc open func willFinishDismissing(_ action: DismissAction) { }
-    @objc open func didFinishDismissing(_ action: DismissAction) { }
+    @objc open func didFinishPopOrDismiss(_ action: DismissAction) { }
 }
 
 // MARK: - Public Properties
@@ -162,9 +156,9 @@ extension UIViewController {
 // MARK: - Internal
 extension UIViewController {
     
-    var isDismissable: Bool {
+    var isPresent: Bool {
         switch navigationMode {
-        case .present, .customPush:
+        case .present:
             return true
         case .reset, .goto, .push, .overlay:
             return false
@@ -175,7 +169,7 @@ extension UIViewController {
         switch navigationMode {
         case .overlay:
             return true
-        case .reset, .goto, .push, .present, .customPush:
+        case .reset, .goto, .push, .present:
             return false
         }
     }
@@ -234,7 +228,7 @@ extension UIViewController {
         swizzle_viewDidDisappear(animated)
         
         if isMovingFromParent {
-            onSystemBack()
+            didFinishPopOrDismiss(.tap)
         }
     }
 }

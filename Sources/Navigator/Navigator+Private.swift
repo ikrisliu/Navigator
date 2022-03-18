@@ -68,7 +68,7 @@ extension Navigator {
     
     var stackLevelForTopPresentedVC: Int? {
         for idx in (0..<stackCount) {
-            if let vc = getStack(from: idx).last, (vc.isDismissable || vc.navigationController?.isDismissable == true) {
+            if let vc = getStack(from: idx).last, (vc.isPresent || vc.navigationController?.isPresent == true) {
                 return idx
             }
         }
@@ -190,12 +190,6 @@ extension Navigator {
         case .present:
             setupTransition(page, for: toVC)
             topViewController?.present(toVC, animated: animated, completion: completion)
-        case .customPush:
-            toVC.modalPresentationStyle = viewController.hidesBottomBarWhenPushed ? .fullScreen : .overCurrentContext
-            setupTransition(page, for: toVC)
-            // NOTE: Always set the animated with true, otherwise, no interactive gesture will be added to presented VC.
-            // (If passed in animated parameter is false, PushTransition's animation duration will be close to zero.)
-            topViewController?.present(toVC, animated: true, completion: completion)
         case .overlay:
             setupTransition(page, for: toVC)
             addChildViewController(toVC)
@@ -373,35 +367,24 @@ extension Navigator {
     // Disallow dismiss the root view controller
     func dismissViewControllers(level: Int, completion: CompletionBlock?) {
         if level < 0 && (stackCount + level) <= 0 { return }
-        
-        let vcs = getStack(from: level)
         guard let dismissedVC = popStack(from: level) else { return }
         
-        let animatedDismissClosure = {
-            switch dismissedVC.navigationMode {
-            case .push:
-                self.popViewController(dismissedVC, fromNav: dismissedVC.navigationController, completion: completion)
-            case .present, .customPush:
-                self.dismissViewController(dismissedVC, completion: completion)
-            case .overlay:
-                self.removeChildViewController(dismissedVC)
-            case .reset, .goto:
-                completion?()
-            }
+        if dismissedVC.isPresent {
+            dismissViewController(dismissedVC, completion: completion)
+            return
         }
         
-        // NOTE: Bugfix for `backToRoot` method when multiple vcs used different `presentationStyle` in different iOS system
-        if vcs.filter({ $0.isFullScreenModalPresentationStyle == false }).isEmpty {
-            animatedDismissClosure()
-        } else {
-            // Remove stack bottom element which needs dismiss with animation
-            if let presentingVC = vcs.dropLast().last(where: { $0.isFullScreenModalPresentationStyle })?.presentingViewController {
-                presentingVC.dismiss(animated: false) {
-                    animatedDismissClosure()
-                }
+        switch dismissedVC.navigationMode {
+        case .push, .present:
+            if let nav = dismissedVC.navigationController {
+                popViewController(dismissedVC, fromNav: nav, completion: completion)
             } else {
-                animatedDismissClosure()
+                dismissViewController(dismissedVC.navigationController ?? dismissedVC, completion: completion)
             }
+        case .overlay:
+            self.removeChildViewController(dismissedVC)
+        case .reset, .goto:
+            completion?()
         }
     }
     

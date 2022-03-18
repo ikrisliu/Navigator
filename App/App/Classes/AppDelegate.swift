@@ -31,6 +31,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 15, *) {
             let navAppearance = UINavigationBarAppearance()
             navAppearance.configureWithOpaqueBackground()
+//            UINavigationBar.appearance().standardAppearance = navAppearance
+//            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
             
             let tabAppearance = UITabBarAppearance()
             tabAppearance.configureWithOpaqueBackground()
@@ -52,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let splitPage = PageObject(vcClass: SplitViewController.self)
             let navPage = PageObject(vcClass: MasterViewController.self)
             
-            return url.host == "links" ? self.tabPages --> splitPage --> navPage --> vcPage : vcPage
+            return url.host == "links" ? self.tabPages => splitPage => navPage => vcPage : vcPage
         }
         
         return true

@@ -120,9 +120,9 @@ class DetailViewController: UIViewController {
         // Coupling Way
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
         let page = PageObject(
-        	vcClass: UIViewController.self,
-        	mode: .push,
-        	options:
+            vcClass: UIViewController.self,
+            mode: .push,
+            options:
                 withTitle("Hello"),
                 withExtraData(data)
         )
@@ -184,12 +184,12 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
 
     // Show a chain of view controllers from root vc
     Navigator.root.open(url: url) { _ -> PageObject? in
-        // Parse the deep link url to below data models for showing
+        // Parse the deep link url to below page objects for showing
         let root = PageObject(vcClass: MainViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
         let middle = PageObject(vcClass: MiddleViewController.self)
         let top = PageObject(vcClass: TopViewController.self)
 
-        return root --> middle --> top
+        return root => middle => top
     }
 
     return true
@@ -197,12 +197,12 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
 ```
 
 ### Transition Animation
-Create custom transition class inherits the `Transition` class and override below two methods. Then pass transition class with custom transition class name in data model.
+Create custom transition class inherits the `Transition` class and override below two methods. Then pass transition class with custom transition class name in page object.
 
 ```swift
 class CustomTransition: Transition {
-    public override func animateNavigationTransition(from fromView: UIView?, to toView: UIView?) { }
-    public override func animatePresentingTransition(from fromView: UIView?, to toView: UIView?) { }
+    @objc open func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) { }
+    @objc open func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) { }
 }
 
 class DetailViewController: UIViewController {
@@ -243,7 +243,7 @@ class DetailViewController: UIViewController, Navigatable {
 ```
 
 ### Context Data
-If set context data in view controller A and open view controller B -> C by sequence, you can easily get the context data in view controller B or C.
+If set context data in view controller A and open view controller B => C by sequence, you can easily get the context data in view controller B or C.
 
 ```swift
 class ViewControllerA: UIViewController {

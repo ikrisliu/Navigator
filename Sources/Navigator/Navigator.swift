@@ -337,8 +337,6 @@ public extension Navigator {
         case goto
         case push
         case present
-        /// Use view controller present method to simulate system push behaviour via `PushTransition` animation by default
-        case customPush
         /// Add child view controller via `OverlayTransition` animation by default
         case overlay
         
@@ -348,7 +346,6 @@ public extension Navigator {
             case .goto: return "goto"
             case .push: return "push"
             case .present: return "present"
-            case .customPush: return "customPush"
             case .overlay: return "overlay"
             }
         }

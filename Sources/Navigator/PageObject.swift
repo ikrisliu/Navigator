@@ -82,8 +82,6 @@ public class PageObject: NSObject {
         self.mode = mode
         
         switch mode {
-        case .customPush:
-            self.transitionClass = PushTransition.self
         case .overlay:
             self.transitionClass = OverlayTransition.self
         case .push, .present, .goto, .reset:
@@ -156,7 +154,7 @@ public func withPresentationStyle(_ presentationStyle: UIModalPresentationStyle)
 
 public func withTransitionClass(_ transitionClass: Transition.Type) -> PageOption {
     return { (page: PageObject) in
-        page.transitionClass = page.mode == .customPush ? PushTransition.self : transitionClass
+        page.transitionClass = transitionClass
     }
 }
 
@@ -185,12 +183,12 @@ public func withChildren(_ children: PageObject...) -> PageOption {
 }
 
 // MARK: - Custom Operator
-infix operator -->: AdditionPrecedence
+infix operator =>: AdditionPrecedence
 
 extension PageObject {
     
     /// Use this custom operator to build navigation data for univeral link and deep link
-    public static func --> (left: PageObject, right: PageObject) -> PageObject {
+    public static func => (left: PageObject, right: PageObject) -> PageObject {
         var curr = left
         while let next = curr.next {
             curr = next
