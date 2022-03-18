@@ -51,7 +51,7 @@ github "ikrisliu/Navigator" ~> 1.0
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Decoupling Way: Recommend to use this way among modules
     // View controller class name (The swift class name should be "ModuleName.ClassName")
-    let main = PageObject(vcName: "ModuleName.ViewController", mode: .reset, options: withNavName(.init(rawValue: "UINavigationController"))
+    let main = PageObject(vcName: .init(rawValue: "ModuleName.ViewController"), mode: .reset, options: withNavName(.init(rawValue: "UINavigationController"))
     
     // Coupling Way: Recommend to use this way inside one module
     let main = PageObject(vcClass: ViewController.self, navCmode: .reset, options: withNavClass(UINavigationController.self))
@@ -115,7 +115,7 @@ class DetailViewController: UIViewController {
 
     @objc private func onTapShowViewControler() {
         // Decoupling Way
-        let page = PageObject(vcName: "UIViewController"), mode: .push)
+        let page = PageObject(vcName: .init(rawValue: ModuleName.CustomViewController"), mode: .push)
         
         // Coupling Way
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
