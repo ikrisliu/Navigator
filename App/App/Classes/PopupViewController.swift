@@ -12,10 +12,10 @@ class PopupViewController: DetailViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        print("\(PopupViewController.self) did disappear")
+        debugPrint("\(PopupViewController.self) did disappear")
     }
     
     override func onTapShowViewControler() {
-        print("Tap on \(PopupViewController.self)")
+        debugPrint("Tap on \(PopupViewController.self)")
     }
 }

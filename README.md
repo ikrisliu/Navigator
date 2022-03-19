@@ -60,7 +60,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     Navigator.defaultNavigationControllerClass = UINavigationController.self
     
     Navigator.root.window = window
-    Navigator.root.show(main)
+    Navigator.root.open(main)
     
     return true
 }
@@ -74,7 +74,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     let split = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
     
     Navigator.root.window = window
-    Navigator.root.show(split)
+    Navigator.root.open(split)
     
     return true
 }
@@ -92,13 +92,13 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     let tabs = PageObject(vcClass: UITabBarController.self, mode: .reset, options: withChildren(firstTab, secondTab))
     
     Navigator.root.window = window
-    Navigator.root.show(tabs)
+    Navigator.root.open(tabs)
     
     return true
 }
 ```
 
-### Show / Dismiss
+### Open / Close
 Supported navigation mode: `Push`, `Present`, `Overlay` and `Goto`
 
 ```swift
@@ -115,7 +115,7 @@ class DetailViewController: UIViewController {
 
     @objc private func onTapShowViewControler() {
         // Decoupling Way
-        let page = PageObject(vcName: .init(rawValue: ModuleName.CustomViewController"), mode: .push)
+        let page = PageObject(vcName: .init(rawValue: "ModuleName.CustomViewController"), mode: .push)
         
         // Coupling Way
         // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
@@ -127,7 +127,7 @@ class DetailViewController: UIViewController {
                 withExtraData(data)
         )
         
-        navigator?.show(page)
+        navigator?.open(page)
     }
     
     @objc private func onTapShowPopoverViewControler() {
@@ -155,12 +155,11 @@ class DetailViewController: UIViewController {
                 withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
         )
         
-        navigator?.show(page)
+        navigator?.open(page)
     }
     
     @objc private func onTapDismissViewControler() {
-        navigator?.pop(data)            // Pop the top view controller (like system navigation controller pop)
-        navigator?.dismiss(data)        // Dismiss the presented view controller (like system view controller dismiss)
+        navigator?.close(data)          // Close the current view controller
         navigator?.backToRoot(data)     // Back to root view controller of current navigator
         navigator?.backTo(OneViewController.self)   // Back to someone specific view controller which in navigtor stack
     }
@@ -211,7 +210,7 @@ class DetailViewController: UIViewController {
         // or
         let page = PageObject(vcClass: UIViewController.self, mode: .present, options: withTransitionClass(CustomTransition.self))
 
-        navigator?.show(page)
+        navigator?.open(page)
     }
 }
 ```
@@ -221,21 +220,18 @@ class DetailViewController: UIViewController {
 class DetailViewController: UIViewController, Navigatable {
     private var data: PageExtraData?
     
-    // Receive page object from previous vc after current vc initialized (before `viewDidLoad`)
-    // - Note: Only called one time after vc initialized
-    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
+    // Current VC receive page object from previous VC after the current one initialized (before `viewDidLoad`)
+    // - Note: Only called one time after the VC initialized
+    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         title = page.title
         data = page.extraData
     }
     
-    // Receive data before the current vc show (before `viewDidLoad`)
-    // - Note: May called multiple times since appear mutiple times
-    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?) {}
+    // Current VC receive data before the current VC show (before `viewDidLoad`)
+    // - Note: May called multiple times since the view appear mutiple times
+    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController) {}
     
-    // Receive data from next vc before the next vc dismiss start
-    @objc optional func onDataReceiveBeforeBack(_ data: PageExtraData?, fromVC: UIViewController?) {}
-    
-    // Receive data from next vc after the next vc dismiss animation end
+    // Previous VC receive data from current VC after the current one dismiss animation end
     func onDataReceiveAfterBack(_ data: PageExtraData?) {
         self.data = data
     }

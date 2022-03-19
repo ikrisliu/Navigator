@@ -11,9 +11,9 @@ import Navigator
 
 class DetailViewController: UIViewController, Navigatable {
     
-    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
+    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         title = page.title ?? "Detail"
-        print("Received additional data: \(String(describing: page.extraData))")
+        debugPrint("Received additional data: \(String(describing: page.extraData))")
     }
     
     override func viewDidLoad() {
@@ -27,11 +27,11 @@ class DetailViewController: UIViewController, Navigatable {
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(onTapOpenMaster))
         }
         
-        if navigationMode == .present {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onDismiss))
+        if [.present, .overlay].contains(navigationMode) {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(onClose))
         }
         
-        print("Context data: \(context)")
+        debugPrint("Context data: \(context)")
         
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -49,8 +49,9 @@ class DetailViewController: UIViewController, Navigatable {
         true
     }
     
-    override func didFinishPopOrDismiss(_ action: DismissAction) {
-        debugPrint("didFinishPopOrDismiss - \(action.rawValue)")
+    override func didBackOrClose(_ action: DismissAction) {
+        debugPrint("\(#function) by \(action)")
+        navigator?.sendDataAfterBack(ContentPageExtraData(from: self, message: "Back from results page"))
     }
     
     deinit {
@@ -67,13 +68,13 @@ extension DetailViewController {
     }
     
     @objc open dynamic func onTapShowViewControler() {
-        navigator?.show(
+        navigator?.open(
             .init(
                 vcCreator: { SearchViewController() },
                 mode: .present,
                 options:
                     withNavClass(UINavigationController.self),
-                    withTitle(String(arc4random())),
+                    withTitle("Search"),
                     withTransitionClass(ZoomTransition.self),
                     withExtraData(ContentPageExtraData(from: self, message: "Search view controller"))
             )

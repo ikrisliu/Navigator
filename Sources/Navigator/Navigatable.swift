@@ -11,17 +11,14 @@ import UIKit
 /// View controller need implement this protocol for receiving data from previous or next view controller
 @objc public protocol Navigatable where Self: UIViewController {
     
-    /// Receive page object from previous vc after current vc initialized (before `viewDidLoad`)
-    /// - Note: Only called one time after vc initialized
-    @objc optional func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?)
+    /// Current VC receive page object from previous VC after the current one initialized (before `viewDidLoad`)
+    /// - Note: Only called one time after the VC initialized
+    @objc optional func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController)
     
-    /// Receive data before the current vc show (before `viewDidLoad`)
-    /// - Note: May called multiple times since appear mutiple times
-    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?)
+    /// Current VC receive data before the current VC show (before `viewDidLoad`)
+    /// - Note: May called multiple times since the view appear mutiple times
+    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController)
     
-    /// Receive data from next vc before the next vc dismiss start
-    @objc optional func onDataReceiveBeforeBack(_ data: PageExtraData?, fromVC: UIViewController?)
-    
-    /// Receive data from next vc after the next vc dismiss animation end
+    /// Previous VC receive data from current VC after the current one dismiss animation end
     @objc optional func onDataReceiveAfterBack(_ data: PageExtraData?)
 }

@@ -18,7 +18,8 @@ import UIKit
         
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
         
-        if presentedViewController.pageObject?.dismissWhenTapOutside == true {
+        let contentVC = (presentedViewController as? UINavigationController)?.topViewController ?? presentedViewController
+        if contentVC.pageObject?.dismissWhenTapOutside == true {
             dimmedBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapDimmedBackgroundView)))
         }
     }
@@ -60,8 +61,8 @@ private extension PopoverPresentationController {
     @objc dynamic func onTapDimmedBackgroundView() {
         let contentVC = (presentedViewController as? UINavigationController)?.topViewController ?? presentedViewController
         
-        contentVC.navigator?.dismiss {
-            contentVC.didFinishPopOrDismiss(.tapOutside)
+        contentVC.navigator?.close {
+            contentVC.didBackOrClose(.tapOutside)
         }
     }
 }

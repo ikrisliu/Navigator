@@ -65,15 +65,6 @@ extension Navigator {
         let level = index - 1   // Exclude the backTo target VC
         return (level >= 0 && index <= stackCount - 1) ? level : nil
     }
-    
-    var stackLevelForTopPresentedVC: Int? {
-        for idx in (0..<stackCount) {
-            if let vc = getStack(from: idx).last, (vc.isPresent || vc.navigationController?.isPresent == true) {
-                return idx
-            }
-        }
-        return nil
-    }
 }
 
 // MARK: - Show View Controllers
@@ -92,7 +83,7 @@ extension Navigator {
         guard let page = showingPage else { return false }
         guard let tabVC = viewController as? UITabBarController else { return false }
         
-        setChildViewControllersIfExisted(page.children, toViewController: tabVC)
+        setChildViewControllersIfExisted(page.children, for: tabVC)
         return showViewControler(viewController, completion: completion)
     }
     
@@ -100,7 +91,7 @@ extension Navigator {
         guard let page = showingPage else { return false }
         guard let splitVC = viewController as? UISplitViewController else { return false }
         
-        setChildViewControllersIfExisted(page.children, toViewController: splitVC)
+        setChildViewControllersIfExisted(page.children, for: splitVC)
         return showViewControler(viewController, completion: completion)
     }
     
@@ -108,7 +99,7 @@ extension Navigator {
         guard let page = showingPage else { return false }
         guard let navVC = viewController as? UINavigationController else { return false }
         
-        setChildViewControllersIfExisted(page.children, toViewController: navVC)
+        setChildViewControllersIfExisted(page.children, for: navVC)
         return showViewControler(viewController, completion: completion)
     }
     
@@ -302,18 +293,18 @@ extension Navigator {
     }
     
     // Set child view controllers for container view controllers like Navigation/Split/Tab view controller
-    private func setChildViewControllersIfExisted(_ pages: [PageObject]?, toViewController: UIViewController) {
+    private func setChildViewControllersIfExisted(_ pages: [PageObject]?, for parentVC: UIViewController) {
         guard let pages = pages else { return }
         
         var viewControllers: [UIViewController] = []
         
         for page in pages {
             let toVC = createViewController(page)
-            passPageObject(page, fromVC: toViewController, toVC: toVC)
+            passPageObject(page, fromVC: parentVC, toVC: toVC)
             viewControllers.append(toVC.navigationController ?? toVC)
             
             if let children = page.children, !children.isEmpty {
-                setChildViewControllersIfExisted(page.children, toViewController: toVC)
+                setChildViewControllersIfExisted(page.children, for: toVC)
             }
         }
         
@@ -331,9 +322,9 @@ extension Navigator {
             }
         }
         
-        (toViewController as? UITabBarController)?.viewControllers = viewControllers
-        (toViewController as? UISplitViewController)?.viewControllers = viewControllers
-        (toViewController as? UINavigationController)?.viewControllers = viewControllers
+        (parentVC as? UITabBarController)?.viewControllers = viewControllers
+        (parentVC as? UISplitViewController)?.viewControllers = viewControllers
+        (parentVC as? UINavigationController)?.viewControllers = viewControllers
     }
     
     private func setupNavigatorForViewController(_ viewController: UIViewController) {
@@ -347,6 +338,7 @@ extension Navigator {
     private func addChildViewController(_ childVC: UIViewController) {
         guard let parentVC = topViewController else { return }
         
+        (parentVC.view as? UIScrollView)?.isScrollEnabled = false
         if let navBar = parentVC.navigationController?.navigationBar {
             navBar.isUserInteractionEnabled = false
         }
@@ -388,35 +380,26 @@ extension Navigator {
         }
     }
     
-    func dismissViewController(_ viewController: UIViewController, completion: CompletionBlock?) {
+    private func dismissViewController(_ viewController: UIViewController, completion: CompletionBlock?) {
         let vc = viewController.presentingViewController ?? viewController
         
-        // Do not call public method `sendDataBeforeBack` which will lead pop stack twice
-        if let data = dismissingData, let topVC = topViewController {
-            p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
-        }
-        
         vc.dismiss(animated: dismissAnimated, completion: {
-            self.sendDataAfterBack(self.dismissingData)
+            self.p_sendDataAfterBack(self.dismissingData, toVC: vc)
             completion?()
         })
     }
     
-    func popViewController(_ viewController: UIViewController, fromNav: UINavigationController?, completion: CompletionBlock?) {
-        if let data = dismissingData, let topVC = topViewController {
-            p_sendDataBeforeBack(data, fromVC: viewController, toVC: topVC)
-        }
-        
+    private func popViewController(_ viewController: UIViewController, fromNav: UINavigationController?, completion: CompletionBlock?) {
         if let nav = fromNav, let presentingVC = findPresentingViewController(base: viewController, in: nav) {
             presentingVC.dismiss(animated: false, completion: {
                 self.popTopViewController(fromNav: fromNav) {
-                    self.sendDataAfterBack(self.dismissingData)
+                    self.p_sendDataAfterBack(self.dismissingData, toVC: self.topViewController)
                     completion?()
                 }
             })
         } else {
             popTopViewController(fromNav: fromNav) {
-                self.sendDataAfterBack(self.dismissingData)
+                self.p_sendDataAfterBack(self.dismissingData, toVC: self.topViewController)
                 completion?()
             }
         }
@@ -435,11 +418,17 @@ extension Navigator {
         return navController.viewControllers.suffix(navController.viewControllers.count - baseIndex).first(where: { $0.presentedViewController != nil })
     }
     
-    private func removeChildViewController(_ childVC: UIViewController) {
-        guard let parentVC = childVC.parent else { return }
+    private func removeChildViewController(_ viewController: UIViewController) {
+        guard let parentVC = topViewController else { return }
         
+        (parentVC.view as? UIScrollView)?.isScrollEnabled = true
         if let navBar = parentVC.navigationController?.navigationBar {
             navBar.isUserInteractionEnabled = true
+        }
+        
+        var childVC = viewController
+        if childVC.navigationController != parentVC.navigationController {
+            childVC = childVC.navigationController ?? childVC
         }
         
         childVC.willMove(toParent: parentVC)
@@ -500,24 +489,18 @@ extension Navigator {
 extension Navigator {
     private func passPageObject(_ page: PageObject, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("➡️ [Navigator]: Pass page object from %@ after init: %@", String(describing: fromVC), page)
-        guard let navigatableVC = toVC as? Navigatable else { return }
+        guard let fromVC = fromVC, let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onPageDidInitialize?(page, fromVC: fromVC)
     }
     
     private func sendDataBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), String(describing: data))
-        guard let navigatableVC = toVC as? Navigatable else { return }
+        guard let fromVC = fromVC, let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveBeforeShow?(data, fromVC: fromVC)
     }
     
-    func p_sendDataBeforeBack(_ data: PageExtraData, fromVC: UIViewController?, toVC: UIViewController) {
-        os_log("⬅️ [Navigator]: Send data from %@ before back: %@", String(describing: fromVC), "\(data)")
-        guard let navigatableVC = toVC as? Navigatable else { return }
-        navigatableVC.onDataReceiveBeforeBack?(data, fromVC: fromVC)
-    }
-    
-    func p_sendDataAfterBack(_ data: PageExtraData, toVC: UIViewController) {
-        os_log("⬅️ [Navigator]: Send data to %@ after back: %@", toVC, "\(data)")
+    func p_sendDataAfterBack(_ data: PageExtraData?, toVC: UIViewController?) {
+        os_log("⬅️ [Navigator]: Send data to %@ after back: %@", String(describing: toVC), "\(String(describing: data))")
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveAfterBack?(data)
         

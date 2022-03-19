@@ -11,9 +11,9 @@ import os.log
 
 @objc open class Fallback: UIViewController, Navigatable {
     
-    public func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
+    public func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         title = page.title
-        os_log("➡️ [Navigator]: Received data from %@ before show: %@", String(describing: fromVC), page)
+        os_log("➡️ [Navigator]: Received data from %@ before show: %@", fromVC, page)
     }
     
     open override func viewDidLoad() {

@@ -14,8 +14,8 @@ class SearchViewController: UIViewController, Navigatable {
     private typealias TupleType = (greeting: String, message: UInt32)
     private var pageData: ContentPageExtraData?
     
-    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController?) {
-        print("Received data before show from \(String(describing: fromVC)): \(page)")
+    func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
+        print("Received data before show from \(fromVC): \(page)")
         
         title = page.title ?? "Favorites"
         pageData = page.extraData as? ContentPageExtraData
@@ -25,7 +25,7 @@ class SearchViewController: UIViewController, Navigatable {
     }
     
     func onDataReceiveAfterBack(_ data: PageExtraData?) {
-        print("Received data after back: \(String(describing: data))")
+        debugPrint("Received data after back: \(String(describing: data))")
     }
     
     override func viewDidLoad() {
@@ -53,19 +53,18 @@ class SearchViewController: UIViewController, Navigatable {
     
     deinit {
         debugPrint("FREE MEMORY: \(self)")
-        navigator?.sendDataAfterBack(pageObject?.extraData)
     }
 }
 
 private extension SearchViewController {
     
     @objc dynamic func onTapShowViewControler() {
-        navigator?.show(
+        navigator?.open(
             .init(
                 vcClass: ResultViewController.self,
                 mode: .push,
                 options:
-                    withTitle(String(arc4random())),
+                    withTitle("Results"),
                     withExtraData(ContentPageExtraData(from: self, message: "Show result view controller"))
             )
         )

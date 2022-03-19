@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         tabPages = PageObject(vcClass: UITabBarController.self, mode: .reset, options: withChildren(search, contacts))
         
         Navigator.root.window = window
-        Navigator.root.show(tabPages)
+        Navigator.root.open(tabPages)
         
         if #available(iOS 15, *) {
             let navAppearance = UINavigationBarAppearance()

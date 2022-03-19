@@ -47,10 +47,18 @@ public extension UIViewController.Name {
 }
 
 // MARK: - Open Methods
-@objc public enum DismissAction: Int {
+@objc public enum DismissAction: Int, CustomStringConvertible {
     case tap
-    case tapOutside // For `overlay` or `popover` mode
+    case tapOutside // For `overlay` mode
     case interactiveGesture
+    
+    public var description: String {
+        switch self {
+        case .tap: return "tap"
+        case .tapOutside: return "tapOutside"
+        case .interactiveGesture: return "interactiveGesture"
+        }
+    }
 }
 
 extension UIViewController {
@@ -66,21 +74,14 @@ extension UIViewController {
     /// If return true, it will do nothing when open App via deep linking.
     @objc open var ignoreDeepLinking: Bool { false }
     
-    /// When create a left navigation bar button item and navigation mode is `push`, you should use this method as target `selector`.
-    @objc open func onPop() {
-        navigator?.pop { [weak self] in
-            self?.didFinishPopOrDismiss(.tap)
+    /// When create a left/right navigation bar button item, you should use this method as target `selector`.
+    @objc open func onClose() {
+        navigator?.close { [weak self] in
+            self?.didBackOrClose(.tap)
         }
     }
     
-    /// When create a left navigation bar button item, you should use this method as target `selector`.
-    @objc open func onDismiss() {
-        navigator?.dismiss { [weak self] in
-            self?.didFinishPopOrDismiss(.tap)
-        }
-    }
-    
-    @objc open func didFinishPopOrDismiss(_ action: DismissAction) { }
+    @objc open func didBackOrClose(_ action: DismissAction) { }
 }
 
 // MARK: - Public Properties
@@ -91,6 +92,7 @@ private enum AssociationKey {
     static var dimmedBackgroundView: UInt8 = 0
     static var pageObject: UInt8 = 0
     static var contextData: UInt8 = 0
+    static var isSystemPushBack: UInt8 = 0
 }
 
 extension UIViewController {
@@ -124,6 +126,15 @@ extension UIViewController {
             objc_setAssociatedObject(self, &AssociationKey.pageObject, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
+    
+    @objc public var isSystemPushBack: Bool {
+        get {
+            objc_getAssociatedObject(self, &AssociationKey.isSystemPushBack) as? Bool == true
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociationKey.isSystemPushBack, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
 }
 
 // MARK: - Context Data
@@ -143,7 +154,7 @@ extension UIViewController {
         guard let vcs = navigator?.stack.compactMap({ $0.viewController }) else { return [:] }
         guard let index = vcs.firstIndex(of: self) else { return [:] }
         
-        return vcs.prefix(through: index).map({ $0._context }).reduce([:]) { (result, dict) -> [String: Any] in
+        return vcs.suffix(from: index).map({ $0._context }).reduce([:]) { (result, dict) -> [String: Any] in
             result.merging(dict) { (_, new) in new }
         }
     }
@@ -213,8 +224,9 @@ extension UIViewController {
     }
     
     @objc dynamic private func onTouchDimmedBgView() {
-        if children.last?.pageObject?.dismissWhenTapOutside == true {
-            onDismiss()
+        if let childVC = (children.last as? UINavigationController)?.topViewController ?? children.last,
+           childVC.pageObject?.dismissWhenTapOutside == true {
+            onClose()
         }
     }
     
@@ -228,7 +240,8 @@ extension UIViewController {
         swizzle_viewDidDisappear(animated)
         
         if isMovingFromParent {
-            didFinishPopOrDismiss(.tap)
+            isSystemPushBack = true
+            didBackOrClose(.tap)
         }
     }
 }

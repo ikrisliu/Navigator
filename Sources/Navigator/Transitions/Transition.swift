@@ -105,7 +105,7 @@ extension Transition: UIViewControllerAnimatedTransitioning {
     
     public func animationEnded(_ transitionCompleted: Bool) {
         if isInteractionInProgress && !isShow && transitionContext?.transitionWasCancelled != true {
-            panGestureVC?.didFinishPopOrDismiss(.interactiveGesture)
+            panGestureVC?.didBackOrClose(.interactiveGesture)
         }
         
         isShow = false

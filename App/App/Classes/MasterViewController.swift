@@ -63,7 +63,7 @@ class MasterViewController: UITableViewController, UIGestureRecognizerDelegate {
             splitViewController?.updateMasterVisibility()
         }
         
-        navigator?.show(
+        navigator?.open(
             .init(
                 vcClass: DetailViewController.self,
                 mode: UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push,
@@ -85,12 +85,13 @@ private extension MasterViewController {
     
     @objc dynamic func onBottomSheet() {
         let size = view.bounds.size
-        navigator?.show(
+        navigator?.open(
             .init(
                 vcClass: PopupViewController.self,
                 mode: .overlay,
                 options:
-                    withTitle(String(arc4random())),
+                    withNavClass(UINavigationController.self),
+                    withTitle("Bottom Sheet"),
                     withExtraData(ContentPageExtraData(from: self, message: "Show bottom sheet by overlay mode")),
                     withSourceRect(.init(origin: .init(x: 0, y: size.height / 2), size: .init(width: size.width, height: size.height / 2)))
             )
@@ -99,12 +100,12 @@ private extension MasterViewController {
     
     @objc dynamic func onPopup() {
         let size = view.bounds.size
-        navigator?.show(
+        navigator?.open(
             .init(
                 vcClass: PopupViewController.self,
                 mode: .present,
                 options:
-                    withTitle(String(arc4random())),
+                    withTitle("Popup"),
                     withExtraData(ContentPageExtraData(from: self, message: "Show center popup")),
                     withPresentationStyle(.custom),
                     withTransitionClass(FadeTransition.self),
