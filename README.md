@@ -57,9 +57,6 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     // Coupling Way: Recommend to use this way inside one module
     let main = PageObject(vcClass: ViewController.self, navCmode: .reset, options: withNavClass(UINavigationController.self))
     
-    // If present view controller without passing any `UINavigationController`, use it as default one.
-    Navigator.defaultNavigationControllerClass = UINavigationController.self
-    
     Navigator.root.window = window
     Navigator.root.open(main)
     
@@ -119,7 +116,6 @@ class DetailViewController: UIViewController {
         let page = PageObject(vcName: .init(rawValue: "ModuleName.CustomViewController"), mode: .push)
         
         // Coupling Way
-        // If present a view contoller without passing any `UINavigationController`, it will use `Navigator.defaultNavigationControllerClass`.
         let page = PageObject(
             vcClass: UIViewController.self,
             mode: .push,

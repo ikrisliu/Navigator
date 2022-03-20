@@ -43,7 +43,6 @@ extension UIViewController {
 public extension UIViewController.Name {
     
     @objc static let empty = UIViewController.Name("")
-    @objc static let defaultNavigation = UIViewController.Name(NSStringFromClass(Navigator.defaultNavigationControllerClass))
 }
 
 // MARK: - Open Methods

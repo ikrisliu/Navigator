@@ -15,9 +15,6 @@ import os.log
     /// Also can use it to open any view controller for quick launch and debug, only need provide pageObject required data.
     @objc public static let root = Navigator()
     
-    /// The default navigation controller which is used for containing content view controller when navigator mode is `present`.
-    @objc public static var defaultNavigationControllerClass = UINavigationController.self
-    
     /// - Note: Only if open App via deep linking, use the current navigator. It will append new page to current vc stack.
     @objc public static var current: Navigator {
         var navigator = _current
