@@ -8,12 +8,13 @@
 Navigator is a generic navigation framework for view controllers. It can decouple the dependency of different modules/components/view controllers.
 
 ## Features
-- Navigation between view controllers with system default or custom transition animation
-- Business data passing between view controllers bidirectional
+- Navigate among view controllers by `PageObject` model
+- Pass business data by `PageBizData` protocol among view controllers
 - Support navigation mode with `push`, `present` and `overlay`
 - Support deep link and universal link
-- Goto any view controller of any navigator
+- Goto any view controller of any navigator by `goto` mode
 - Set context data and share it among view controllers
+- Custmize view controller transition animation
 
 ## Architecture
 <p align="center"><img src ="./Images/Navigator.jpg" /></p>
