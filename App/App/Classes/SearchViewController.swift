@@ -12,19 +12,19 @@ import Navigator
 class SearchViewController: UIViewController, Navigatable {
 
     private typealias TupleType = (greeting: String, message: UInt32)
-    private var pageData: ContentPageExtraData?
+    private var pageData: ContentPageBizData?
     
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         print("Received data before show from \(fromVC): \(page)")
         
         title = page.title ?? "Favorites"
-        pageData = page.extraData as? ContentPageExtraData
+        pageData = page.bizData as? ContentPageBizData
         
         tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 0)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Home", style: .plain, target: self, action: #selector(onHome))
     }
     
-    func onDataReceiveAfterBack(_ data: PageExtraData?) {
+    func onDataReceiveAfterBack(_ data: PageBizData?) {
         debugPrint("Received data after back: \(String(describing: data))")
     }
     
@@ -65,7 +65,7 @@ private extension SearchViewController {
                 mode: .push,
                 options:
                     withTitle("Results"),
-                    withExtraData(ContentPageExtraData(from: self, message: "Show result view controller"))
+                    withBizData(ContentPageBizData(from: self, message: "Show result view controller"))
             )
         )
     }

@@ -9,7 +9,7 @@
 import UIKit
 import Navigator
 
-class ContentPageExtraData : PageExtraData, CustomStringConvertible {
+class ContentPageBizData : PageBizData, CustomStringConvertible {
     let from: UIViewController
     let message: String
     
@@ -70,7 +70,7 @@ class MasterViewController: UITableViewController, UIGestureRecognizerDelegate {
                 options:
                     withNavClass(UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil),
                     withTitle((tableView.cellForRow(at: indexPath)?.textLabel?.text!)!),
-                    withExtraData(ContentPageExtraData(from: self, message: "Show detail view controller"))
+                    withBizData(ContentPageBizData(from: self, message: "Show detail view controller"))
             )
         )
     }
@@ -92,7 +92,7 @@ private extension MasterViewController {
                 options:
                     withNavClass(UINavigationController.self),
                     withTitle("Bottom Sheet"),
-                    withExtraData(ContentPageExtraData(from: self, message: "Show bottom sheet by overlay mode")),
+                    withBizData(ContentPageBizData(from: self, message: "Show bottom sheet by overlay mode")),
                     withSourceRect(.init(origin: .init(x: 0, y: size.height / 2), size: .init(width: size.width, height: size.height / 2)))
             )
         )
@@ -106,7 +106,7 @@ private extension MasterViewController {
                 mode: .present,
                 options:
                     withTitle("Popup"),
-                    withExtraData(ContentPageExtraData(from: self, message: "Show center popup")),
+                    withBizData(ContentPageBizData(from: self, message: "Show center popup")),
                     withPresentationStyle(.custom),
                     withTransitionClass(FadeTransition.self),
                     withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))

@@ -42,23 +42,23 @@ import UIKit
     typealias CompletionBlock = ((PageObject?, Error?) -> Void)
 
     init()
-    func execute(data: PageExtraData?, completion: CompletionBlock?)
+    func execute(data: PageBizData?, completion: CompletionBlock?)
 }
 
 public extension Navigator {
     
     /// Prepare navigation data and handling logic before show any page
     /// - Parameters:
-    ///   - data: The data is passed to the navigated page, it should be **PageExtraData** type.
+    ///   - data: The data is passed to the navigated page, it should be **PageBizData** type.
     ///   - handlerName: The handler class name is to determine show which page. It must implement `NavigationHandlerable` protocol.
     ///   - completion: The optional callback to be executed after navigation is completed.
-    @objc static func prepare(_ data: PageExtraData? = nil, handlerName: HandlerName, completion: NavigationHandlerable.CompletionBlock? = nil) {
+    @objc static func prepare(_ data: PageBizData? = nil, handlerName: HandlerName, completion: NavigationHandlerable.CompletionBlock? = nil) {
         if let classType = NSClassFromString(handlerName.rawValue) as? NavigationHandlerable.Type {
             classType.init().execute(data: data, completion: completion)
         }
     }
     
-    @objc static func prepare(_ data: PageExtraData? = nil, handlerClass: NavigationHandlerable.Type, completion: NavigationHandlerable.CompletionBlock? = nil) {
+    @objc static func prepare(_ data: PageBizData? = nil, handlerClass: NavigationHandlerable.Type, completion: NavigationHandlerable.CompletionBlock? = nil) {
         prepare(data, handlerName: .init(NSStringFromClass(handlerClass)), completion: completion)
     }
 }

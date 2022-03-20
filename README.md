@@ -8,12 +8,12 @@
 Navigator is a generic navigation framework for view controllers. It can decouple the dependency of different modules/components/view controllers.
 
 ## Features
-- Data passing between view controllers bidirectional, inject data provider implementation for mocking data.
 - Navigation between view controllers with system default or custom transition animation
+- Business data passing between view controllers bidirectional
+- Support navigation mode with `push`, `present` and `overlay`
 - Support deep link and universal link
 - Goto any view controller of any navigator
 - Set context data and share it among view controllers
-- Custmize view controller transition animation
 
 ## Architecture
 <p align="center"><img src ="./Images/Navigator.jpg" /></p>
@@ -102,7 +102,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 Supported navigation mode: `Push`, `Present`, `Overlay` and `Goto`
 
 ```swift
-class ContentPageData : PageExtraData {
+class ContentPageData : PageBizData {
     let message: String
     
     init(message: String) {
@@ -111,7 +111,7 @@ class ContentPageData : PageExtraData {
 }
 
 class DetailViewController: UIViewController {
-    let data = ContentPageData(message: "You can pass any type object which need to implement PageExtraData protocol")
+    let data = ContentPageData(message: "You can pass any type object which need to implement PageBizData protocol")
 
     @objc private func onTapShowViewControler() {
         // Decoupling Way
@@ -124,7 +124,7 @@ class DetailViewController: UIViewController {
             mode: .push,
             options:
                 withTitle("Hello"),
-                withExtraData(data)
+                withBizData(data)
         )
         
         navigator?.open(page)
@@ -139,7 +139,7 @@ class DetailViewController: UIViewController {
             mode: .overlay,
             options: 
                 withTitle("Hello"), 
-                withExtraData(data)
+                withBizData(data)
                 withSourceRect(.init(origin: .init(x: 0, y: size.height - 500), size: .init(width: size.width, height: 500)))
         )
         
@@ -149,7 +149,7 @@ class DetailViewController: UIViewController {
             mode: .present,
             options:
                 withTitle("Hello"),
-                withExtraData(data)
+                withBizData(data)
                 withPresentationStyle(.custom),
                 withTransitionClass(FadeTransition.self),
                 withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
@@ -218,21 +218,23 @@ class DetailViewController: UIViewController {
 ### Data Passing
 ```swift
 class DetailViewController: UIViewController, Navigatable {
-    private var data: PageExtraData?
+    private var data: PageBizData?
     
     // Current VC receive page object from previous VC after the current one initialized (before `viewDidLoad`)
     // - Note: Only called one time after the VC initialized
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         title = page.title
-        data = page.extraData
+        data = page.bizData
     }
     
     // Current VC receive data before the current VC show (before `viewDidLoad`)
     // - Note: May called multiple times since the view appear mutiple times
-    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController) {}
+    @objc optional func onDataReceiveBeforeShow(_ data: PageBizData?, fromVC: UIViewController) {
+        self.data = data
+    }
     
     // Previous VC receive data from current VC after the current one dismiss animation end
-    func onDataReceiveAfterBack(_ data: PageExtraData?) {
+    func onDataReceiveAfterBack(_ data: PageBizData?) {
         self.data = data
     }
 }

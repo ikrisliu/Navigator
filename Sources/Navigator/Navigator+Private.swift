@@ -170,7 +170,7 @@ extension Navigator {
         // Must set presentation style first for `UIModalPresentationStylePopover`
         toVC.modalPresentationStyle = page.presentationStyle
         passPageObject(page, fromVC: topViewController, toVC: viewController)
-        sendDataBeforeShow(page.extraData, fromVC: topViewController, toVC: viewController)
+        sendDataBeforeShow(page.bizData, fromVC: topViewController, toVC: viewController)
         
         switch page.mode {
         case .reset:
@@ -442,7 +442,7 @@ extension Navigator {
 
 // MARK: - Goto View Controller
 extension Navigator {
-    func gotoViewControllerIfExisted(_ vcName: String, data: PageExtraData? = nil, animated: Bool = true) -> Bool {
+    func gotoViewControllerIfExisted(_ vcName: String, data: PageBizData? = nil, animated: Bool = true) -> Bool {
         guard self !== Navigator.root else {
             guard let rootVC = rootViewController else { return false }
             
@@ -493,13 +493,13 @@ extension Navigator {
         navigatableVC.onPageDidInitialize?(page, fromVC: fromVC)
     }
     
-    private func sendDataBeforeShow(_ data: PageExtraData?, fromVC: UIViewController?, toVC: UIViewController) {
+    private func sendDataBeforeShow(_ data: PageBizData?, fromVC: UIViewController?, toVC: UIViewController) {
         os_log("➡️ [Navigator]: Send data from %@ before show: %@", String(describing: fromVC), String(describing: data))
         guard let fromVC = fromVC, let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveBeforeShow?(data, fromVC: fromVC)
     }
     
-    func p_sendDataAfterBack(_ data: PageExtraData?, toVC: UIViewController?) {
+    func p_sendDataAfterBack(_ data: PageBizData?, toVC: UIViewController?) {
         os_log("⬅️ [Navigator]: Send data to %@ after back: %@", String(describing: toVC), "\(String(describing: data))")
         guard let navigatableVC = toVC as? Navigatable else { return }
         navigatableVC.onDataReceiveAfterBack?(data)

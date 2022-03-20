@@ -13,7 +13,7 @@ class DetailViewController: UIViewController, Navigatable {
     
     func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         title = page.title ?? "Detail"
-        debugPrint("Received additional data: \(String(describing: page.extraData))")
+        debugPrint("Received additional data: \(String(describing: page.bizData))")
     }
     
     override func viewDidLoad() {
@@ -51,7 +51,7 @@ class DetailViewController: UIViewController, Navigatable {
     
     override func didBackOrClose(_ action: DismissAction) {
         debugPrint("\(#function) by \(action)")
-        navigator?.sendDataAfterBack(ContentPageExtraData(from: self, message: "Back from results page"))
+        navigator?.sendDataAfterBack(ContentPageBizData(from: self, message: "Back from results page"))
     }
     
     deinit {
@@ -76,7 +76,7 @@ extension DetailViewController {
                     withNavClass(UINavigationController.self),
                     withTitle("Search"),
                     withTransitionClass(ZoomTransition.self),
-                    withExtraData(ContentPageExtraData(from: self, message: "Search view controller"))
+                    withBizData(ContentPageBizData(from: self, message: "Search view controller"))
             )
         )
     }

@@ -79,7 +79,7 @@ import os.log
     var dismissAnimated: Bool = true
     
     weak var showingPage: PageObject?
-    var dismissingData: PageExtraData?
+    var dismissingData: PageBizData?
 }
 
 // MARK: - Show or Dismiss
@@ -112,7 +112,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func close(_ data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func close(_ data: PageBizData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard stackCount > 1 else { return }
         
         dismissingData = data
@@ -128,7 +128,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func backTo(viewController: UIViewController, data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(viewController: UIViewController, data: PageBizData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard let index = stackIndex(of: viewController), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
@@ -142,13 +142,13 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func backTo(vcName: UIViewController.Name, data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(vcName: UIViewController.Name, data: PageBizData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard let index = stackIndex(of: vcName.rawValue), let level = stackLevel(index) else { return }
         
         dismiss(data, level: level, animated: animated, completion: completion)
     }
     
-    @objc func backTo(vcClass: UIViewController.Type, data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backTo(vcClass: UIViewController.Type, data: PageBizData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         backTo(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated, completion: completion)
     }
     
@@ -158,7 +158,7 @@ public extension Navigator {
     ///   - data: The data is passed to previous view controller, default is nil.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    @objc func backToRoot(data: PageExtraData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
+    @objc func backToRoot(data: PageBizData? = nil, animated: Bool = true, completion: CompletionBlock? = nil) {
         dismiss(data, level: -1, animated: animated, completion: completion)
     }
     
@@ -169,7 +169,7 @@ public extension Navigator {
     ///   - vcName: The view controller class name. If it is swift class, must add module name as prefix for class name.
     ///   - data: The data is passed to target view controller, default is nil.
     ///   - animated: Whether show view controller with animation, default is true.
-    @objc class func goto(vcName: UIViewController.Name, data: PageExtraData? = nil, animated: Bool = true) {
+    @objc class func goto(vcName: UIViewController.Name, data: PageBizData? = nil, animated: Bool = true) {
         guard let rootVC = root.rootViewController, !root.gotoViewControllerIfExisted(vcName.rawValue, data: data) else { return }
         
         let viewControllers = childViewControllers(of: rootVC)
@@ -181,7 +181,7 @@ public extension Navigator {
         }
     }
     
-    @objc class func goto(vcClass: UIViewController.Type, data: PageExtraData? = nil, animated: Bool = true) {
+    @objc class func goto(vcClass: UIViewController.Type, data: PageBizData? = nil, animated: Bool = true) {
         goto(vcName: .init(NSStringFromClass(vcClass)), data: data, animated: animated)
     }
 }
@@ -197,7 +197,7 @@ private extension Navigator {
     ///            If level is equal to -1, it will dimisss to root view controller of current navigator.
     ///   - animated: Whether dismiss view controller with animation, default is true.
     ///   - completion: The optional callback to be executed after animation is completed.
-    func dismiss(_ data: PageExtraData? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
+    func dismiss(_ data: PageBizData? = nil, level: Int = 0, animated: Bool = true, completion: CompletionBlock? = nil) {
         guard stackCount > 1 else { return }
         
         dismissingData = data
@@ -225,7 +225,7 @@ public extension Navigator {
                 assertionFailure("Should use `Navigator.current` to call this deep link method")
             }
             
-            Navigator.goto(vcName: page.vcName, data: page.extraData, animated: false)
+            Navigator.goto(vcName: page.vcName, data: page.bizData, animated: false)
             
             if let nextPage = page.next {
                 Navigator.current.showDeepLinkViewControllers(nextPage)
@@ -272,14 +272,14 @@ public extension Navigator {
 // MARK: - Send Data
 public extension Navigator {
     
-    /// Send data to previous one page after current page dismissed.
+    /// Send business data to previous one page after current page dismissed.
     /// In iOS, user can pop view controller by swipe to right on left screen edge. But can't catch the touch event.
     /// For this edge case, we can call this method in `didBackOrClose` to solve data passing issue.
     /// - Note: If the `back` is system push back and call this method in `didBackOrClose`,
     /// the data sent target is current VC, not the previous VC, so need use `isSystemPushBack != true` to get the previous VC.
     ///
     /// - Parameter data: The data is passed to previous view controller.
-    @objc func sendDataAfterBack(_ data: PageExtraData) {
+    @objc func sendDataAfterBack(_ data: PageBizData) {
         guard let toVC = stack.first(where: { $0.viewController?.isSystemPushBack != true })?.viewController else { return }
         
         p_sendDataAfterBack(data, toVC: toVC)

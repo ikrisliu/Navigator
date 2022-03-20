@@ -17,8 +17,8 @@ import UIKit
     
     /// Current VC receive data before the current VC show (before `viewDidLoad`)
     /// - Note: May called multiple times since the view appear mutiple times
-    @objc optional func onDataReceiveBeforeShow(_ data: PageExtraData?, fromVC: UIViewController)
+    @objc optional func onDataReceiveBeforeShow(_ data: PageBizData?, fromVC: UIViewController)
     
     /// Previous VC receive data from current VC after the current one dismiss animation end
-    @objc optional func onDataReceiveAfterBack(_ data: PageExtraData?)
+    @objc optional func onDataReceiveAfterBack(_ data: PageBizData?)
 }
