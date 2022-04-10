@@ -17,13 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var tabPages: PageObject!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let search = PageObject(vcClass: SearchViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+        let search = PageObject(vcClass: SearchViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
         
-        let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
-        let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
-        let contacts = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
+        let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
+        let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
+        let contacts = PageObject(vcClass: SplitViewController.self, mode: .reset, options: .children([master, detail]))
         
-        tabPages = PageObject(vcClass: UITabBarController.self, mode: .reset, options: withChildren(search, contacts))
+        tabPages = PageObject(vcClass: UITabBarController.self, mode: .reset, options: .children([search, contacts]))
         
         Navigator.root.window = window
         Navigator.root.open(tabPages)

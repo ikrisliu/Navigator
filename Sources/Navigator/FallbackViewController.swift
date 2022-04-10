@@ -1,5 +1,5 @@
 //
-//  Fallback.swift
+//  FallbackViewController.swift
 //  Navigator
 //
 //  Created by Kris Liu on 2018/8/27.
@@ -9,7 +9,7 @@
 import UIKit
 import os.log
 
-@objc open class Fallback: UIViewController, Navigatable {
+@objc open class FallbackViewController: UIViewController, Navigatable {
     
     public func onPageDidInitialize(_ page: PageObject, fromVC: UIViewController) {
         title = page.title

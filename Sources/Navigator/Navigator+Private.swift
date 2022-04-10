@@ -280,15 +280,8 @@ extension Navigator {
     
     // Create fallback view controller instance with class name.
     private func createFallbackViewController(_ page: PageObject) -> UIViewController {
-        guard let vcType = page.fallback else {
-            let viewController = Fallback()
-            viewController.navigator = self
-            return viewController
-        }
-        
-        let viewController = vcType.init()
+        let viewController = page.fallback.init()
         viewController.navigator = self
-        
         return viewController
     }
     

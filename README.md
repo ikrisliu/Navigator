@@ -52,10 +52,10 @@ github "ikrisliu/Navigator" ~> 1.0
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Decoupling Way: Recommend to use this way among modules
     // View controller class name (The swift class name should be "ModuleName.ClassName")
-    let main = PageObject(vcName: .init(rawValue: "ModuleName.ViewController"), mode: .reset, options: withNavName(.init(rawValue: "UINavigationController"))
+    let main = PageObject(vcName: .init(rawValue: "ModuleName.ViewController"), mode: .reset, options: .navName(.init(rawValue: "UINavigationController"))
     
     // Coupling Way: Recommend to use this way inside one module
-    let main = PageObject(vcClass: ViewController.self, navCmode: .reset, options: withNavClass(UINavigationController.self))
+    let main = PageObject(vcClass: ViewController.self, navCmode: .reset, options: .navClass(UINavigationController.self))
     
     Navigator.root.window = window
     Navigator.root.open(main)
@@ -67,9 +67,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### SplitViewControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
-    let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
-    let split = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
+    let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
+    let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
+    let split = PageObject(vcClass: SplitViewController.self, mode: .reset, options: .children([master, detail]))
     
     Navigator.root.window = window
     Navigator.root.open(split)
@@ -81,13 +81,13 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ##### TabBarControler
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    let firstTab = PageObject(vcClass: TabItemViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+    let firstTab = PageObject(vcClass: TabItemViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
     
-    let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
-    let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
-    let secondTab = PageObject(vcClass: SplitViewController.self, mode: .reset, options: withChildren(master, detail))
+    let master = PageObject(vcClass: MasterViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
+    let detail = PageObject(vcClass: DetailViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
+    let secondTab = PageObject(vcClass: SplitViewController.self, mode: .reset, options: .children([master, detail]))
     
-    let tabs = PageObject(vcClass: UITabBarController.self, mode: .reset, options: withChildren(firstTab, secondTab))
+    let tabs = PageObject(vcClass: UITabBarController.self, mode: .reset, options: .children([firstTab, secondTab]))
     
     Navigator.root.window = window
     Navigator.root.open(tabs)
@@ -120,8 +120,8 @@ class DetailViewController: UIViewController {
             vcClass: UIViewController.self,
             mode: .push,
             options:
-                withTitle("Hello"),
-                withBizData(data)
+                .title("Hello"),
+                .bizData(data)
         )
         
         navigator?.open(page)
@@ -135,9 +135,9 @@ class DetailViewController: UIViewController {
             vcClass: UIViewController.self,
             mode: .overlay,
             options: 
-                withTitle("Hello"), 
-                withBizData(data)
-                withSourceRect(.init(origin: .init(x: 0, y: size.height - 500), size: .init(width: size.width, height: 500)))
+                .title("Hello"), 
+                .bizData(data)
+                .sourceRect(.init(origin: .init(x: 0, y: size.height - 500), size: .init(width: size.width, height: 500)))
         )
         
         // Show center popup
@@ -145,11 +145,11 @@ class DetailViewController: UIViewController {
             vcClass: UIViewController.self,
             mode: .present,
             options:
-                withTitle("Hello"),
-                withBizData(data)
-                withPresentationStyle(.custom),
-                withTransitionClass(FadeTransition.self),
-                withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
+                .title("Hello"),
+                .bizData(data)
+                .presentationStyle(.custom),
+                .transitionClass(FadeTransition.self),
+                .sourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
         )
         
         navigator?.open(page)
@@ -181,7 +181,7 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
     // Show a chain of view controllers from root vc
     Navigator.root.open(url: url) { _ -> PageObject? in
         // Parse the deep link url to below page objects for showing
-        let root = PageObject(vcClass: MainViewController.self, mode: .reset, options: withNavClass(UINavigationController.self))
+        let root = PageObject(vcClass: MainViewController.self, mode: .reset, options: .navClass(UINavigationController.self))
         let middle = PageObject(vcClass: MiddleViewController.self)
         let top = PageObject(vcClass: TopViewController.self)
 
@@ -203,9 +203,9 @@ class CustomTransition: Transition {
 
 class DetailViewController: UIViewController {
     @objc private func onTapShowViewControler() {
-        let page = PageObject(vcClass: UIViewController.self, mode: .present, options: withTransitionStyle(.flipHorizontal))
+        let page = PageObject(vcClass: UIViewController.self, mode: .present, options: .transitionStyle(.flipHorizontal))
         // or
-        let page = PageObject(vcClass: UIViewController.self, mode: .present, options: withTransitionClass(CustomTransition.self))
+        let page = PageObject(vcClass: UIViewController.self, mode: .present, options: .transitionClass(CustomTransition.self))
 
         navigator?.open(page)
     }

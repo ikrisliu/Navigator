@@ -64,8 +64,8 @@ private extension SearchViewController {
                 vcClass: ResultViewController.self,
                 mode: .push,
                 options:
-                    withTitle("Results"),
-                    withBizData(ContentPageBizData(from: self, message: "Show result view controller"))
+                    .title("Results"),
+                    .bizData(ContentPageBizData(from: self, message: "Show result view controller"))
             )
         )
     }

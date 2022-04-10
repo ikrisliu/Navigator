@@ -73,10 +73,10 @@ extension DetailViewController {
                 vcCreator: { SearchViewController() },
                 mode: .present,
                 options:
-                    withNavClass(UINavigationController.self),
-                    withTitle("Search"),
-                    withTransitionClass(ZoomTransition.self),
-                    withBizData(ContentPageBizData(from: self, message: "Search view controller"))
+                    .navClass(UINavigationController.self),
+                    .title("Search"),
+                    .transitionClass(ZoomTransition.self),
+                    .bizData(ContentPageBizData(from: self, message: "Search view controller"))
             )
         )
     }

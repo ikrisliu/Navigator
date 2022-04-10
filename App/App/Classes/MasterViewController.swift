@@ -68,9 +68,9 @@ class MasterViewController: UITableViewController, UIGestureRecognizerDelegate {
                 vcClass: DetailViewController.self,
                 mode: UIDevice.current.userInterfaceIdiom == .pad ? .reset : .push,
                 options:
-                    withNavClass(UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil),
-                    withTitle((tableView.cellForRow(at: indexPath)?.textLabel?.text!)!),
-                    withBizData(ContentPageBizData(from: self, message: "Show detail view controller"))
+                    .navClass(UIDevice.current.userInterfaceIdiom == .pad ? UINavigationController.self : nil),
+                    .title((tableView.cellForRow(at: indexPath)?.textLabel?.text!)!),
+                    .bizData(ContentPageBizData(from: self, message: "Show detail view controller"))
             )
         )
     }
@@ -90,10 +90,10 @@ private extension MasterViewController {
                 vcClass: PopupViewController.self,
                 mode: .overlay,
                 options:
-                    withNavClass(UINavigationController.self),
-                    withTitle("Bottom Sheet"),
-                    withBizData(ContentPageBizData(from: self, message: "Show bottom sheet by overlay mode")),
-                    withSourceRect(.init(origin: .init(x: 0, y: size.height / 2), size: .init(width: size.width, height: size.height / 2)))
+                    .navClass(UINavigationController.self),
+                    .title("Bottom Sheet"),
+                    .bizData(ContentPageBizData(from: self, message: "Show bottom sheet by overlay mode")),
+                    .sourceRect(.init(origin: .init(x: 0, y: size.height / 2), size: .init(width: size.width, height: size.height / 2)))
             )
         )
     }
@@ -105,11 +105,11 @@ private extension MasterViewController {
                 vcClass: PopupViewController.self,
                 mode: .present,
                 options:
-                    withTitle("Popup"),
-                    withBizData(ContentPageBizData(from: self, message: "Show center popup")),
-                    withPresentationStyle(.custom),
-                    withTransitionClass(FadeTransition.self),
-                    withSourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
+                    .title("Popup"),
+                    .bizData(ContentPageBizData(from: self, message: "Show center popup")),
+                    .presentationStyle(.custom),
+                    .transitionClass(FadeTransition.self),
+                    .sourceRect(.init(origin: .init(x: 20, y: (size.height - 300) / 2), size: .init(width: size.width - 40, height: 300)))
             )
         )
     }

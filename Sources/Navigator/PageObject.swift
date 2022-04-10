@@ -8,11 +8,26 @@
 
 import UIKit
 
-public typealias PageOption = (PageObject) -> Void
 public typealias CompletionClosure = (Bool, Any?) -> Void
 public typealias ViewControllerCreator = () -> UIViewController
 
 @objc public protocol PageBizData { }
+
+public enum PageOption {
+    case navName(UIViewController.Name?)
+    case navClass(UIViewController.Type?)
+    case title(String)
+    case bizData(PageBizData)
+    case callback(CompletionClosure)
+    case transitionStyle(UIModalTransitionStyle)
+    case presentationStyle(UIModalPresentationStyle)
+    case transitionClass(Transition.Type)
+    case sourceView(UIView)
+    case sourceRect(CGRect)
+    case dismissWhenTapOutside(Bool)
+    case fallback(UIViewController.Type)
+    case children([PageObject])
+}
 
 /// Use this data structure to do data passing between two pages
 /// Build a linked node for handling universal link and deep link (A => B => C => D)
@@ -60,7 +75,7 @@ public class PageObject: NSObject {
     public fileprivate(set) var dismissWhenTapOutside: Bool = true
     
     /// Fallback view controller will show if no VC found (like 404 Page)
-    public fileprivate(set) var fallback: UIViewController.Type?
+    public fileprivate(set) var fallback: UIViewController.Type = FallbackViewController.self
     
     /// Can contain a series of VCs with required data. (e.g. used in TabBarController to contain multiple view controllers)
     public fileprivate(set) var children: [PageObject]?
@@ -76,7 +91,7 @@ public class PageObject: NSObject {
     /// - Parameters:
     ///   - vcName: View controller class name (For swift, the class name should be "ModuleName.ClassName")
     ///   - mode: See **Navigator.Mode** (push, present and so on)
-    ///   - options: Function options for setting the page object's properties
+    ///   - options: Enum options for setting the page object's properties
     private init(vcName: UIViewController.Name, mode: Navigator.Mode = .push, options: [PageOption]) {
         self.vcName = vcName
         self.mode = mode
@@ -91,7 +106,34 @@ public class PageObject: NSObject {
         super.init()
         
         for option in options {
-            option(self)
+            switch option {
+            case .navName(let navName):
+                self.navName = navName
+            case .navClass(let navClass):
+                self.navName = navClass.flatMap({ .init(NSStringFromClass($0)) }) ?? nil
+            case .title(let title):
+                self.title = title
+            case .bizData(let bizData):
+                self.bizData = bizData
+            case .callback(let callback):
+                self.callback = callback
+            case .transitionStyle(let transitionStyle):
+                self.transitionStyle = transitionStyle
+            case .presentationStyle(let presentationStyle):
+                self.presentationStyle = presentationStyle
+            case .transitionClass(let transitionClass):
+                self.transitionClass = transitionClass
+            case .sourceView(let sourceView):
+                self.sourceView = sourceView
+            case .sourceRect(let sourceRect):
+                self.sourceRect = sourceRect
+            case .dismissWhenTapOutside(let dismissWhenTapOutside):
+                self.dismissWhenTapOutside = dismissWhenTapOutside
+            case .fallback(let fallback):
+                self.fallback = fallback
+            case .children(let children):
+                self.children = children
+            }
         }
     }
     
@@ -106,79 +148,6 @@ public class PageObject: NSObject {
     public convenience init(vcCreator: @escaping ViewControllerCreator, mode: Navigator.Mode = .push, options: PageOption...) {
         self.init(vcName: .empty, mode: mode, options: options)
         self.vcCreator = vcCreator
-    }
-}
-
-// MARK: - With Functions for Initializer
-public func withNavName(_ navName: UIViewController.Name?) -> PageOption {
-    return { (page: PageObject) in
-        page.navName = navName
-    }
-}
-
-public func withNavClass(_ navClass: UIViewController.Type?) -> PageOption {
-    return { (page: PageObject) in
-        page.navName = navClass.flatMap({ .init(NSStringFromClass($0)) }) ?? nil
-    }
-}
-
-public func withTitle(_ title: String) -> PageOption {
-    return { (page: PageObject) in
-        page.title = title
-    }
-}
-
-public func withBizData(_ bizData: PageBizData) -> PageOption {
-    return { (page: PageObject) in
-        page.bizData = bizData
-    }
-}
-
-public func withCallback(_ callback: @escaping CompletionClosure) -> PageOption {
-    return { (page: PageObject) in
-        page.callback = callback
-    }
-}
-
-public func withTransitionStyle(_ transitionStyle: UIModalTransitionStyle) -> PageOption {
-    return { (page: PageObject) in
-        page.transitionStyle = transitionStyle
-    }
-}
-
-public func withPresentationStyle(_ presentationStyle: UIModalPresentationStyle) -> PageOption {
-    return { (page: PageObject) in
-        page.presentationStyle = presentationStyle
-    }
-}
-
-public func withTransitionClass(_ transitionClass: Transition.Type) -> PageOption {
-    return { (page: PageObject) in
-        page.transitionClass = transitionClass
-    }
-}
-
-public func withSourceView(_ sourceView: UIView) -> PageOption {
-    return { (page: PageObject) in
-        page.sourceView = sourceView
-    }
-}
-
-public func withSourceRect(_ sourceRect: CGRect) -> PageOption {
-    return { (page: PageObject) in
-        page.sourceRect = sourceRect
-    }
-}
-
-public func withDismissWhenTapOutside(_ dismissWhenTapOutside: Bool) -> PageOption {
-    return { (page: PageObject) in
-        page.dismissWhenTapOutside = dismissWhenTapOutside
-    }
-}
-
-public func withChildren(_ children: PageObject...) -> PageOption {
-    return { (page: PageObject) in
-        page.children = children
     }
 }
 
