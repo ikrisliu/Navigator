@@ -193,10 +193,10 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
 ```
 
 ### Transition Animation
-Create custom transition class inherits the `Transition` class and override below two methods. Then pass transition class with custom transition class name in page object.
+Create custom transition class inherits the `BaseTransition` class and override below two methods. Then pass transition class with custom transition class name in page object.
 
 ```swift
-class CustomTransition: Transition {
+class CustomTransition: BaseTransition {
     @objc open func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) { }
     @objc open func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) { }
 }
