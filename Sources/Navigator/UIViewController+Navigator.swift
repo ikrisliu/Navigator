@@ -188,9 +188,9 @@ extension UIViewController {
         modalPresentationStyle == .fullScreen || navigationController?.modalPresentationStyle == .fullScreen
     }
     
-    var animationTransition: Transition? {
+    var animationTransition: BaseTransition? {
         get {
-            objc_getAssociatedObject(self, &AssociationKey.animationTransition) as? Transition
+            objc_getAssociatedObject(self, &AssociationKey.animationTransition) as? BaseTransition
         }
         set {
             objc_setAssociatedObject(self, &AssociationKey.animationTransition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

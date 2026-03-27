@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class PushTransition: Transition {
+@objc public class PushTransition: BaseTransition {
     
     private let titleViewMoveFactor: CGFloat = 1.0
     private let titleViewMoveFastFactor: CGFloat = 1.5

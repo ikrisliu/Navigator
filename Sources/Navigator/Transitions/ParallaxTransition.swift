@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class ParallaxTransition: Transition {
+@objc public class ParallaxTransition: BaseTransition {
     
     public required init() {
         super.init()

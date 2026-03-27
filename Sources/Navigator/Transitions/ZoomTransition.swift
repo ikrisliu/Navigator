@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class ZoomTransition: Transition {
+@objc public class ZoomTransition: BaseTransition {
     
     private lazy var dimmedBackgroundView: UIView = {
         let view = UIView()

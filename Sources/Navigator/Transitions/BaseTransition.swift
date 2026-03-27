@@ -11,7 +11,7 @@ import UIKit
 public typealias VoidClosure = () -> Void
 
 // MARK: - Public -
-@objc open class Transition: UIPercentDrivenInteractiveTransition {
+@objc open class BaseTransition: UIPercentDrivenInteractiveTransition {
     
     @objc(TransitionOrientation)
     public enum Orientation: Int {
@@ -81,7 +81,7 @@ public typealias VoidClosure = () -> Void
 }
 
 // MARK: - UIViewControllerAnimatedTransitioning
-extension Transition: UIViewControllerAnimatedTransitioning {
+extension BaseTransition: UIViewControllerAnimatedTransitioning {
     
     public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         CATransaction.animationDuration()
@@ -116,7 +116,7 @@ extension Transition: UIViewControllerAnimatedTransitioning {
 }
 
 // MARK: - UIViewControllerTransitioningDelegate
-extension Transition: UIViewControllerTransitioningDelegate {
+extension BaseTransition: UIViewControllerTransitioningDelegate {
     
     public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         isShow = true
@@ -124,16 +124,16 @@ extension Transition: UIViewControllerTransitioningDelegate {
         presentedVC = presented
         presentingVC = presenting
         
-        return type(of: self) == Transition.self ? nil : self
+        return type(of: self) == BaseTransition.self ? nil : self
     }
     
     public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        type(of: self) == Transition.self ? nil : self
+        type(of: self) == BaseTransition.self ? nil : self
     }
     
     public func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
         isShow = false
-        return (isInteractionInProgress && type(of: self) != Transition.self) ? self : nil
+        return (isInteractionInProgress && type(of: self) != BaseTransition.self) ? self : nil
     }
     
 //    public func interactionControllerForPresentation(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
@@ -148,7 +148,7 @@ extension Transition: UIViewControllerTransitioningDelegate {
 }
 
 // MARK: - UINavigationControllerDelegate
-extension Transition: UINavigationControllerDelegate {
+extension BaseTransition: UINavigationControllerDelegate {
     
     public func navigationController(_ navigationController: UINavigationController,
                                      interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
@@ -175,7 +175,7 @@ extension Transition: UINavigationControllerDelegate {
 
 // MARK: - Private -
 // Handle interactive gesture for pop/dismiss current view controller
-extension Transition {
+extension BaseTransition {
     
     private func addInteractiveGestureToViewControllerIfNeeded(viewController: UIViewController?) {
         guard let vc = (viewController as? UINavigationController)?.topViewController ?? viewController,
@@ -294,7 +294,7 @@ extension Transition {
     }
 }
 
-extension Transition: UIGestureRecognizerDelegate {
+extension BaseTransition: UIGestureRecognizerDelegate {
     
     // Set left and right `UIScreenEdgePanGestureRecognizer` as highest priority and ignore other gestures.
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {

@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class MatrixTransition: Transition {
+@objc public class MatrixTransition: BaseTransition {
     
     public override var animationDuration: TimeInterval {
         1.0

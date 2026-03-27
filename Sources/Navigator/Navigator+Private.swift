@@ -72,11 +72,11 @@ extension Navigator {
     func showViewControllers(completion: CompletionBlock?) {
         guard let page = showingPage else { return }
         
-        let viewController = createViewController(page)
-        guard !showTabBarControlerIfExisted(viewController, completion: completion) else { return }
-        guard !showSplitViewControllerIfExisted(viewController, completion: completion) else { return }
-        guard !showNavigationControlerIfExisted(viewController, completion: completion) else { return }
-        guard !showViewControler(viewController, completion: completion) else { return }
+        let vct = createViewController(page)
+        guard !showTabBarControlerIfExisted(vct.0, completion: completion) else { return }
+        guard !showSplitViewControllerIfExisted(vct.0, completion: completion) else { return }
+        guard !showNavigationControlerIfExisted(vct.0, completion: completion) else { return }
+        guard !showViewControler(vct.0, completion: completion) else { return }
     }
     
     private func showTabBarControlerIfExisted(_ viewController: UIViewController, completion: CompletionBlock?) -> Bool {
@@ -139,8 +139,8 @@ extension Navigator {
         
         var next: PageObject? = page
         while let nextPage = next {
-            let viewController = createViewController(nextPage)
-            p_showViewControler(viewController, page: nextPage, animated: nextPage.next == nil, completion: nil)
+            let vct = createViewController(nextPage)
+            _showViewControler(vct.0, page: nextPage, animated: nextPage.next == nil, completion: nil)
             next = nextPage.next
         }
     }
@@ -160,11 +160,11 @@ extension Navigator {
     // Show view controller by push or present way. If mode is root, show the view controller directly.
     private func showViewControler(_ viewController: UIViewController, completion: CompletionBlock?) -> Bool {
         guard let page = showingPage else { return false }
-        return p_showViewControler(viewController, page: page, animated: showAnimated, completion: completion)
+        return _showViewControler(viewController, page: page, animated: showAnimated, completion: completion)
     }
     
     @discardableResult
-    private func p_showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool, completion: CompletionBlock?) -> Bool {
+    private func _showViewControler(_ viewController: UIViewController, page: PageObject, animated: Bool, completion: CompletionBlock?) -> Bool {
         let toVC = viewController.navigationController ?? viewController
         
         // Must set presentation style first for `UIModalPresentationStylePopover`
@@ -240,19 +240,21 @@ extension Navigator {
     }
     
     // Create view controller with class name. If need embed it into navigation controller, create one with view controller.
-    private func createViewController(_ page: PageObject) -> UIViewController {
+    private func createViewController(_ page: PageObject) -> (UIViewController, UINavigationController?) {
         let viewController: UIViewController
         
-        defer {
+        func getNavController() -> UINavigationController? {
+            var navController: UINavigationController?
             if let navName = page.navName?.rawValue, !navName.isEmpty, !(viewController is UINavigationController) {
                 if let navType = NSClassFromString(navName) as? UINavigationController.Type {
-                    let navigationController = navType.init()
-                    navigationController.viewControllers = [viewController]
-                    navigationController.navigator = self
+                    navController = navType.init()
+                    navController?.viewControllers = [viewController]
+                    navController?.navigator = self
                 } else {
                     os_log("❌ [Navigator]: Can not find navigation controller class %@ in your modules", navName)
                 }
             }
+            return navController
         }
         
         if let creator = page.vcCreator {
@@ -261,12 +263,12 @@ extension Navigator {
             let vcName = page.vcName.rawValue
             guard !vcName.isEmpty else {
                 viewController = createFallbackViewController(page)
-                return viewController
+                return (viewController, getNavController())
             }
             guard let vcType = NSClassFromString(vcName) as? UIViewController.Type else {
                 os_log("❌ [Navigator]: Can not find view controller class %@ in your modules", vcName)
                 viewController = createFallbackViewController(page)
-                return viewController
+                return (viewController, getNavController())
             }
             viewController = vcType.init()
         }
@@ -275,7 +277,7 @@ extension Navigator {
         viewController.pageObject = page
         viewController.navigationMode = page.mode
         
-        return viewController
+        return (viewController, getNavController())
     }
     
     // Create fallback view controller instance with class name.
@@ -292,9 +294,9 @@ extension Navigator {
         var viewControllers: [UIViewController] = []
         
         for page in pages {
-            let toVC = createViewController(page)
+            let (toVC, nav) = createViewController(page)
             passPageObject(page, fromVC: parentVC, toVC: toVC)
-            viewControllers.append(toVC.navigationController ?? toVC)
+            viewControllers.append(nav ?? toVC)
             
             if let children = page.children, !children.isEmpty {
                 setChildViewControllersIfExisted(page.children, for: toVC)

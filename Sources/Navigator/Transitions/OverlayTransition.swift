@@ -9,7 +9,7 @@
 import UIKit
 
 /// - NOTE: This transition only work for navigation mode with `overlay`
-@objc public class OverlayTransition : Transition {
+@objc public class OverlayTransition : BaseTransition {
     
     public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
         guard let fromView = fromView, let toView = toView else { return }

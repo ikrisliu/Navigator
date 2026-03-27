@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class FadeTransition: Transition {
+@objc public class FadeTransition: BaseTransition {
     
     public override func animatePresentationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
         let containerView = transitionContext?.containerView

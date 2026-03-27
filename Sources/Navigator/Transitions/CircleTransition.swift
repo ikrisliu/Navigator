@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class CircleTransition: Transition {
+@objc public class CircleTransition: BaseTransition {
     
     public override func animateNavigationTransition(isShow: Bool, from fromView: UIView?, to toView: UIView?, completion: VoidClosure? = nil) {
         animatePresentationTransition(isShow: isShow, from: fromView, to: toView, completion: completion)

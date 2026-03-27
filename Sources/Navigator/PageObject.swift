@@ -21,7 +21,7 @@ public enum PageOption {
     case callback(CompletionClosure)
     case transitionStyle(UIModalTransitionStyle)
     case presentationStyle(UIModalPresentationStyle)
-    case transitionClass(Transition.Type)
+    case transitionClass(BaseTransition.Type)
     case sourceView(UIView)
     case sourceRect(CGRect)
     case dismissWhenTapOutside(Bool)
@@ -65,7 +65,7 @@ public class PageObject: NSObject {
     public fileprivate(set) var presentationStyle: UIModalPresentationStyle = .fullScreen
     
     /// Transition class type for custom transition animation. If navigator mode is `customPush`, the transition class will be `PushTransition` by default.
-    public fileprivate(set) var transitionClass: Transition.Type?
+    public fileprivate(set) var transitionClass: BaseTransition.Type?
     
     /// If `presentationStyle` is **UIModalPresentationPopover**, at least pass the `sourceRect`.
     public fileprivate(set) var sourceView: UIView?
@@ -207,7 +207,7 @@ extension PageObject {
 }
 
 // MARK: - TransitionStyle
-extension UIModalTransitionStyle: CustomStringConvertible {
+extension UIModalTransitionStyle: @retroactive CustomStringConvertible {
     
     public var description: String {
         switch self {
@@ -220,7 +220,7 @@ extension UIModalTransitionStyle: CustomStringConvertible {
     }
 }
 
-extension UIModalPresentationStyle: CustomStringConvertible {
+extension UIModalPresentationStyle: @retroactive CustomStringConvertible {
     
     public var description: String {
         switch self {
